@@ -1,15 +1,6 @@
 import type { FC } from "react";
 import CarCard from "./CarCard";
-
-interface Car {
-  id: string;
-  title: string;
-  price: number;
-  year: number;
-  mileage: number;
-  images: string;
-  isFavorite?: boolean;
-}
+import type { Car } from "../contants/cars";
 
 interface CarListProps {
   cars: Car[];

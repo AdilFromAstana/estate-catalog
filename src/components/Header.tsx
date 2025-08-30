@@ -1,4 +1,4 @@
-import { Search, Heart, User } from "lucide-react";
+import { Heart, User } from "lucide-react";
 
 const Header = () => {
   return (
