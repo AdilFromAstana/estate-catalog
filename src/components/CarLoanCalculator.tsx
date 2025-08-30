@@ -3,9 +3,10 @@ import { useCarLoan } from "../hooks/useCarLoan";
 
 interface Props {
   price: number;
+  id: string;
 }
 
-const CarLoanCalculator: React.FC<Props> = ({ price }) => {
+const CarLoanCalculator: React.FC<Props> = ({ price, id }) => {
   const minPayment = Math.round(price * 0.1);
   const maxPayment = Math.round(price * 0.8);
   const {
@@ -15,7 +16,7 @@ const CarLoanCalculator: React.FC<Props> = ({ price }) => {
     setTerm,
     loanAmount,
     monthlyPayment,
-  } = useCarLoan(price, minPayment, maxPayment);
+  } = useCarLoan(price, minPayment, maxPayment, id);
 
   return (
     <div className="mt-6 p-4 border rounded-xl shadow-sm bg-white">

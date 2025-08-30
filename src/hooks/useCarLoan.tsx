@@ -1,13 +1,19 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 
 export const useCarLoan = (
   price: number,
   minPayment: number,
   maxPayment: number,
+  id: string,
   rate = 15
 ) => {
   const [initialPayment, setInitialPayment] = useState(minPayment);
   const [term, setTerm] = useState(36); // мес
+
+  // сбрасываем первоначалку при смене машины
+  useEffect(() => {
+    setInitialPayment(minPayment);
+  }, [id, minPayment]);
 
   const validInitialPayment = Math.min(
     Math.max(initialPayment, minPayment),
@@ -18,7 +24,7 @@ export const useCarLoan = (
 
   const monthlyPayment = useMemo(() => {
     return (loanAmount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -term));
-  }, [loanAmount, monthlyRate, term]);
+  }, [loanAmount, monthlyRate, term, id]);
 
   return {
     initialPayment,

@@ -80,7 +80,7 @@ const CarDetailsPage: React.FC = () => {
           {car.price.toLocaleString()} ₸
         </p>
 
-        <CarLoanCalculator price={car.price} />
+        <CarLoanCalculator price={car.price} id={car.id} />
 
         <div className="mt-6">
           <h2 className="text-lg font-semibold mb-2">Характеристики</h2>
