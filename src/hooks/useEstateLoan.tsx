@@ -1,51 +1,69 @@
-import { useState, useMemo, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+export type LoanProgram = "7-20-25" | "orda" | "commercial" | "onay";
+
+type ProgramConfig = {
+  minPercent: number;
+  maxPercent: number;
+  baseRate: number;
+  calcRate: (term: number, initPct: number) => number;
+};
+
+export const loanProgramsConfig: Record<LoanProgram, ProgramConfig> = {
+  "7-20-25": {
+    minPercent: 20,
+    maxPercent: 50,
+    baseRate: 7,
+    calcRate: () => 7,
+  },
+  orda: {
+    minPercent: 10,
+    maxPercent: 50,
+    baseRate: 15.9,
+    calcRate: () => 15.9,
+  },
+  commercial: {
+    minPercent: 15,
+    maxPercent: 80,
+    baseRate: 14.5,
+    calcRate: (term, initPct) => {
+      let rate = 14.5;
+      if (term > 300) rate += 1.5;
+      else if (term > 240) rate += 1.0;
+      else if (term > 180) rate += 0.5;
+
+      if (initPct >= 50) rate -= 1.0;
+      else if (initPct >= 30) rate -= 0.5;
+      else if (initPct >= 20) rate -= 0.25;
+
+      return Math.max(rate, 12.5);
+    },
+  },
+  onay: {
+    minPercent: 20,
+    maxPercent: 80,
+    baseRate: 15.9,
+    calcRate: () => 15.9,
+  },
+};
 
 export const useEstateLoan = (
   price: number,
-  minPayment: number,
-  maxPayment: number,
   id: string,
-  baseRate = 14.5 // Базовая ставка для ипотеки в Казахстане
+  program: LoanProgram = "commercial"
 ) => {
+  const config = loanProgramsConfig[program];
+
+  const minPayment = Math.round(price * (config.minPercent / 100));
+  const maxPayment = Math.round(price * (config.maxPercent / 100));
+
   const [initialPayment, setInitialPayment] = useState(minPayment);
-  const [term, setTerm] = useState(240); // 20 лет в месяцах по умолчанию
+  const [term, setTerm] = useState(240);
 
-  // Рассчитываем финальную ставку в зависимости от срока и первоначального взноса
-  const calculateInterestRate = (
-    termMonths: number,
-    initialPct: number
-  ): number => {
-    let rate = baseRate;
-
-    // Повышаем ставку для длинных сроков
-    if (termMonths > 300) {
-      // > 25 лет
-      rate += 1.5;
-    } else if (termMonths > 240) {
-      // > 20 лет
-      rate += 1.0;
-    } else if (termMonths > 180) {
-      // > 15 лет
-      rate += 0.5;
-    }
-
-    // Понижаем ставку для большого первоначального взноса
-    if (initialPct >= 50) {
-      rate -= 1.0;
-    } else if (initialPct >= 30) {
-      rate -= 0.5;
-    } else if (initialPct >= 20) {
-      rate -= 0.25;
-    }
-
-    return Math.max(rate, 12.5); // Минимальная ставка 12.5%
-  };
-
-  // Сбрасываем параметры при смене объекта
   useEffect(() => {
     setInitialPayment(minPayment);
-    setTerm(240); // 20 лет по умолчанию
-  }, [id, minPayment]);
+    setTerm(240);
+  }, [id, price, program, minPayment]);
 
   const validInitialPayment = Math.min(
     Math.max(initialPayment, minPayment),
@@ -55,23 +73,23 @@ export const useEstateLoan = (
   const initialPaymentPercent = (validInitialPayment / price) * 100;
   const loanAmount = price - validInitialPayment;
 
-  const interestRate = calculateInterestRate(term, initialPaymentPercent);
+  const interestRate = config.calcRate(term, initialPaymentPercent);
   const monthlyRate = interestRate / 100 / 12;
 
   const monthlyPayment = useMemo(() => {
     if (loanAmount <= 0) return 0;
     return (loanAmount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -term));
-  }, [loanAmount, monthlyRate, term, id]);
+  }, [loanAmount, monthlyRate, term]);
 
-  // Общая сумма выплат
-  const totalPayment = useMemo(() => {
-    return monthlyPayment * term;
-  }, [monthlyPayment, term]);
+  const totalPayment = useMemo(
+    () => monthlyPayment * term,
+    [monthlyPayment, term]
+  );
 
-  // Общая переплата
-  const totalInterest = useMemo(() => {
-    return totalPayment - loanAmount;
-  }, [totalPayment, loanAmount]);
+  const totalInterest = useMemo(
+    () => totalPayment - loanAmount,
+    [totalPayment, loanAmount]
+  );
 
   return {
     initialPayment,
@@ -87,5 +105,6 @@ export const useEstateLoan = (
     minPayment,
     maxPayment,
     initialPaymentPercent,
+    program,
   };
 };
