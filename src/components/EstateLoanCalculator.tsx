@@ -25,6 +25,8 @@ const EstateLoanCalculator: React.FC<Props> = ({ price, id }) => {
 
   const calculateLoanAmount = () => price - initialPayment;
 
+  const isNotValid = minPayment > initialPayment || initialPayment > maxPayment;
+
   return (
     <div className="mt-6 p-6 border border-gray-200 rounded-xl bg-white shadow-sm">
       <h2 className="text-xl font-semibold mb-4 text-gray-900">
@@ -32,15 +34,15 @@ const EstateLoanCalculator: React.FC<Props> = ({ price, id }) => {
       </h2>
 
       {/* Monthly Payment */}
-      <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+      <div className="mb-6 p-4 bg-blue-50 rounded-lg flex flex-col items-center">
         <div className="text-sm text-gray-600 mb-1">Ежемесячный платеж</div>
         <div className="text-2xl font-bold text-blue-600">
-          {monthlyPayment > 0
+          {!isNotValid
             ? `${Math.round(monthlyPayment).toLocaleString()} ₸`
             : "—"}
         </div>
         <div className="text-sm text-gray-500 mt-1">
-          Ставка: {interestRate}% годовых
+          Ставка: {!isNotValid && interestRate}% годовых
         </div>
       </div>
 
@@ -65,7 +67,7 @@ const EstateLoanCalculator: React.FC<Props> = ({ price, id }) => {
             Первоначальный взнос
           </label>
           <span className="text-sm text-gray-500">
-            {Math.round((initialPayment / price) * 100)}%
+            {!isNotValid && Math.round((initialPayment / price) * 100)}%
           </span>
         </div>
 
@@ -85,12 +87,45 @@ const EstateLoanCalculator: React.FC<Props> = ({ price, id }) => {
         </div>
 
         <input
-          type="number"
-          value={initialPayment}
-          onChange={(e) => setInitialPayment(Number(e.target.value))}
+          type="tel"
+          value={
+            initialPayment ? Number(initialPayment).toLocaleString("ru-RU") : "" // отображение с разделителями
+          }
+          onChange={(e) => {
+            // убираем пробелы/запятые из ввода
+            const raw = e.target.value.replace(/\s/g, "").replace(/,/g, "");
+            if (/^\d*$/.test(raw)) {
+              setInitialPayment(Number(raw));
+            }
+          }}
           className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-2 text-center font-medium"
         />
       </div>
+
+      {/* Validation Message */}
+      {initialPayment < minPayment && (
+        <div className="flex flex-col items-center">
+          <p className="text-red-600 text-sm">
+            Минимальный первоначальный взнос:
+          </p>
+          <p className="text-red-600 text-sm">
+            {formatPrice(minPayment)} ({Math.round((minPayment / price) * 100)}
+            %)
+          </p>
+        </div>
+      )}
+
+      {initialPayment > maxPayment && (
+        <div className="flex flex-col items-center">
+          <p className="text-red-600 text-sm">
+            Максимальный первоначальный взнос:
+          </p>
+          <p className="text-red-600 text-sm">
+            {formatPrice(maxPayment)} ({Math.round((maxPayment / price) * 100)}
+            %)
+          </p>
+        </div>
+      )}
 
       {/* Loan Term */}
       <div className="mb-6">
@@ -121,53 +156,25 @@ const EstateLoanCalculator: React.FC<Props> = ({ price, id }) => {
           <div className="flex justify-between">
             <span className="text-gray-600">Сумма кредита:</span>
             <span className="font-medium">
-              {formatPrice(calculateLoanAmount())}
+              {!isNotValid ? formatPrice(calculateLoanAmount()) : "—"}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Первоначальный взнос:</span>
-            <span className="font-medium">{formatPrice(initialPayment)}</span>
+            <span className="font-medium">
+              {!isNotValid ? formatPrice(initialPayment) : "—"}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Общая переплата:</span>
             <span className="font-medium">
-              {monthlyPayment > 0
+              {!isNotValid
                 ? formatPrice(monthlyPayment * term - calculateLoanAmount())
                 : "—"}
             </span>
           </div>
         </div>
       </div>
-
-      {/* Validation Message */}
-      {initialPayment < minPayment && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-600 text-sm">
-            Минимальный первоначальный взнос: {formatPrice(minPayment)} (
-            {Math.round((minPayment / price) * 100)}%)
-          </p>
-        </div>
-      )}
-
-      {/* <style jsx>{`
-        .slider-thumb::-webkit-slider-thumb {
-          appearance: none;
-          height: 20px;
-          width: 20px;
-          border-radius: 50%;
-          background: #2563eb;
-          cursor: pointer;
-        }
-
-        .slider-thumb::-moz-range-thumb {
-          height: 20px;
-          width: 20px;
-          border-radius: 50%;
-          background: #2563eb;
-          cursor: pointer;
-          border: none;
-        }
-      `}</style> */}
     </div>
   );
 };

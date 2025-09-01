@@ -9,6 +9,18 @@ import ComparePage from "./pages/ComparePage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 const App: React.FC = () => {
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  
+  if (!isMobile) {
+    return (
+      <div className="flex items-center justify-center min-h-screen text-center p-6">
+        <h1 className="text-xl font-semibold">
+          Доступ разрешён только через телефон
+        </h1>
+      </div>
+    );
+  }
+
   return (
     <Router>
       <div className="flex flex-col min-h-screen">

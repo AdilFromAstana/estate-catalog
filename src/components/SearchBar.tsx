@@ -375,14 +375,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
                         }}
                         className="rounded border-gray-300"
                       />
-                      <span className="whitespace-nowrap">{amenity}</span>
+                      <span className="whitespace-break-spaces">{amenity}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
-                <label className="flex items-center gap-2 text-sm">
+              <div className="grid grid-cols-1 gap-3">
+                <label className="flex items-center gap-2 text-md border-t-2 border-gray-300 pt-2">
                   <input
                     type="checkbox"
                     checked={filters.hasPhoto || false}
@@ -394,7 +394,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                   <span>Только с фото</span>
                 </label>
 
-                <label className="flex items-center gap-2 text-sm">
+                <label className="flex items-center gap-2 text-md border-t-2 border-gray-300 pt-2">
                   <input
                     type="checkbox"
                     checked={filters.isExclusive || false}
@@ -406,7 +406,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                   <span>Эксклюзив</span>
                 </label>
 
-                <label className="flex items-center gap-2 text-sm">
+                <label className="flex items-center gap-2 text-md border-t-2 border-gray-300 pt-2">
                   <input
                     type="checkbox"
                     checked={filters.newBuilding || false}
