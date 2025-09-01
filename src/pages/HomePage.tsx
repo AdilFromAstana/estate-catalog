@@ -4,7 +4,7 @@ import SearchBar from "../components/SearchBar";
 import { astanaEstates, type Filters } from "../contants/estates";
 // import { useNavigate } from "react-router-dom";
 // import MapView from "../components/MapView";
-import { List, Map } from "lucide-react";
+// import { List, Map } from "lucide-react";
 
 const HomePage: React.FC = () => {
   // const navigate = useNavigate();
@@ -29,7 +29,7 @@ const HomePage: React.FC = () => {
     newBuilding: null, // Только новостройки
     minCeilingHeight: null, // Высота потолков
   });
-  const [viewMode, setViewMode] = useState<"list" | "map">("list"); // Новое состояние
+  // const [viewMode, setViewMode] = useState<"list" | "map">("list"); // Новое состояние
   const [searchQuery, setSearchQuery] = useState("");
 
   // const handleEstateClick = (estate: Estate) => {
@@ -200,14 +200,14 @@ const HomePage: React.FC = () => {
           )} */}
         </>
       )}
-      <div className="fixed bottom-20 right-6 z-40">
+      {/* <div className="fixed bottom-20 right-6 z-40">
         <button
           onClick={() => setViewMode(viewMode === "list" ? "map" : "list")}
           className="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
         >
           {viewMode === "list" ? <Map size={24} /> : <List size={24} />}
         </button>
-      </div>
+      </div> */}
     </main>
   );
 };
