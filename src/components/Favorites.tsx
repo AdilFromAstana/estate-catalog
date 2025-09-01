@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import EstateEstated from "./EstateEstated";
+import EstateCard from "./EstateCard";
 import type { Estate } from "../contants/estates";
 
 interface FavoritesProps {
@@ -16,7 +16,7 @@ const Favorites: FC<FavoritesProps> = ({ estates }) => {
   return (
     <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
       {estates.map((car) => (
-        <EstateEstated key={car.id} {...car} isFavorite />
+        <EstateCard key={car.id} {...car} />
       ))}
     </div>
   );
