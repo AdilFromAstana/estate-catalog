@@ -1,6 +1,6 @@
 import React from "react";
 
-const CarContactButtons: React.FC = () => (
+const EstateContactButtons: React.FC = () => (
   <div className="mb-4 flex gap-2">
     <a
       href="tel:+77761156416"
@@ -19,4 +19,4 @@ const CarContactButtons: React.FC = () => (
   </div>
 );
 
-export default CarContactButtons;
+export default EstateContactButtons;

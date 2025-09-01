@@ -1,6 +1,6 @@
 import type { FC } from "react";
 
-interface CarDetailProps {
+interface EstateDetailProps {
   title: string;
   price: number;
   year: number;
@@ -9,7 +9,7 @@ interface CarDetailProps {
   image: string;
 }
 
-const CarDetail: FC<CarDetailProps> = ({
+const EstateDetail: FC<EstateDetailProps> = ({
   title,
   price,
   year,
@@ -34,4 +34,4 @@ const CarDetail: FC<CarDetailProps> = ({
   );
 };
 
-export default CarDetail;
+export default EstateDetail;

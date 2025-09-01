@@ -1,13 +1,13 @@
 import type { FC } from "react";
-import CarCard from "./CarCard";
-import type { Car } from "../contants/cars";
+import EstateEstated from "./EstateEstated";
+import type { Estate } from "../contants/estates";
 
 interface FavoritesProps {
-  cars: Car[];
+  estates: Estate[];
 }
 
-const Favorites: FC<FavoritesProps> = ({ cars }) => {
-  if (cars.length === 0) {
+const Favorites: FC<FavoritesProps> = ({ estates }) => {
+  if (estates.length === 0) {
     return (
       <p className="text-center text-gray-500 mt-5">Избранных машин пока нет</p>
     );
@@ -15,8 +15,8 @@ const Favorites: FC<FavoritesProps> = ({ cars }) => {
 
   return (
     <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {cars.map((car) => (
-        <CarCard key={car.id} {...car} isFavorite />
+      {estates.map((car) => (
+        <EstateEstated key={car.id} {...car} isFavorite />
       ))}
     </div>
   );

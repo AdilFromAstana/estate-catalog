@@ -1,4 +1,4 @@
-import { Home, Car, PlusCircle, Heart, User } from "lucide-react";
+import { Home, PlusCircle, Heart, User, List } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -9,7 +9,7 @@ const Footer = () => {
           <span className="text-xs">Главная</span>
         </div>
         <div className="flex flex-col items-center text-gray-700">
-          <Car className="w-6 h-6" />
+          <List className="w-6 h-6" />
           <span className="text-xs">Каталог</span>
         </div>
         <div className="flex flex-col items-center text-blue-600">

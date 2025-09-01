@@ -41,7 +41,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
       </button>
       <img
         src={images[currentIndex]}
-        alt="Car"
+        alt="Estate"
         className="max-h-[80%] max-w-[90%] object-contain rounded-lg"
       />
       <button className="absolute right-4 text-white text-3xl" onClick={next}>
