@@ -7,19 +7,23 @@ import EstateDetailsPage from "./pages/EstateDetailsPage";
 import FavoritesPage from "./pages/FavoritesPage";
 import ComparePage from "./pages/ComparePage";
 import NotFoundPage from "./pages/NotFoundPage";
+import AddPropertyPage from "./pages/AddPropertyPage";
+import MyPropertiesPage from "./pages/MyPropertiesPage";
+import RealtorsPage from "./pages/RealtorsPage";
+import LoginPage from "./pages/LoginPage";
 
 const App: React.FC = () => {
-  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  
-  if (!isMobile) {
-    return (
-      <div className="flex items-center justify-center min-h-screen text-center p-6">
-        <h1 className="text-xl font-semibold">
-          Доступ разрешён только через телефон
-        </h1>
-      </div>
-    );
-  }
+  // const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  // if (!isMobile) {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-screen text-center p-6">
+  //       <h1 className="text-xl font-semibold">
+  //         Доступ разрешён только через телефон
+  //       </h1>
+  //     </div>
+  //   );
+  // }
 
   return (
     <Router>
@@ -31,12 +35,20 @@ const App: React.FC = () => {
             <Route path="/estate/:id" element={<EstateDetailsPage />} />
             <Route path="/favorites" element={<FavoritesPage />} />
             <Route path="/compare" element={<ComparePage />} />
+            <Route path="/login" element={<div>Страница риэлторов</div>} />
+            <Route path="/register" element={<LoginPage />} />
+            <Route path="/add-property" element={<AddPropertyPage />} />
+            <Route path="/my-properties" element={<MyPropertiesPage />} />
+            <Route path="/realtors" element={<RealtorsPage />} />
+            <Route path="/collections" element={<div className="min-h-screen py-8"><h1 className="text-2xl font-bold text-center">Подборки</h1></div>} />
+            <Route path="/premium" element={<div className="min-h-screen py-8"><h1 className="text-2xl font-bold text-center">Премиум объекты</h1></div>} />
+            <Route path="/new-buildings" element={<div className="min-h-screen py-8"><h1 className="text-2xl font-bold text-center">Новостройки</h1></div>} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
         {/* <Footer /> */}
       </div>
-    </Router>
+    </Router >
   );
 };
 
