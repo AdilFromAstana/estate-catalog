@@ -99,7 +99,6 @@ const EstateDetailsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Image Gallery */}
       <EstateImageGallery estate={estate} onImageClick={handleImageClick} />
 
       {modalOpen && (

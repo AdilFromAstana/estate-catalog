@@ -11,7 +11,7 @@ import {
   Star,
   Plus,
   HomeIcon,
-  type LucideIcon
+  type LucideIcon,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../AppContext";
@@ -33,7 +33,7 @@ interface BurgerMenuProps {
 const Header = () => {
   const nav = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-  const { user, logout } = useApp();
+  const { user } = useApp();
 
   return (
     <>
@@ -82,35 +82,35 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
       title: "Главная",
       path: "/",
       icon: House,
-      section: "main"
+      section: "main",
     },
     {
       id: 2,
       title: "Риэлторы",
       path: "/realtors",
       icon: User,
-      section: "main"
+      section: "main",
     },
     {
       id: 3,
       title: "Подборки",
       path: "/collections",
       icon: Heart,
-      section: "main"
+      section: "main",
     },
     {
       id: 4,
       title: "Премиум объекты",
       path: "/premium",
       icon: Star,
-      section: "main"
+      section: "main",
     },
     {
       id: 5,
       title: "Новостройки",
       path: "/new-buildings",
       icon: Building,
-      section: "main"
+      section: "main",
     },
     {
       id: 6,
@@ -118,7 +118,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
       path: "/my-properties",
       icon: HomeIcon,
       section: "main",
-      requiresAuth: false
+      requiresAuth: false,
     },
     {
       id: 7,
@@ -126,8 +126,8 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
       path: "/add-property",
       icon: Plus,
       section: "main",
-      requiresAuth: false
-    }
+      requiresAuth: false,
+    },
   ];
 
   const handleNavigation = (path: string): void => {
@@ -143,8 +143,8 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
 
   const renderNavItems = (items: NavigationItem[]): JSX.Element[] => {
     return items
-      .filter(item => !item.requiresAuth || user?.isAuthenticated)
-      .map(item => {
+      .filter((item) => !item.requiresAuth || user?.isAuthenticated)
+      .map((item) => {
         const IconComponent = item.icon;
         return (
           <li key={item.id}>
@@ -160,19 +160,20 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
       });
   };
 
-  const mainItems = navigationItems.filter(item => item.section === "main");
-  const userItems = navigationItems.filter(item => item.section === "user");
+  const mainItems = navigationItems.filter((item) => item.section === "main");
+  const userItems = navigationItems.filter((item) => item.section === "user");
 
   return (
     <>
       {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-50"
-          onClick={onClose}
-        />
+        <div className="fixed inset-0 bg-black/50 z-50" onClick={onClose} />
       )}
 
-      <div className={`fixed top-0 right-0 h-full w-80 bg-white shadow-lg z-50 transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div
+        className={`fixed top-0 right-0 h-full w-80 bg-white shadow-lg z-50 transform transition-transform duration-300 ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-xl font-bold">Меню</h2>
           <button
