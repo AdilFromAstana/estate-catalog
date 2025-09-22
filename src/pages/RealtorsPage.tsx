@@ -1,6 +1,15 @@
 import React from "react";
 import { useApp } from "../AppContext";
-import { Phone, Mail, Star, Calendar, Home, Award } from "lucide-react";
+import {
+  Phone,
+  Mail,
+  Star,
+  Calendar,
+  Home,
+  Award,
+  Instagram,
+  Music,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const RealtorsPage: React.FC = () => {
@@ -72,15 +81,25 @@ const RealtorsPage: React.FC = () => {
                       <span className="text-sm">{realtor.phone}</span>
                     </div>
                   </div>
-                  <div className="flex items-center text-gray-600">
+                  <div className="flex items-center text-gray-600 mb-3">
                     <Mail className="h-5 w-5 mr-2" />
                     <span className="text-sm">{realtor.email}</span>
                   </div>
                 </div>
 
-                <button className="w-full mt-6 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
-                  Связаться с риэлтором
-                </button>
+                <div className="grid grid-cols-1 gap-2 mt-6">
+                  <button className="w-full flex items-center justify-center gap-2 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
+                    WhatsApp
+                  </button>
+                  <button className="w-full flex items-center justify-center gap-2 bg-[#E4405F] text-white py-2 px-4 rounded-md hover:bg-pink-600 transition-colors">
+                    <Instagram size={18} />
+                    Instagram
+                  </button>
+                  <button className="w-full flex items-center justify-center gap-2 bg-[#000000] text-white py-2 px-4 rounded-md hover:bg-gray-800 transition-colors">
+                    <Music size={18} />
+                    TikTok
+                  </button>
+                </div>
               </div>
             </div>
           ))}

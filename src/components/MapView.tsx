@@ -21,7 +21,7 @@ interface MapViewProps {
   onEstateClick: (estate: Estate) => void;
 }
 
-const MapView: React.FC<MapViewProps> = ({ estates }) => {
+const MapView: React.FC<MapViewProps> = ({ estates, onEstateClick }) => {
   if (estates.length === 0) {
     return (
       <div className="h-96 flex items-center justify-center bg-gray-100 rounded-lg">
@@ -54,25 +54,10 @@ const MapView: React.FC<MapViewProps> = ({ estates }) => {
           <Marker
             key={estate.id}
             position={[estate.coordinates.lat, estate.coordinates.lng]}
-            // eventHandlers={{
-            //   click: () => onEstateClick(estate),
-            // }}
-          >
-            <Popup>
-              <div className="text-sm">
-                <div className="font-semibold">{estate.district}</div>
-                <div>
-                  {estate.street} {estate.houseNumber}
-                </div>
-                <div className="text-blue-600 font-medium">
-                  {estate.price.toLocaleString()} ₸
-                </div>
-                <div>
-                  {estate.roomCount} комн. • {estate.totalArea} м²
-                </div>
-              </div>
-            </Popup>
-          </Marker>
+            eventHandlers={{
+              click: () => onEstateClick(estate),
+            }}
+          ></Marker>
         ))}
       </MapContainer>
     </div>

@@ -97,7 +97,41 @@ export interface Estate {
   };
 
   krishaLink?: string;
+  urgency: keyof typeof urgencyLabels;
 }
+
+export const urgencyLabels = {
+  urgent: {
+    text: "Срочно",
+    color: "bg-red-500",
+    textColor: "text-white",
+  },
+  hotDeal: {
+    text: "Горящий вариант",
+    color: "bg-orange-500",
+    textColor: "text-white",
+  },
+  active: {
+    text: "Активно",
+    color: "bg-green-500",
+    textColor: "text-white",
+  },
+  onDeposit: {
+    text: "На задатке",
+    color: "bg-yellow-500",
+    textColor: "text-gray-800",
+  },
+  sold: {
+    text: "Продано",
+    color: "bg-gray-500",
+    textColor: "text-white",
+  },
+  inCollateral: {
+    text: "В залоге",
+    color: "bg-blue-500",
+    textColor: "text-white",
+  },
+};
 
 export const astanaEstates: Estate[] = [
   {
@@ -169,6 +203,7 @@ export const astanaEstates: Estate[] = [
     updatedAt: "2024-08-28T16:30:00Z",
     krishaLink:
       "https://krisha.kz/a/show/1004913396?srchid=019901d1-5584-7592-90b1-fa44a31e9e35&srchtype=filter&srchpos=4",
+    urgency: "active",
   },
   {
     id: "2",
@@ -238,6 +273,7 @@ export const astanaEstates: Estate[] = [
     updatedAt: "2024-08-29T11:15:00Z",
     krishaLink:
       "https://krisha.kz/a/show/1004427187?srchid=019901fb-2547-7ee2-9a85-49a6c430337c&srchtype=filter&srchpos=7",
+    urgency: "hotDeal",
   },
   {
     id: "3",
@@ -295,6 +331,7 @@ export const astanaEstates: Estate[] = [
     updatedAt: "2024-08-28T12:30:00Z",
     krishaLink:
       "https://krisha.kz/a/show/1004730814?srchid=019901f9-ca6f-717c-88de-ff1223a8332a&srchtype=hot_block_filter&srchpos=2",
+    urgency: "inCollateral",
   },
   {
     id: "4",
@@ -364,6 +401,7 @@ export const astanaEstates: Estate[] = [
     },
     krishaLink:
       "https://krisha.kz/a/show/1004847209?srchid=019901f6-dfd4-7399-bac7-854e0367f7fc&srchtype=filter&srchpos=7",
+      urgency: "onDeposit",
   },
   {
     id: "5",
@@ -439,6 +477,7 @@ export const astanaEstates: Estate[] = [
       buildingStage: "commissioned",
     },
     krishaLink: "https://krisha.kz/a/show/693669165",
+    urgency: "hotDeal",
   },
   {
     id: "6",
@@ -513,6 +552,7 @@ export const astanaEstates: Estate[] = [
       buildingStage: "commissioned",
     },
     krishaLink: "https://krisha.kz/a/show/762218069",
+    urgency: "urgent",
   },
   {
     id: "7",
@@ -584,6 +624,7 @@ export const astanaEstates: Estate[] = [
       buildingStage: "finishing",
     },
     krishaLink: "https://krisha.kz/a/show/1001036351",
+    urgency: "onDeposit",
   },
   {
     krishaLink: "https://krisha.kz/a/show/1004073298",
@@ -651,6 +692,7 @@ export const astanaEstates: Estate[] = [
       deadline: "2025-09-30",
       buildingStage: "building",
     },
+    urgency: "inCollateral"
   },
   {
     krishaLink:
@@ -726,6 +768,7 @@ export const astanaEstates: Estate[] = [
       deadline: "2024-11-30",
       buildingStage: "commissioned",
     },
+    urgency: "sold"
   },
   {
     krishaLink:
@@ -804,6 +847,7 @@ export const astanaEstates: Estate[] = [
       deadline: "2024-12-20",
       buildingStage: "commissioned",
     },
+    urgency: "active"
   },
 ];
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { MapPin, Bed, Square, Ruler, Heart, Eye } from "lucide-react";
-import type { Estate } from "../contants/estates";
+import { urgencyLabels, type Estate } from "../contants/estates";
 
 const EstateCard: React.FC<Estate> = ({
   id,
@@ -20,6 +20,7 @@ const EstateCard: React.FC<Estate> = ({
   views,
   agent,
   newBuilding,
+  urgency,
 }) => {
   const formatPrice = (price: number) => {
     return `${price.toLocaleString()} ₸`;
@@ -35,6 +36,37 @@ const EstateCard: React.FC<Estate> = ({
     };
     return labels[category] || category;
   };
+
+  const getStatusInfo = () => {
+    if (urgency && urgencyLabels[urgency as keyof typeof urgencyLabels]) {
+      return urgencyLabels[urgency as keyof typeof urgencyLabels];
+    }
+
+    // Если нет срочности, отображаем стандартный статус
+    const statusLabels: {
+      [key: string]: { text: string; color: string; textColor: string };
+    } = {
+      active: {
+        text: "Активно",
+        color: "bg-green-100",
+        textColor: "text-green-800",
+      },
+      reserved: {
+        text: "Забронировано",
+        color: "bg-yellow-100",
+        textColor: "text-yellow-800",
+      },
+      sold: {
+        text: "Продано",
+        color: "bg-gray-100",
+        textColor: "text-gray-800",
+      },
+    };
+
+    return statusLabels[status] || statusLabels.active;
+  };
+
+  const statusInfo = getStatusInfo();
 
   return (
     <Link
@@ -52,30 +84,11 @@ const EstateCard: React.FC<Estate> = ({
         {/* Status Badge */}
         <div className="absolute top-3 left-3">
           <span
-            className={`px-2 py-1 rounded-full text-xs font-semibold ${
-              status === "active"
-                ? "bg-green-100 text-green-800"
-                : status === "reserved"
-                ? "bg-yellow-100 text-yellow-800"
-                : "bg-gray-100 text-gray-800"
-            }`}
+            className={`px-2 py-1 rounded-full text-xs font-semibold ${statusInfo.color} ${statusInfo.textColor}`}
           >
-            {status === "active"
-              ? "Активно"
-              : status === "reserved"
-              ? "Забронировано"
-              : "Продано"}
+            {statusInfo.text}
           </span>
         </div>
-
-        {/* New Building Badge */}
-        {newBuilding && (
-          <div className="absolute top-3 right-3">
-            <span className="px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">
-              Новостройка
-            </span>
-          </div>
-        )}
 
         {/* Views Counter */}
         <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-black/70 text-white px-2 py-1 rounded-full">

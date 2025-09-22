@@ -12,6 +12,7 @@ import {
   Plus,
   HomeIcon,
   type LucideIcon,
+  LineChart,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../AppContext";
@@ -43,7 +44,7 @@ const Header = () => {
             className="text-xl font-bold text-blue-600 flex items-center gap-2 cursor-pointer"
             onClick={() => nav("/")}
           >
-            <div>Каталог недвижимости</div>
+            <div>Juz realty</div>
             <House size={20} />
           </div>
 
@@ -128,6 +129,14 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
       section: "main",
       requiresAuth: false,
     },
+    {
+      id: 8,
+      title: "Статистика",
+      path: "/statistics",
+      icon: LineChart,
+      section: "main",
+      requiresAuth: false,
+    },
   ];
 
   const handleNavigation = (path: string): void => {
@@ -166,7 +175,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50" onClick={onClose} />
+        <div className="fixed inset-0 bg-black/50 z-[39]" onClick={onClose} />
       )}
 
       <div

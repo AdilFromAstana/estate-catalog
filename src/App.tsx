@@ -15,6 +15,7 @@ import CollectionsList from "./pages/CollectionsList";
 import CreateCollection from "./pages/CreateCollection";
 import CollectionDetail from "./pages/CollectionDetail";
 import RealtorEstates from "./pages/RealtorEstates";
+import AnalyticsPage from "./pages/AnalyticsPage";
 
 const App: React.FC = () => {
   // const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -45,6 +46,7 @@ const App: React.FC = () => {
             <Route path="/my-properties" element={<MyPropertiesPage />} />
             <Route path="/realtors" element={<RealtorsPage />} />
             <Route path="/realtors/:id" element={<RealtorEstates />} />
+            <Route path="/statistics" element={<AnalyticsPage />} />
             {/* <Route
               path="/collections"
               element={
