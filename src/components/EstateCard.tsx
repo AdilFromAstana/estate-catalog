@@ -19,7 +19,6 @@ const EstateCard: React.FC<Estate> = ({
   status,
   views,
   agent,
-  newBuilding,
   urgency,
 }) => {
   const formatPrice = (price: number) => {
