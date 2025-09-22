@@ -1,3 +1,4 @@
+// src/pages/LoginPage.tsx
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, UserPlus, Home } from 'lucide-react';
@@ -5,7 +6,7 @@ import { useApp } from '../AppContext';
 
 const LoginPage: React.FC = () => {
     const navigate = useNavigate();
-    const { login } = useApp();
+    const { login, register } = useApp();
     const [isLogin, setIsLogin] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -13,7 +14,7 @@ const LoginPage: React.FC = () => {
         name: '',
         email: '',
         password: '',
-        role: 'user' as 'user' | 'realtor'
+        role: 'user' as 'user' | 'realtor' | 'admin'
     });
     const [error, setError] = useState('');
 
@@ -23,19 +24,22 @@ const LoginPage: React.FC = () => {
         setError('');
 
         try {
-            let success = false;
-
             if (isLogin) {
-                success = await login(formData.email, formData.password);
+                // Логика входа - используем функцию login из контекста
+                const success = await login(formData.email, formData.password);
+                if (success) {
+                    navigate('/');
+                } else {
+                    setError('Неверные учетные данные');
+                }
             } else {
-                // Для регистрации используем register из контекста
-                success = await login(formData.email, formData.password); // Заглушка
-            }
-
-            if (success) {
-                navigate('/');
-            } else {
-                setError(isLogin ? 'Неверные учетные данные' : 'Ошибка регистрации');
+                // Логика регистрации - используем функцию register из контекста
+                const success = await register(formData.name, formData.email, formData.password, formData.role);
+                if (success) {
+                    navigate('/');
+                } else {
+                    setError('Ошибка регистрации');
+                }
             }
         } catch (err) {
             setError('Произошла ошибка');
@@ -142,6 +146,7 @@ const LoginPage: React.FC = () => {
                                 >
                                     <option value="user">Пользователь</option>
                                     <option value="realtor">Риэлтор</option>
+                                    <option value="admin">Администратор</option>
                                 </select>
                             </div>
                         )}
@@ -172,7 +177,10 @@ const LoginPage: React.FC = () => {
                         <div className="mt-6">
                             <button
                                 type="button"
-                                onClick={() => setIsLogin(!isLogin)}
+                                onClick={() => {
+                                    setIsLogin(!isLogin);
+                                    setError('');
+                                }}
                                 className="w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                             >
                                 <UserPlus className="h-4 w-4 mr-2" />

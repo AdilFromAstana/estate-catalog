@@ -1,3 +1,4 @@
+// src/AppContext.tsx
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import type { User, Property, Realtor, AppContextType } from './types';
 import { astanaEstates } from './contants/estates';
@@ -29,7 +30,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                         experience: 5,
                         propertiesSold: 42,
                         rating: 4.8,
-                        description: 'Специалист по элитной недвижимости в центре города. Помогу найти ваш идеальный дом.'
+                        description: 'Специалист по элитной недвижимости в центре города. Помогу найти ваш идеальный дом.',
+                        status: 'active',
+                        joinedDate: ''
                     },
                     {
                         id: '2',
@@ -40,7 +43,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                         experience: 7,
                         propertiesSold: 67,
                         rating: 4.9,
-                        description: 'Эксперт по загородной недвижимости. Знаю все лучшие предложения за городом.'
+                        description: 'Эксперт по загородной недвижимости. Знаю все лучшие предложения за городом.',
+                        status: 'active',
+                        joinedDate: ''
                     },
                     {
                         id: '3',
@@ -51,7 +56,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
                         experience: 3,
                         propertiesSold: 25,
                         rating: 4.6,
-                        description: 'Молодой и амбициозный риэлтор. Специализируюсь на новостройках.'
+                        description: 'Молодой и амбициозный риэлтор. Специализируюсь на новостройках.',
+                        status: 'active',
+                        joinedDate: ''
                     }
                 ];
                 setRealtors(realtorsData);
@@ -74,20 +81,45 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }, []);
 
     const login = async (email: string, password: string): Promise<boolean> => {
-        // Имитация запроса к API
+        // Моковая авторизация с вашими данными
         return new Promise((resolve) => {
             setTimeout(() => {
-                if (email && password) {
-                    const userData: User = {
-                        id: '1',
-                        name: 'Текущий пользователь',
-                        email: email,
-                        role: 'realtor',
+                // Моковые пользователи
+                const mockUsers: Record<string, User> = {
+                    "admin@example.com": {
+                        id: "1",
+                        name: "Администратор",
+                        email: "admin@example.com",
+                        role: "admin",
+                        isAuthenticated: true
+                    },
+                    "realtor@example.com": {
+                        id: "2",
+                        name: "Риэлтор Иванов",
+                        email: "realtor@example.com",
+                        role: "realtor",
+                        isAuthenticated: true
+                    },
+                    "user@example.com": {
+                        id: "3",
+                        name: "Пользователь Петров",
+                        email: "user@example.com",
+                        role: "user",
+                        isAuthenticated: true
+                    },
+                    "adilfirst@gmail.com": {
+                        id: "ag-123",
+                        email: "adilfirst@gmail.com",
                         isAuthenticated: true,
-                        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face'
-                    };
-                    setUser(userData);
-                    localStorage.setItem('user', JSON.stringify(userData));
+                        name: "Adil",
+                        role: "realtor"
+                    }
+                };
+
+                const user = mockUsers[email];
+                if (user && password === "123456") {
+                    setUser(user);
+                    localStorage.setItem('user', JSON.stringify(user));
                     resolve(true);
                 } else {
                     resolve(false);
@@ -96,21 +128,20 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         });
     };
 
-    const register = async (name: string, email: string, password: string, role: 'user' | 'realtor'): Promise<boolean> => {
-        // Имитация регистрации
+    const register = async (name: string, email: string, password: string, role: 'user' | 'realtor' | 'admin'): Promise<boolean> => {
+        // Моковая регистрация
         return new Promise((resolve) => {
             setTimeout(() => {
                 if (name && email && password) {
-                    const userData: User = {
+                    const newUser: User = {
                         id: Date.now().toString(),
                         name: name,
                         email: email,
                         role: role,
-                        isAuthenticated: true,
-                        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face'
+                        isAuthenticated: true
                     };
-                    setUser(userData);
-                    localStorage.setItem('user', JSON.stringify(userData));
+                    setUser(newUser);
+                    localStorage.setItem('user', JSON.stringify(newUser));
                     resolve(true);
                 } else {
                     resolve(false);

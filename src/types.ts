@@ -8,6 +8,8 @@ export interface Realtor {
     propertiesSold: number;
     rating: number;
     description: string;
+    status: "active" | "inactive" | "pending"
+    joinedDate: string
 }
 
 export interface Property {
@@ -125,7 +127,7 @@ export interface AppContextType {
     properties: Property[];
     realtors: Realtor[];
     login: (email: string, password: string) => Promise<boolean>;
-    register: (name: string, email: string, password: string, role: 'user' | 'realtor') => Promise<boolean>;
+    register: (name: string, email: string, password: string, role: 'user' | 'realtor' | 'admin') => Promise<boolean>;
     logout: () => void;
     addProperty: (property: Omit<Property, 'id' | 'createdAt' | 'updatedAt'>) => void;
     updateProperty: (id: string, updates: Partial<Property>) => void;
