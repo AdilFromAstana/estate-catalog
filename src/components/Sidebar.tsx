@@ -30,7 +30,7 @@ const Sidebar: React.FC = () => {
     const userNavItems = filterNavItems("user");
 
     return (
-        <div className="w-64 bg-gray-800 text-white h-full flex flex-col">
+        <div className="w-64 text-white h-full flex flex-col">
             <nav className="flex-1 overflow-y-auto p-4">
                 <ul className="space-y-2">
                     {mainNavItems.map((item) => {
@@ -42,7 +42,7 @@ const Sidebar: React.FC = () => {
                                     className={`flex items-center gap-3 px-4 py-2 rounded-md transition-colors ${
                                         location.pathname === item.path
                                             ? "bg-blue-600 text-white"
-                                            : "hover:bg-gray-700 text-gray-200"
+                                            : "hover:bg-gray-700 text-black"
                                     }`}
                                 >
                                     <IconComponent size={20} />
@@ -69,7 +69,7 @@ const Sidebar: React.FC = () => {
                                             className={`flex items-center gap-3 px-4 py-2 rounded-md transition-colors ${
                                                 location.pathname === item.path
                                                     ? "bg-blue-600 text-white"
-                                                    : "hover:bg-gray-700 text-gray-200"
+                                                    : "hover:bg-gray-700 text-black"
                                             }`}
                                         >
                                             <IconComponent size={20} />
@@ -95,7 +95,7 @@ const Sidebar: React.FC = () => {
                             </div>
                             <button
                                 onClick={handleLogout}
-                                className="w-full flex items-center gap-3 px-4 py-2 rounded-md text-left hover:bg-red-600 transition-colors text-red-200 hover:text-white"
+                                className="w-full flex items-center gap-3 px-4 py-2 rounded-md text-left hover:bg-red-600 transition-colors text-red-600 hover:text-white"
                             >
                                 <LogOut size={20} />
                                 <span>Выход</span>

@@ -55,11 +55,9 @@ const NoSidebarLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
 const WithSidebarLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <>
-      <div className="hidden lg:block w-64 bg-gray-800 flex-shrink-0">
-        <div className="pt-16">
+      <div className="hidden lg:block w-64 flex-shrink-0 pt-16 sticky top-0 h-screen">
           <Sidebar />
         </div>
-      </div>
       <div className="flex-1">
         <main className="pt-16 p-4 bg-gray-50 min-h-screen">
           <div className="max-w-screen-xl mx-auto">

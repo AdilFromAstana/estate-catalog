@@ -41,7 +41,7 @@ export default function CollectionDetail() {
       </Link>
       <h1 className="text-2xl font-bold mt-4">{collection.name}</h1>
 
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
         {selectedApartments.map((a) => (
           <EstateCard key={a.id} {...a} />
         ))}
