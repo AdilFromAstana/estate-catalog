@@ -3,7 +3,8 @@ import React from "react";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import type { Estate } from "../contants/estates";
+// import type { Estate } from "../contants/estates";
+import type { Property } from "../api/propertyApi";
 
 // Фикс для иконок
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -17,8 +18,8 @@ L.Icon.Default.mergeOptions({
 });
 
 interface MapViewProps {
-  estates: Estate[];
-  onEstateClick: (estate: Estate) => void;
+  estates: Property[];
+  onEstateClick: (estate: Property) => void;
 }
 
 const MapView: React.FC<MapViewProps> = ({ estates, onEstateClick }) => {

@@ -401,7 +401,7 @@ export const astanaEstates: Estate[] = [
     },
     krishaLink:
       "https://krisha.kz/a/show/1004847209?srchid=019901f6-dfd4-7399-bac7-854e0367f7fc&srchtype=filter&srchpos=7",
-      urgency: "onDeposit",
+    urgency: "onDeposit",
   },
   {
     id: "5",
@@ -692,7 +692,7 @@ export const astanaEstates: Estate[] = [
       deadline: "2025-09-30",
       buildingStage: "building",
     },
-    urgency: "inCollateral"
+    urgency: "inCollateral",
   },
   {
     krishaLink:
@@ -768,7 +768,7 @@ export const astanaEstates: Estate[] = [
       deadline: "2024-11-30",
       buildingStage: "commissioned",
     },
-    urgency: "sold"
+    urgency: "sold",
   },
   {
     krishaLink:
@@ -847,28 +847,6 @@ export const astanaEstates: Estate[] = [
       deadline: "2024-12-20",
       buildingStage: "commissioned",
     },
-    urgency: "active"
+    urgency: "active",
   },
 ];
-
-export interface Filters {
-  category: string | null;
-  district: string | null;
-  minPrice: number | null;
-  maxPrice: number | null;
-  minArea: number | null;
-  maxArea: number | null;
-  rooms: number[];
-
-  // Новые фильтры:
-  minFloor: number | null; // Минимальный этаж
-  maxFloor: number | null; // Максимальный этаж
-  buildingType: string[]; // Тип дома: panel, brick, monolithic, etc.
-  renovation: string[]; // Тип ремонта
-  condition: string[]; // Состояние
-  amenities: string[]; // Удобства (чекбоксы)
-  hasPhoto: boolean | null; // Только с фото
-  isExclusive: boolean | null; // Только эксклюзивы
-  newBuilding: boolean | null; // Только новостройки
-  minCeilingHeight: number | null; // Высота потолков
-}

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Filter, Home, Building, LandPlot, TreePalm } from "lucide-react";
-import { astanaEstates, type Filters } from "../contants/estates";
+import { astanaEstates } from "../contants/estates";
+import type { City, District } from "../api/cityApi";
+import type { Filters } from "../pages/HomePage";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -8,19 +10,17 @@ interface SearchBarProps {
   onFilterChange: (key: keyof Filters, value: any) => void;
   onResetFilters: () => void;
   filterOptions: {
+    cities: City[];
     categories: string[];
-    districts: string[];
+    districts: District[];
     maxPrice: number;
     rooms: number[];
     minFloor: number | null; // Минимальный этаж
     maxFloor: number | null; // Максимальный этаж
     buildingType: string[]; // Тип дома: panel, brick, monolithic, etc.
-    renovation: string[]; // Тип ремонта
     condition: string[]; // Состояние
     amenities: string[]; // Удобства (чекбоксы)
     hasPhoto: boolean | null; // Только с фото
-    isExclusive: boolean | null; // Только эксклюзивы
-    newBuilding: boolean | null; // Только новостройки
     minCeilingHeight: number | null; // Высота потолков
   };
   filteredEstatesLength: number;
@@ -169,16 +169,16 @@ const SearchBar: React.FC<SearchBarProps> = ({
                   Район
                 </label>
                 <select
-                  value={filters.district || ""}
+                  value={filters.districtId || ""}
                   onChange={(e) =>
-                    onFilterChange("district", e.target.value || null)
+                    onFilterChange("districtId", e.target.value || null)
                   }
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400"
                 >
                   <option value="">Все районы</option>
                   {filterOptions.districts.map((district) => (
-                    <option key={district} value={district}>
-                      {district}
+                    <option key={district.id} value={district.id}>
+                      {district.name}
                     </option>
                   ))}
                 </select>
@@ -327,7 +327,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                 </div>
               </div>
 
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Ремонт
                 </label>
@@ -347,7 +347,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                   <option value="cosmetic">Косметический</option>
                   <option value="without">Без ремонта</option>
                 </select>
-              </div>
+              </div> */}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -394,19 +394,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                   <span>Только с фото</span>
                 </label>
 
-                <label className="flex items-center gap-2 text-md border-t-2 border-gray-300 pt-2">
-                  <input
-                    type="checkbox"
-                    checked={filters.isExclusive || false}
-                    onChange={(e) =>
-                      onFilterChange("isExclusive", e.target.checked)
-                    }
-                    className="rounded border-gray-300"
-                  />
-                  <span>Эксклюзив</span>
-                </label>
-
-                <label className="flex items-center gap-2 text-md border-t-2 border-gray-300 pt-2">
+                {/* <label className="flex items-center gap-2 text-md border-t-2 border-gray-300 pt-2">
                   <input
                     type="checkbox"
                     checked={filters.newBuilding || false}
@@ -416,7 +404,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                     className="rounded border-gray-300"
                   />
                   <span>Новостройка</span>
-                </label>
+                </label> */}
               </div>
 
               {/* Комнаты */}

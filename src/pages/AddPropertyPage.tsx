@@ -1,9 +1,41 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Download, Edit3 } from "lucide-react";
 import { useApp } from "../AppContext";
+import toast from "react-hot-toast";
+import { propertyApi } from "../api/propertyApi";
+import { cityApi, type City, type District } from "../api/cityApi";
 
-// Определяем тип для данных, получаемых от вашего NestJS API парсера
+interface FormData {
+  title: string;
+  description: string;
+  price: string;
+  location: string;
+  area: string;
+  bedrooms: string;
+  bathrooms: string;
+  type: "apartment" | "house" | "commercial";
+  status: "sale" | "rent" | "hidden";
+  images: string[];
+  city: string;
+  cityId: number | null;
+  district: string;
+  districtId: number | null;
+  street: string;
+  houseNumber: string;
+  floor: string;
+  totalFloors: string;
+  condition: string;
+  buildingType: string;
+  yearBuilt: string;
+  balcony: string;
+  parking: string;
+  furniture: string;
+  complex: string;
+  kitchenArea: string;
+  coordinates: { lat: number; lng: number };
+  realtorId: string;
+}
 // Поля соответствуют тому, что возвращает метод parsePage в PropertiesService
 interface ParsedPropertyData {
   title: string;
@@ -37,16 +69,49 @@ interface ParsedPropertyData {
 
 const AddPropertyPage: React.FC = () => {
   const navigate = useNavigate();
-  const { addProperty, user } = useApp();
+  const { user } = useApp();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [importUrl, setImportUrl] = useState("");
   const [parsedData, setParsedData] = useState<ParsedPropertyData | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [mode, setMode] = useState<"manual" | "import">("manual");
+  const [cities, setCities] = useState<City[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [selectedCityId, setSelectedCityId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const loadCities = async () => {
+      try {
+        const data = await cityApi.getAllCities();
+        setCities(data);
+      } catch (err) {
+        console.error("Ошибка загрузки городов:", err);
+        toast.error("Не удалось загрузить города. Попробуйте позже.");
+      }
+    };
+    loadCities();
+  }, []);
+
+  useEffect(() => {
+    if (selectedCityId) {
+      const loadDistricts = async () => {
+        try {
+          const data = await cityApi.getDistrictsByCity(selectedCityId);
+          setDistricts(data);
+        } catch (err) {
+          console.error("Ошибка загрузки районов:", err);
+          toast.error("Не удалось загрузить районы этого города.");
+        }
+      };
+      loadDistricts();
+    } else {
+      setDistricts([]);
+    }
+  }, [selectedCityId]);
 
   // Состояние формы, инициализируем поля
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     title: "",
     description: "",
     price: "",
@@ -59,7 +124,9 @@ const AddPropertyPage: React.FC = () => {
     images: [] as string[],
     // Поля для импорта
     city: "",
+    cityId: null,
     district: "",
+    districtId: null,
     street: "",
     houseNumber: "",
     floor: "",
@@ -89,18 +156,11 @@ const AddPropertyPage: React.FC = () => {
     setParsedData(null);
 
     try {
-      // TODO: Замените на ваш реальный адрес API
-      const response = await fetch(
-        "http://localhost:3000/properties/parse",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            // 'Authorization': `Bearer ${yourAuthToken}`, // Если нужна авторизация
-          },
-          body: JSON.stringify({ url: importUrl }),
-        }
-      );
+      const response = await fetch("http://localhost:3000/properties/parse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: importUrl }),
+      });
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -110,10 +170,9 @@ const AddPropertyPage: React.FC = () => {
       }
 
       const data: ParsedPropertyData = await response.json();
-      console.log("Импортированные данные:", data);
       setParsedData(data);
 
-      // Преобразуем координаты из строки "lat,lng"
+      // Преобразуем координаты
       let coords = { lat: 0, lng: 0 };
       if (data.coordinates) {
         const [latStr, lngStr] = data.coordinates
@@ -126,28 +185,56 @@ const AddPropertyPage: React.FC = () => {
         }
       }
 
-      // Заполняем форму данными из парсера
-      // Приоритет отдаём импортированным данным, особенно для адреса
-      setFormData({
+      // === НОВОЕ: Автоматический выбор города и района ===
+      let foundCityId: number | null = null;
+      let foundDistrictId: number | null = null;
+
+      // 1. Ищем город по названию
+      if (data.city) {
+        const cityMatch = cities.find(
+          (c) =>
+            c.name.toLowerCase().includes(data.city.toLowerCase()) ||
+            data.city.toLowerCase().includes(c.name.toLowerCase())
+        );
+        if (cityMatch) {
+          foundCityId = cityMatch.id;
+          // Загружаем районы этого города
+          const districtList = await cityApi.getDistrictsByCity(foundCityId);
+          setDistricts(districtList);
+
+          // 2. Ищем район по названию
+          if (data.district && districtList.length > 0) {
+            const districtMatch = districtList.find(
+              (d) =>
+                d.name.toLowerCase().includes(data.district.toLowerCase()) ||
+                data.district.toLowerCase().includes(d.name.toLowerCase())
+            );
+            if (districtMatch) {
+              foundDistrictId = districtMatch.id;
+            }
+          }
+        }
+      }
+
+      // Заполняем форму
+      const newFormData = {
         title: data.title || "",
         description: data.description || "",
-        price: data.price || "", // Оставляем как строку
-        // Для ручного режима location не используется, но заполним на всякий
+        price: data.price || "",
         location:
           data.city || data.district ? `${data.city}, ${data.district}` : "",
         area: data.area || "",
-        bedrooms: data.rooms || "", // rooms -> bedrooms
+        bedrooms: data.rooms || "",
         bathrooms: data.bathroom || "",
-        type: "apartment", // Можно попытаться определить, или оставить по умолчанию
-        status: "sale", // По умолчанию
+        type: "apartment" as const,
+        status: "sale" as const,
         images: data.images || [],
-        // Поля из импорта
         city: data.city || "",
         district: data.district || "",
         street: data.street || "",
         houseNumber: data.houseNumber || "",
-        floor: data.floor || "", // Уже строка
-        totalFloors: data.totalFloors || "", // Уже строка
+        floor: data.floor || "",
+        totalFloors: data.totalFloors || "",
         condition: data.condition || "",
         buildingType: data.buildingType || "",
         yearBuilt: data.yearBuilt || "",
@@ -158,7 +245,14 @@ const AddPropertyPage: React.FC = () => {
         kitchenArea: data.kitchenArea || "",
         coordinates: coords,
         realtorId: user?.id || "",
-      });
+        // Устанавливаем ID сразу
+        cityId: foundCityId, // ← добавлено
+        districtId: foundDistrictId, // ← добавлено
+      };
+
+      // Обновляем форму и выбранный город ОДНОВРЕМЕННО
+      setFormData(newFormData);
+      setSelectedCityId(foundCityId); // это нужно для дропдауна
     } catch (error: any) {
       console.error("Ошибка импорта:", error);
       setImportError(error.message || "Произошла ошибка при импорте данных.");
@@ -172,49 +266,77 @@ const AddPropertyPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Здесь можно добавить валидацию данных формы перед отправкой
-      addProperty({
-        // title: formData.title, // Если нужно, добавьте в addProperty
+      if (
+        !formData.title.trim() ||
+        !formData.price ||
+        !formData.area ||
+        !selectedCityId ||
+        !formData.districtId
+      ) {
+        toast.error("Пожалуйста, заполните все обязательные поля");
+        return;
+      }
+
+      // Собираем payload СТРОГО по DTO бэкенда
+      const payload = {
+        // Основное
+        title: formData.title,
         description: formData.description,
-        price: Number(formData.price) || 0,
-        status: "hidden", // Используем статус из формы
-        images: formData.images,
-        category: formData.type,
-        city: formData.city || formData.location.split(",")[0]?.trim() || "", // Приоритет импортированному city
-        district:
-          formData.district || formData.location.split(",")[1]?.trim() || "",
-        street: formData.street || "",
-        houseNumber: formData.houseNumber || "",
-        coordinates: formData.coordinates,
-        currency: "KZT", // Предполагаем KZT, можно сделать поле ввода
-        totalArea: Number(formData.area) || 0,
-        roomCount: Number(formData.bedrooms) || 0,
-        floor: Number(formData.floor) || 0,
-        totalFloors: Number(formData.totalFloors) || 0,
-        amenities: [], // Можно расширить, если будут данные из парсера
-        agent: {
-          id: user?.id || "",
-          name: user?.name || "",
-          avatar: undefined,
-          phone: "",
-        },
-        agency: {
-          id: "",
-          name: "",
-          logo: "",
-          phone: "",
-        },
+        type: formData.type, // "apartment" и т.д.
+        status: "active" as const, // ← валидный статус
+
+        // Гео
+        city: formData.city,
+        cityId: selectedCityId,
+        district: formData.district,
+        districtId: Number(formData.districtId),
+        address: `${formData.street} ${formData.houseNumber}`.trim(),
+
+        // Если в DTO есть отдельно street и houseNumber — раскомментируй:
+        // street: formData.street,
+        // houseNumber: formData.houseNumber,
+
+        // Координаты
+        latitude: formData.coordinates.lat || undefined,
+        longitude: formData.coordinates.lng || undefined,
+
+        // Площадь и комнаты
+        area: Number(formData.area),
+        rooms: Number(formData.bedrooms),
+        floor: Number(formData.floor),
+        totalFloors: Number(formData.totalFloors),
+
+        // Цена
+        price: Number(formData.price),
+        currency: "KZT",
+
+        // Фото — ИСПОЛЬЗУЙ ТОЧНОЕ ИМЯ ИЗ DTO
+        photos: formData.images, // ← если в DTO "photos"
+        // images: formData.images, // ← если в DTO "images"
+
+        mainPhoto: formData.images[0] || undefined,
+
+        // Удобства и доп. данные
+        hasBalcony: !!formData.balcony?.toLowerCase().includes("балкон"),
+        hasParking: !!formData.parking?.toLowerCase().includes("парковка"),
+        yearBuilt: formData.yearBuilt ? Number(formData.yearBuilt) : undefined,
+        condition: formData.condition || "excellent",
+
+        // Мета
         isExclusive: false,
         views: 0,
         priority: 0,
-        condition: "excellent",
-        // Добавьте другие поля, если они требуются addProperty
-      });
+      };
 
-      navigate("/my-properties");
-    } catch (error) {
-      console.error("Error adding property:", error);
-      // TODO: Показать пользователю сообщение об ошибке
+      await propertyApi.create(payload);
+      toast.success("Объект успешно добавлен!");
+    } catch (error: any) {
+      console.error("Ошибка добавления объекта:", error);
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Не удалось добавить объект. Попробуйте позже.";
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -248,7 +370,9 @@ const AddPropertyPage: React.FC = () => {
       type: "apartment",
       status: "sale",
       images: [],
+      cityId: null,
       city: "",
+      districtId: null,
       district: "",
       street: "",
       houseNumber: "",
@@ -439,29 +563,57 @@ const AddPropertyPage: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Город *
                   </label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleInputChange}
+                  <select
+                    value={selectedCityId || ""}
+                    onChange={(e) => {
+                      const id = Number(e.target.value);
+                      setSelectedCityId(id || null);
+                      // Сбросим район и адрес при смене города
+                      setFormData((prev) => ({
+                        ...prev,
+                        city: cities.find((c) => c.id === id)?.name || "",
+                        districtId: null, // ← очищаем, чтобы пользователь выбрал заново
+                      }));
+                    }}
                     required
                     className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Астана"
-                  />
+                  >
+                    <option value="">Выберите город</option>
+                    {cities.map((city) => (
+                      <option key={city.id} value={city.id}>
+                        {city.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Район
-                  </label>
-                  <input
-                    type="text"
-                    name="district"
-                    value={formData.district}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Есильский район"
-                  />
-                </div>
+                {selectedCityId && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Район *
+                    </label>
+                    <select
+                      value={formData.districtId || ""}
+                      onChange={(e) => {
+                        const id = Number(e.target.value);
+                        const district = districts.find((d) => d.id === id);
+                        setFormData((prev) => ({
+                          ...prev,
+                          district: district?.name || "",
+                          districtId: id,
+                        }));
+                      }}
+                      required
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Выберите район</option>
+                      {districts.map((district) => (
+                        <option key={district.id} value={district.id}>
+                          {district.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Улица

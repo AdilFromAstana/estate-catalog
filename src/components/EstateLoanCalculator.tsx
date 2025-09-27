@@ -4,10 +4,11 @@ import {
   useEstateLoan,
   type LoanProgram,
 } from "../hooks/useEstateLoan";
+import { formatPrice } from "../api/propertyApi";
 
 interface Props {
   price: number;
-  id: string;
+  id: number;
 }
 
 const programs: { value: LoanProgram; label: string; maxPrice?: number }[] = [
@@ -32,9 +33,6 @@ const EstateLoanCalculator: React.FC<Props> = ({ price, id }) => {
     monthlyPayment,
     interestRate,
   } = useEstateLoan(price, id, program);
-
-  const formatPrice = (amount: number) =>
-    `${Number(amount.toFixed(0)).toLocaleString()} ₸`;
 
   const calculateLoanAmount = () => price - initialPayment;
 

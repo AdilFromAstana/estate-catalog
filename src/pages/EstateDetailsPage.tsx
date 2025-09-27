@@ -1,7 +1,7 @@
+// src/pages/EstateDetailsPage.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MapPin, Heart, Share2 } from "lucide-react";
-import { astanaEstates, type Estate } from "../contants/estates";
 import EstateCarousel from "../components/EstateCarousel";
 import ImageModal from "../components/ImageModal";
 import EstateContactButtons from "../components/EstateContactButtons";
@@ -10,33 +10,109 @@ import EstateImageGallery from "../components/EstateImageGallery";
 import EstateQuickStats from "../components/EstateQuickStats";
 import { useSimilarEstates } from "../hooks/useSimilarEstates";
 import OpenStreetMap from "../components/OpenStreetMap";
+import { formatPrice, propertyApi, type Property } from "../api/propertyApi";
+import toast from "react-hot-toast";
+
+// Хелпер для отображения типа недвижимости
+const getCategoryLabel = (type: string) => {
+  const labels: Record<string, string> = {
+    apartment: "Квартира",
+    house: "Дом",
+    commercial: "Коммерческая",
+    land: "Участок",
+    townhouse: "Таунхаус",
+  };
+  return labels[type] || type;
+};
+
+// Хелпер для отображения состояния ремонта
+const getConditionLabel = (condition: string) => {
+  const labels: Record<string, string> = {
+    without: "Без ремонта",
+    cosmetic: "Косметический",
+    euro: "Евроотделка",
+    designer: "Дизайнерский",
+    rough: "Черновая",
+    turnkey: "Под ключ",
+  };
+  return labels[condition] || condition;
+};
 
 const EstateDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const estate = astanaEstates.find((e) => e.id === id);
+  const [estate, setEstate] = useState<Property | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
 
-  const { similarByPrice, sameDistrict, similarByRooms, mostSimilar } =
-    useSimilarEstates(estate!);
-
+  // Загрузка данных
   useEffect(() => {
-    window.scrollTo({ top: 0 });
+    const fetchEstate = async () => {
+      if (!id) {
+        setError("ID объекта не указан");
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await propertyApi.getById(Number(id));
+        setEstate(data);
+      } catch (err: any) {
+        console.error("Ошибка загрузки объекта:", err);
+        setError(
+          err.response?.status === 404
+            ? "Объект не найден"
+            : "Не удалось загрузить информацию об объекте"
+        );
+        toast.error(error || "Ошибка загрузки");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEstate();
   }, [id]);
 
-  if (!estate) {
+  useEffect(() => {
+    if (estate) {
+      window.scrollTo({ top: 0 });
+    }
+  }, [estate]);
+
+  const handleImageClick = (index: number) => {
+    setCurrentImageIndex(index);
+    setModalOpen(true);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+          <p className="mt-4 text-gray-600">Загрузка объекта...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !estate) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="text-6xl mb-4">🏢</div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Объект не найден
+            {error || "Объект не найден"}
           </h1>
           <p className="text-gray-600">
-            Запрошенный объект недвижимости не существует
+            {error === "Объект не найден"
+              ? "Запрошенный объект недвижимости не существует"
+              : "Произошла ошибка при загрузке данных"}
           </p>
           <button
             onClick={() => navigate("/")}
@@ -48,11 +124,6 @@ const EstateDetailsPage: React.FC = () => {
       </div>
     );
   }
-
-  const handleImageClick = (index: number) => {
-    setCurrentImageIndex(index);
-    setModalOpen(true);
-  };
 
   const fullAddress = `${estate.city}, ${estate.district}, ${estate.street} ${estate.houseNumber}`;
 
@@ -103,7 +174,7 @@ const EstateDetailsPage: React.FC = () => {
 
       {modalOpen && (
         <ImageModal
-          images={estate.images}
+          images={estate.photos || []}
           currentIndex={currentImageIndex}
           setCurrentIndex={setCurrentImageIndex}
           onClose={() => setModalOpen(false)}
@@ -115,34 +186,33 @@ const EstateDetailsPage: React.FC = () => {
         {/* Price and Title */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            {estate.roomCount}-комнатная{" "}
-            {estate.category === "apartment" ? "квартира" : "недвижимость"},{" "}
-            {estate.totalArea} м²
+            {estate.rooms}-комнатная {getCategoryLabel(estate.type)},{" "}
+            {estate.area} м²
           </h1>
           <div className="flex items-center gap-2 text-gray-600 mb-4">
             <MapPin size={16} />
             <span className="text-sm">
-              {estate.district}, {estate.microdistrict || estate.street},{" "}
-              {estate.city}
+              {estate.district}, {estate.street}, {estate.city}
             </span>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-blue-600">
-              {estate.price.toLocaleString()} ₸
+              {formatPrice(estate.price)}
             </span>
-            {estate.pricePerSquare && (
+            {estate.area > 0 && (
               <span className="text-gray-600">
-                {Math.round(estate.pricePerSquare).toLocaleString()} ₸/м²
+                {Math.round(estate.price / estate.area).toLocaleString()} ₸/м²
               </span>
             )}
           </div>
         </div>
 
         <OpenStreetMap
-          lat={estate.coordinates.lat}
-          lng={estate.coordinates.lng}
+          lat={estate.latitude || 0}
+          lng={estate.longitude || 0}
           address={fullAddress}
         />
+
         {/* Quick Stats */}
         <EstateQuickStats estate={estate} />
 
@@ -167,56 +237,46 @@ const EstateDetailsPage: React.FC = () => {
         {/* Agent Info Section */}
         <EstateAgentSection estate={estate} />
 
-        {/* Similar Estates */}
-        <SimilarEstatesSections
-          estate={estate}
-          mostSimilar={mostSimilar}
-          similarByPrice={similarByPrice}
-          sameDistrict={sameDistrict}
-          similarByRooms={similarByRooms}
-        />
+        {/* Similar Estates — временно отключено, пока нет API */}
+        {/* <SimilarEstatesSections estate={estate} /> */}
       </div>
     </div>
   );
 };
 
-// Дополнительные компоненты для секций
-const EstateDetailsSection: React.FC<{ estate: Estate }> = ({ estate }) => (
+// Обновлённые компоненты под Property
+const EstateDetailsSection: React.FC<{ estate: Property }> = ({ estate }) => (
   <div className="mb-6">
     <h2 className="text-xl font-semibold mb-3">Характеристики</h2>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="space-y-2">
         <div className="flex justify-between">
           <span className="text-gray-600">Тип недвижимости</span>
-          <span className="font-medium">
-            {estate.category === "apartment" ? "Квартира" : "Дом"}
-          </span>
+          <span className="font-medium">{getCategoryLabel(estate.type)}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-600">Район</span>
           <span className="font-medium">{estate.district}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Микрорайон</span>
-          <span className="font-medium">{estate.microdistrict || "-"}</span>
-        </div>
-        <div className="flex justify-between">
           <span className="text-gray-600">Улица</span>
           <span className="font-medium">{estate.street}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-gray-600">Состояние ремонта</span>
+          <span className="font-medium">
+            {estate.condition ? getConditionLabel(estate.condition) : "-"}
+          </span>
         </div>
       </div>
       <div className="space-y-2">
         <div className="flex justify-between">
           <span className="text-gray-600">Общая площадь</span>
-          <span className="font-medium">{estate.totalArea} м²</span>
+          <span className="font-medium">{estate.area} м²</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Жилая площадь</span>
-          <span className="font-medium">{estate.livingArea || "-"} м²</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-gray-600">Кухня</span>
-          <span className="font-medium">{estate.kitchenArea || "-"} м²</span>
+          <span className="text-gray-600">Комнат</span>
+          <span className="font-medium">{estate.rooms}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-600">Этаж</span>
@@ -224,12 +284,16 @@ const EstateDetailsSection: React.FC<{ estate: Estate }> = ({ estate }) => (
             {estate.floor}/{estate.totalFloors}
           </span>
         </div>
+        <div className="flex justify-between">
+          <span className="text-gray-600">Год постройки</span>
+          <span className="font-medium">{estate.yearBuilt || "-"}</span>
+        </div>
       </div>
     </div>
   </div>
 );
 
-const EstateAmenitiesSection: React.FC<{ estate: Estate }> = ({ estate }) =>
+const EstateAmenitiesSection: React.FC<{ estate: Property }> = ({ estate }) =>
   estate.amenities &&
   estate.amenities.length > 0 && (
     <div className="mb-6">
@@ -247,65 +311,24 @@ const EstateAmenitiesSection: React.FC<{ estate: Estate }> = ({ estate }) =>
     </div>
   );
 
-const EstateAgentSection: React.FC<{ estate: Estate }> = ({ estate }) => (
+const EstateAgentSection: React.FC<{ estate: Property }> = ({ estate }) => (
   <div className="mb-8 p-4 bg-gray-50 rounded-xl">
     <h2 className="text-xl font-semibold mb-3">Контактное лицо</h2>
     <div className="flex items-center gap-3">
       <img
-        src="https://avatars.mds.yandex.net/i?id=4befe74649a710df0b066c24bf40f767_l-5869782-images-thumbs&n=13"
-        alt={estate.agent.name}
+        src={estate.owner.avatar || "https://placehold.co/48"}
+        alt={estate.owner.name}
         className="w-12 h-12 rounded-full object-cover"
       />
       <div>
-        <div className="font-semibold">{estate.agent.name}</div>
+        <div className="font-semibold">{estate.owner.name}</div>
         <div className="text-sm text-gray-600">{estate.agency.name}</div>
-        <div className="text-sm text-blue-600">{estate.agent.phone}</div>
+        <div className="text-sm text-blue-600">
+          {estate.owner.phone || "Нет телефона"}
+        </div>
       </div>
     </div>
   </div>
-);
-
-const SimilarEstatesSections: React.FC<{
-  estate: Estate;
-  mostSimilar: Estate[];
-  similarByPrice: Estate[];
-  sameDistrict: Estate[];
-  similarByRooms: Estate[];
-}> = ({
-  estate,
-  mostSimilar,
-  similarByPrice,
-  sameDistrict,
-  similarByRooms,
-}) => (
-  <>
-    {mostSimilar.length > 0 && (
-      <EstateCarousel title="Самые похожие варианты" estates={mostSimilar} />
-    )}
-
-    {similarByPrice.length > 0 && mostSimilar.length === 0 && (
-      <EstateCarousel
-        title="Похожие по бюджету"
-        estates={similarByPrice.slice(0, 6)}
-      />
-    )}
-
-    {sameDistrict.length > 0 && (
-      <EstateCarousel
-        title="Другие варианты в этом районе"
-        estates={sameDistrict.slice(0, 6)}
-      />
-    )}
-
-    {similarByRooms.length > 0 && (
-      <EstateCarousel
-        title={`Другие ${estate.roomCount}-комнатные ${
-          estate.category === "apartment" ? "квартиры" : "объекты"
-        }`}
-        estates={similarByRooms.slice(0, 6)}
-      />
-    )}
-  </>
 );
 
 export default EstateDetailsPage;

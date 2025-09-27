@@ -49,7 +49,7 @@ export const loanProgramsConfig: Record<LoanProgram, ProgramConfig> = {
 
 export const useEstateLoan = (
   price: number,
-  id: string,
+  id: number,
   program: LoanProgram = "commercial"
 ) => {
   const config = loanProgramsConfig[program];

@@ -1,22 +1,25 @@
 // src/pages/LoginPage.tsx
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Eye, EyeOff, UserPlus, Home } from "lucide-react";
+import { Eye, EyeOff, Home } from "lucide-react";
+import { authApi } from "../api/authApi";
 import { useApp } from "../AppContext";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login, register } = useApp();
-  const [isLogin, setIsLogin] = useState(true);
+  const { login } = useApp();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
     email: "",
     password: "",
-    role: "user" as "user" | "realtor" | "admin",
   });
   const [error, setError] = useState("");
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,43 +27,22 @@ const LoginPage: React.FC = () => {
     setError("");
 
     try {
-      if (isLogin) {
-        // Логика входа - используем функцию login из контекста
-        const success = await login(formData.email, formData.password);
-        if (success) {
-          navigate("/");
-        } else {
-          setError("Неверные учетные данные");
-        }
+      // 1. Выполняем вход через API
+      const response = login(formData.email, formData.password);
+
+      navigate("/");
+    } catch (err: any) {
+      console.error(err);
+      if (err.response?.status === 401) {
+        setError("Неверный email или пароль");
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
       } else {
-        // Логика регистрации - используем функцию register из контекста
-        const success = await register(
-          formData.name,
-          formData.email,
-          formData.password,
-          formData.role
-        );
-        if (success) {
-          navigate("/");
-        } else {
-          setError("Ошибка регистрации");
-        }
+        setError("Произошла ошибка при входе");
       }
-    } catch (err) {
-      setError("Произошла ошибка");
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
   };
 
   return (
@@ -70,7 +52,7 @@ const LoginPage: React.FC = () => {
           <Home className="h-12 w-12 text-blue-600" />
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          {isLogin ? "Вход в аккаунт" : "Создание аккаунта"}
+          Вход в аккаунт
         </h2>
       </div>
 
@@ -80,22 +62,6 @@ const LoginPage: React.FC = () => {
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
                 {error}
-              </div>
-            )}
-
-            {!isLogin && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Имя
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required={!isLogin}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
               </div>
             )}
 
@@ -140,70 +106,30 @@ const LoginPage: React.FC = () => {
               </div>
             </div>
 
-            {!isLogin && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Роль
-                </label>
-                <select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="user">Пользователь</option>
-                  <option value="realtor">Риэлтор</option>
-                  <option value="admin">Администратор</option>
-                </select>
-              </div>
-            )}
-
             <div>
               <button
                 type="submit"
                 disabled={isLoading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
               >
-                {isLoading
-                  ? "Загрузка..."
-                  : isLogin
-                  ? "Войти"
-                  : "Зарегистрироваться"}
+                {isLoading ? "Загрузка..." : "Войти"}
               </button>
             </div>
           </form>
 
           <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
-                  {isLogin ? "Нет аккаунта?" : "Уже есть аккаунт?"}
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsLogin(!isLogin);
-                  setError("");
-                }}
-                className="w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <UserPlus className="h-4 w-4 mr-2" />
-                {isLogin ? "Зарегистрироваться" : "Войти"}
-              </button>
-            </div>
+            <Link
+              to="/register"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md text-sm font-medium text-blue-600 hover:text-blue-700"
+            >
+              Зарегистрироваться как риелтор
+            </Link>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-4">
             <Link
               to="/"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md text-sm font-medium text-blue-600 hover:text-blue-700"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md text-sm font-medium text-gray-600 hover:text-gray-800"
             >
               Вернуться на главную
             </Link>
