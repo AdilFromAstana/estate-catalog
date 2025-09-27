@@ -14,7 +14,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 const MyPropertiesPage: React.FC = () => {
-  const { properties, user, deleteProperty, updateProperty } = useApp();
+  const { properties, user } = useApp();
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
@@ -78,16 +78,16 @@ const MyPropertiesPage: React.FC = () => {
     navigate(`/edit-property/${id}`);
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm("Вы уверены, что хотите удалить этот объект?")) {
-      deleteProperty(id);
-    }
-  };
+  // const handleDelete = (id: string) => {
+  //   if (window.confirm("Вы уверены, что хотите удалить этот объект?")) {
+  //     // deleteProperty(id);
+  //   }
+  // };
 
-  const toggleVisibility = (id: string, currentStatus: string) => {
-    const newStatus = currentStatus === "active" ? "hidden" : "active";
-    updateProperty(id, { status: newStatus });
-  };
+  // const toggleVisibility = (id: string, currentStatus: string) => {
+  //   const newStatus = currentStatus === "active" ? "hidden" : "active";
+  //   updateProperty(id, { status: newStatus });
+  // };
 
   const formatRooms = (bedrooms: number): string => {
     if (bedrooms === 0) return "Студия";
@@ -242,8 +242,9 @@ const MyPropertiesPage: React.FC = () => {
                     Редакт.
                   </button>
                   <button
-                    onClick={() =>
-                      toggleVisibility(property.id, property.status)
+                    onClick={
+                      () => null
+                      // toggleVisibility(property.id, property.status)
                     }
                     className="flex-1 flex items-center justify-center text-gray-600 hover:text-gray-800 p-2"
                   >
@@ -255,7 +256,8 @@ const MyPropertiesPage: React.FC = () => {
                     {property.status === "active" ? "Скрыть" : "Показать"}
                   </button>
                   <button
-                    onClick={() => handleDelete(property.id)}
+                    onClick={() => null}
+                    // onClick={() => handleDelete(property.id)}
                     className="flex-1 flex items-center justify-center text-red-600 hover:text-red-800 p-2"
                   >
                     <Trash2 size={16} className="mr-1" />

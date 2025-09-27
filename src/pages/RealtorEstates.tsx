@@ -1,7 +1,7 @@
 // src/pages/RealtorEstates.tsx
 import { useParams, Link } from "react-router-dom";
-import { astanaEstates } from "../contants/estates";
-import EstateCard from "../components/EstateCard";
+// import { astanaEstates } from "../contants/estates";
+// import EstateCard from "../components/EstateCard";
 import { useEffect } from "react";
 
 export default function RealtorEstates() {
@@ -32,8 +32,8 @@ export default function RealtorEstates() {
   const realtor = fakeRealtors[id ?? "1"];
 
   // Берём случайные 5 квартир
-  const shuffled = [...astanaEstates].sort(() => 0.5 - Math.random());
-  const selectedApartments = shuffled.slice(0, 5);
+  // const shuffled = [...astanaEstates].sort(() => 0.5 - Math.random());
+  // const selectedApartments = shuffled.slice(0, 5);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -60,11 +60,11 @@ export default function RealtorEstates() {
 
       {/* Список квартир */}
       <h2 className="text-2xl font-semibold mt-8">Квартиры в продаже</h2>
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         {selectedApartments.map((a) => (
           <EstateCard key={a.id} {...a} />
         ))}
-      </div>
+      </div> */}
     </div>
   );
 }

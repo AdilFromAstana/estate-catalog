@@ -2,13 +2,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MapPin, Heart, Share2 } from "lucide-react";
-import EstateCarousel from "../components/EstateCarousel";
+// import EstateCarousel from "../components/EstateCarousel";
 import ImageModal from "../components/ImageModal";
 import EstateContactButtons from "../components/EstateContactButtons";
 import EstateLoanCalculator from "../components/EstateLoanCalculator";
 import EstateImageGallery from "../components/EstateImageGallery";
 import EstateQuickStats from "../components/EstateQuickStats";
-import { useSimilarEstates } from "../hooks/useSimilarEstates";
+// import { useSimilarEstates } from "../hooks/useSimilarEstates";
 import OpenStreetMap from "../components/OpenStreetMap";
 import { formatPrice, propertyApi, type Property } from "../api/propertyApi";
 import toast from "react-hot-toast";

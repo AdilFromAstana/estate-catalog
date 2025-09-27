@@ -2,14 +2,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, User, Mail, Phone, Upload, Save } from "lucide-react";
-import { useApp } from "../AppContext";
 import toast from "react-hot-toast";
 import { realtorApi } from "../api/realtorApi";
 
 const RealtorSettingsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useApp();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [realtor, setRealtor] = useState({

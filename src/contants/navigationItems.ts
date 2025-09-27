@@ -49,7 +49,7 @@ export const navigationItems: NavigationItem[] = [
     id: "my-settings",
     title: "Мои настройки",
     path: "/my-settings",
-    icon: Building,
+    icon: User,
     section: "main",
     requiresAuth: true,
     roles: ["realtor", "agency_admin", "admin"],

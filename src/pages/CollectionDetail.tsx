@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
-import { astanaEstates } from "../contants/estates";
-import EstateCard from "../components/EstateCard";
+// import { astanaEstates } from "../contants/estates";
+// import EstateCard from "../components/EstateCard";
 import { useState } from "react";
 
 export default function CollectionDetail() {
@@ -18,9 +18,9 @@ export default function CollectionDetail() {
 
   if (!collection) return <p className="p-6">Подборка не найдена</p>;
 
-  const selectedApartments = astanaEstates.filter((a) =>
-    collection.apartmentIds.includes(a.id)
-  );
+  // const selectedApartments = astanaEstates.filter((a) =>
+  //   collection.apartmentIds.includes(a.id)
+  // );
 
   const currentUrl = window.location.href;
 
@@ -42,9 +42,9 @@ export default function CollectionDetail() {
       <h1 className="text-2xl font-bold mt-4">{collection.name}</h1>
 
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
-        {selectedApartments.map((a) => (
+        {/* {selectedApartments.map((a) => (
           <EstateCard key={a.id} {...a} />
-        ))}
+        ))} */}
       </div>
 
       {/* Блок поделиться */}

@@ -32,7 +32,7 @@ axiosInstance.interceptors.response.use(
   (error: AxiosError) => {
     if (error.response) {
       const { status, data } = error.response;
-
+      console.log("data: ", data);
       // Обработка конкретных статусов
       if (status === 401) {
         // Токен недействителен — выходим из аккаунта

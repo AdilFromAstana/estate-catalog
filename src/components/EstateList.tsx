@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import EstateCard from "./EstateCard";
+// import EstateCard from "./EstateCard";
 import type { Estate } from "../contants/estates";
 
 interface EstateListProps {
@@ -15,9 +15,9 @@ const EstateList: FC<EstateListProps> = ({ estates }) => {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 p-3">
-      {estates.map((estate) => (
+      {/* {estates.map((estate) => (
         <EstateCard key={estate.id} {...estate} />
-      ))}
+      ))} */}
     </div>
   );
 };

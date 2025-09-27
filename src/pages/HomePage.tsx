@@ -69,11 +69,13 @@ const HomePage: React.FC = () => {
   const [cities, setCities] = useState<City[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [loadingDistricts, setLoadingDistricts] = useState(false);
+  console.log("loadingDistricts: ", loadingDistricts);
 
   // Результаты поиска
   const [estates, setEstates] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
+  console.log("total: ", total);
 
   // Загрузка городов при старте
   useEffect(() => {

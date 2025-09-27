@@ -6,7 +6,7 @@ import React, {
   useEffect,
   type ReactNode,
 } from "react";
-import type { User, Property, Realtor, AppContextType } from "./types";
+import type { User, AppContextType } from "./types";
 import { authApi } from "./api/authApi";
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -73,26 +73,26 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   };
 
   // === Методы для работы с данными (временно оставим, но лучше перенести в компоненты) ===
-  const addProperty = (
-    propertyData: Omit<Property, "id" | "createdAt" | "updatedAt">
-  ) => {
-    // В будущем: вызов propertyApi.create()
-    const newProperty: Property = {
-      ...propertyData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+  const addProperty = () =>
+    // propertyData: Omit<Property, "id" | "createdAt" | "updatedAt">
+    {
+      // В будущем: вызов propertyApi.create()
+      // const newProperty: Property = {
+      //   ...propertyData,
+      //   id: Date.now().toString(),
+      //   createdAt: new Date().toISOString(),
+      //   updatedAt: new Date().toISOString(),
+      // };
+      // Но сейчас свойства не хранятся в контексте — удалим это позже
     };
-    // Но сейчас свойства не хранятся в контексте — удалим это позже
-  };
 
-  const updateProperty = (id: string, updates: Partial<Property>) => {
-    // В будущем: вызов propertyApi.update()
-  };
+  // const updateProperty = (id: string, updates: Partial<Property>) => {
+  //   // В будущем: вызов propertyApi.update()
+  // };
 
-  const deleteProperty = (id: string) => {
-    // В будущем: вызов propertyApi.delete()
-  };
+  // const deleteProperty = (id: string) => {
+  //   // В будущем: вызов propertyApi.delete()
+  // };
 
   const value: AppContextType = {
     user,
@@ -102,8 +102,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     register,
     logout,
     addProperty,
-    updateProperty,
-    deleteProperty,
+    // updateProperty,
+    // deleteProperty,
     loading,
   };
 

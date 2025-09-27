@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff, Home } from "lucide-react";
-import { authApi } from "../api/authApi";
 import { useApp } from "../AppContext";
 
 const LoginPage: React.FC = () => {
@@ -28,8 +27,7 @@ const LoginPage: React.FC = () => {
 
     try {
       // 1. Выполняем вход через API
-      const response = login(formData.email, formData.password);
-
+      login(formData.email, formData.password);
       navigate("/");
     } catch (err: any) {
       console.error(err);

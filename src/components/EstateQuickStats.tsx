@@ -1,6 +1,6 @@
 // components/EstateQuickStats.tsx
 import React from "react";
-import { Bed, Square, Ruler, Eye } from "lucide-react";
+import { Bed, Square, Ruler } from "lucide-react";
 import type { Property } from "../api/propertyApi";
 
 interface Props {

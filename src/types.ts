@@ -148,7 +148,7 @@ export interface AppContextType {
   addProperty: (
     property: Omit<Property, "id" | "createdAt" | "updatedAt">
   ) => void;
-  updateProperty: (id: string, updates: Partial<Property>) => void;
-  deleteProperty: (id: string) => void;
+  // updateProperty: (id: string, updates: Partial<Property>) => void;
+  // deleteProperty: (id: string) => void;
   loading: boolean;
 }

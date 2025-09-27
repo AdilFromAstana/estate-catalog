@@ -3,6 +3,10 @@ import { useState, type JSX } from "react";
 import { Menu, X, LogOut, Key, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useApp } from "../AppContext";
+import {
+  navigationItems,
+  type NavigationItem,
+} from "../contants/navigationItems";
 
 interface BurgerMenuProps {
   isOpen: boolean;
@@ -22,7 +26,7 @@ const Header = () => {
             className="text-xl font-bold text-blue-600 flex items-center gap-2 cursor-pointer"
             onClick={() => nav("/")}
           >
-            <div>Juz realty</div>
+            <div>JUZ - Real Estate</div>
           </div>
 
           <div className="flex items-center gap-4">
@@ -31,11 +35,11 @@ const Header = () => {
                 <User size={16} className="text-gray-600" />
                 <span className="text-gray-700">{user.name}</span>
                 <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded capitalize">
-                  {user.role === "admin"
-                    ? "Админ"
-                    : user.role === "realtor"
-                    ? "Риэлтор"
-                    : "Пользователь"}
+                  {user.roles.includes("admin")
+                    ? "Суперадмин"
+                    : user.roles.includes("agency_admin")
+                    ? "Админ агентства"
+                    : "Риелтор"}
                 </span>
               </div>
             )}
@@ -70,52 +74,23 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
     nav("/");
   };
 
-  const mainItems = [
-    { id: "home", title: "Главная", path: "/", icon: Home },
-    { id: "realtors", title: "Риэлторы", path: "/realtors", icon: Users },
-  ];
+  const filterNavItems = (section: "main" | "user"): NavigationItem[] => {
+    return navigationItems.filter((item) => {
+      if (!item.requiresAuth) {
+        return item.section === section;
+      }
 
-  const authItems = user?.isAuthenticated
-    ? [
-        {
-          id: "favorites",
-          title: "Избранное",
-          path: "/favorites",
-          icon: Heart,
-        },
-        { id: "compare", title: "Сравнение", path: "/compare", icon: Grid3X3 },
-        {
-          id: "collections",
-          title: "Коллекции",
-          path: "/collections",
-          icon: Layout,
-        },
-      ]
-    : [];
+      if (!user?.isAuthenticated || !user.roles?.length) {
+        return false;
+      }
 
-  const userItems =
-    user?.isAuthenticated && (user.role === "admin" || user.role === "realtor")
-      ? [
-          {
-            id: "add-property",
-            title: "Добавить объект",
-            path: "/add-property",
-            icon: Plus,
-          },
-          {
-            id: "my-properties",
-            title: "Мои объекты",
-            path: "/my-properties",
-            icon: Grid3X3,
-          },
-          {
-            id: "statistics",
-            title: "Статистика",
-            path: "/statistics",
-            icon: BarChart3,
-          },
-        ]
-      : [];
+      // Проверяем, есть ли у пользователя хотя бы одна из разрешённых ролей
+      return (
+        item.section === section &&
+        item.roles.some((role) => user.roles.includes(role))
+      );
+    });
+  };
 
   const renderNavItems = (items: any[]): JSX.Element[] => {
     return items.map((item) => {
@@ -157,27 +132,7 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
 
         <nav className="p-4">
           <ul className="space-y-2">
-            {renderNavItems(mainItems)}
-
-            {authItems.length > 0 && (
-              <>
-                <li className="border-t pt-4 mt-4">
-                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">
-                    Личный кабинет
-                  </h3>
-                  {renderNavItems(authItems)}
-                </li>
-              </>
-            )}
-
-            {userItems.length > 0 && (
-              <li className="border-t pt-4 mt-4">
-                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">
-                  Для риэлторов
-                </h3>
-                {renderNavItems(userItems)}
-              </li>
-            )}
+            {renderNavItems(filterNavItems("main"))}
 
             <li className="border-t pt-4 mt-4">
               {user?.isAuthenticated ? (
@@ -187,11 +142,11 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
                       {user.name}
                     </div>
                     <div className="text-xs text-gray-500 capitalize">
-                      {user.role === "admin"
-                        ? "Администратор"
-                        : user.role === "realtor"
-                        ? "Риэлтор"
-                        : "Пользователь"}
+                      {user.roles.includes("admin")
+                        ? "Суперадмин"
+                        : user.roles.includes("agency_admin")
+                        ? "Админ агентства"
+                        : "Риелтор"}
                     </div>
                   </div>
                   <button
@@ -218,18 +173,5 @@ const BurgerMenu: React.FC<BurgerMenuProps> = ({ isOpen, onClose }) => {
     </>
   );
 };
-
-// Импортируем иконки
-import {
-  Home,
-  Users,
-  Star,
-  Building,
-  Heart,
-  Grid3X3,
-  Plus,
-  BarChart3,
-  Layout,
-} from "lucide-react";
 
 export default Header;

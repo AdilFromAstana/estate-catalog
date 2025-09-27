@@ -32,7 +32,7 @@ import RealtorSettingsPage from "./pages/RealtorSettingsPage";
 const ProtectedRoute: React.FC<{
   children: React.ReactNode;
   roles?: string[];
-}> = ({ children, roles }) => {
+}> = ({ children }) => {
   const { user } = useApp();
 
   if (!user?.isAuthenticated) {
@@ -76,7 +76,7 @@ const WithSidebarLayout: React.FC<{ children: React.ReactNode }> = ({
 const AppContent: React.FC = () => {
   return (
     <>
-      {/* <Header /> */}
+      <Header />
 
       <div className="flex flex-1">
         <Routes>
