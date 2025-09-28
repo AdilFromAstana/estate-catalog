@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import EstateCard from "../components/EstateCard";
 import SearchBar from "../components/SearchBar";
 import { useNavigate } from "react-router-dom";
 import MapView from "../components/MapView";
 import { List, Map } from "lucide-react";
-import { propertyApi, type Property } from "../api/propertyApi";
-import { cityApi, type City, type District } from "../api/cityApi";
-import toast from "react-hot-toast";
+import {
+  type GetPropertiesParams,
+  type PropertyResponse,
+} from "../api/propertyApi";
+import { useProperties } from "../hooks/useProperties";
+import { useCities, useDistricts } from "../hooks/useCities";
 
 const getCategoryLabel = (category: string) => {
   const labels: { [key: string]: string } = {
@@ -19,148 +22,55 @@ const getCategoryLabel = (category: string) => {
   return labels[category] || category;
 };
 
-export interface Filters {
-  category: string | null;
-  districtId: string | null;
-  cityId: number | null;
-  minPrice: number | null;
-  maxPrice: number | null;
-  minArea: number | null;
-  maxArea: number | null;
-  rooms: number[];
-  minFloor: number | null; // Минимальный этаж
-  maxFloor: number | null; // Максимальный этаж
-  buildingType: string[]; // Тип дома: panel, brick, monolithic, etc.
-  condition: string[]; // Состояние
-  amenities: string[]; // Удобства (чекбоксы)
-  hasPhoto: boolean | null; // Только с фото
-  minCeilingHeight: number | null; // Высота потолков
-}
-
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
   // Состояние фильтров
-  const [filters, setFilters] = useState<Filters>({
-    category: null,
-    cityId: null,
-    districtId: null,
-    minPrice: null,
-    maxPrice: null,
-    minArea: null,
-    maxArea: null,
-    rooms: [],
-    maxFloor: null,
-    minFloor: null,
-    buildingType: [],
-    amenities: [],
-    condition: [],
-    hasPhoto: null,
-    minCeilingHeight: null,
+  const [filters, setFilters] = useState<GetPropertiesParams>({
+    cityId: undefined,
+    districtId: undefined,
+    minPrice: undefined,
+    maxPrice: undefined,
+    minArea: undefined,
+    maxArea: undefined,
+    rooms: undefined,
+    maxFloor: undefined,
+    minFloor: undefined,
+    agencyId: 1,
   });
 
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedEstate, setSelectedEstate] = useState<Property | null>(null);
+  const [selectedEstate, setSelectedEstate] = useState<PropertyResponse | null>(
+    null
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalClosing, setIsModalClosing] = useState(false);
 
-  // Данные для дропдаунов
-  const [cities, setCities] = useState<City[]>([]);
-  const [districts, setDistricts] = useState<District[]>([]);
-  const [loadingDistricts, setLoadingDistricts] = useState(false);
-  console.log("loadingDistricts: ", loadingDistricts);
-
-  // Результаты поиска
-  const [estates, setEstates] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [total, setTotal] = useState(0);
-  console.log("total: ", total);
-
-  // Загрузка городов при старте
-  useEffect(() => {
-    const loadCities = async () => {
-      try {
-        const data = await cityApi.getAllCities();
-        setCities(data);
-      } catch (err) {
-        console.error("Ошибка загрузки городов:", err);
-        toast.error("Не удалось загрузить список городов");
-      }
-    };
-    loadCities();
-  }, []);
-
-  // Загрузка районов при выборе города
-  useEffect(() => {
-    if (filters.cityId) {
-      const loadDistricts = async () => {
-        setLoadingDistricts(true);
-        try {
-          const data = await cityApi.getDistrictsByCity(filters.cityId!);
-          setDistricts(data);
-        } catch (err) {
-          console.error("Ошибка загрузки районов:", err);
-          toast.error("Не удалось загрузить районы");
-          setDistricts([]);
-        } finally {
-          setLoadingDistricts(false);
-        }
-      };
-      loadDistricts();
-    } else {
-      setDistricts([]);
-      // Сбросить район при смене города
-      setFilters((prev) => ({ ...prev, districtId: null }));
-    }
-  }, [filters.cityId]);
-
-  // Загрузка объектов недвижимости
-  const loadEstates = async () => {
-    setLoading(true);
-    try {
-      // Формируем параметры запроса
-      const params: Record<string, any> = {
-        page: 1,
-        limit: 100, // или реализуй пагинацию
-        search: searchQuery || undefined,
-        type: filters.category || undefined,
-        cityId: filters.cityId || undefined,
-        districtId: filters.districtId || undefined,
-        minPrice: filters.minPrice || undefined,
-        maxPrice: filters.maxPrice || undefined,
-        minArea: filters.minArea || undefined,
-        maxArea: filters.maxArea || undefined,
-        rooms: filters.rooms || undefined,
-        isPublished: true, // только опубликованные для гостей
-      };
-
-      // Удаляем undefined-значения
-      Object.keys(params).forEach(
-        (key) => params[key] === undefined && delete params[key]
-      );
-
-      const response = await propertyApi.getAll(params);
-      setEstates(response.data);
-      setTotal(response.data.length); // или response.total
-    } catch (error: any) {
-      console.error("Ошибка загрузки объектов:", error);
-      toast.error(
-        error.response?.data?.message || "Не удалось загрузить объекты"
-      );
-      setEstates([]);
-    } finally {
-      setLoading(false);
-    }
+  // ✅ формируем query-параметры для API
+  const params = {
+    page: 1,
+    limit: 100,
+    search: searchQuery || undefined,
+    cityId: filters.cityId || undefined,
+    districtId: filters.districtId || undefined,
+    minPrice: filters.minPrice || undefined,
+    maxPrice: filters.maxPrice || undefined,
+    minArea: filters.minArea || undefined,
+    maxArea: filters.maxArea || undefined,
+    agencyId: filters.agencyId,
+    isPublished: true,
   };
 
-  // Загружаем объекты при изменении фильтров или поиска
-  useEffect(() => {
-    loadEstates();
-  }, [searchQuery, filters]);
+  const { data, isLoading, error } = useProperties(params);
+  const { data: cities } = useCities();
+  const { data: districts } = useDistricts(filters.cityId!);
+
+  const estates = data?.data ?? [];
+  const total = data?.total ?? 0;
 
   // Обработчики
-  const handleEstateClick = (estate: Property) => {
+  const handleEstateClick = (estate: PropertyResponse) => {
     if (viewMode === "map") {
       setSelectedEstate(estate);
       setIsModalOpen(true);
@@ -188,7 +98,10 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const updateFilter = (key: keyof Filters, value: any) => {
+  const updateFilter = <K extends keyof GetPropertiesParams>(
+    key: K,
+    value: GetPropertiesParams[K]
+  ) => {
     setFilters((prev) => ({
       ...prev,
       [key]: value,
@@ -197,21 +110,7 @@ const HomePage: React.FC = () => {
 
   const resetFilters = () => {
     setFilters({
-      category: null,
-      cityId: null,
-      districtId: null,
-      minPrice: null,
-      maxPrice: null,
-      minArea: null,
-      maxArea: null,
-      rooms: [],
-      maxFloor: null,
-      minFloor: null,
-      buildingType: [],
-      amenities: [],
-      condition: [],
-      hasPhoto: null,
-      minCeilingHeight: null,
+      agencyId: 1,
     });
     setSearchQuery("");
   };
@@ -232,8 +131,8 @@ const HomePage: React.FC = () => {
         onResetFilters={resetFilters}
         filterOptions={{
           categories,
-          cities, // передаём города
-          districts, // передаём районы
+          cities: cities || [], // передаём города
+          districts: districts || [], // передаём районы
           maxPrice,
           rooms: roomOptions,
           minFloor: null,
@@ -254,7 +153,7 @@ const HomePage: React.FC = () => {
         </p>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div className="text-center py-12">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
           <p className="mt-4 text-gray-600">Загрузка объектов...</p>

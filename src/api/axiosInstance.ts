@@ -1,58 +1,115 @@
 // src/api/axiosInstance.ts
-import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
+import axios, {
+  AxiosError,
+  type AxiosRequestConfig,
+  type InternalAxiosRequestConfig,
+} from "axios";
 
-// Создаём инстанс с базовыми настройками
+const apiUrl = import.meta.env.VITE_API_URL;
+
+// Флаг, чтобы не зациклить обновление
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (token: string) => void;
+  reject: (err: any) => void;
+}> = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else if (token) {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+// Создаём инстанс
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:3000", // или process.env.REACT_APP_API_URL
-  timeout: 10000,
+  baseURL: apiUrl,
+  timeout: 60000,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Request interceptor — добавляем токен, если есть
+// Request interceptor — подставляем accessToken
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error: AxiosError) => {
-    return Promise.reject(error);
-  }
+  (error: AxiosError) => Promise.reject(error)
 );
 
-// Response interceptor — глобальная обработка ошибок
+// Response interceptor — обработка ошибок и refresh
 axiosInstance.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error: AxiosError) => {
-    if (error.response) {
-      const { status, data } = error.response;
-      console.log("data: ", data);
-      // Обработка конкретных статусов
-      if (status === 401) {
-        // Токен недействителен — выходим из аккаунта
-        // localStorage.removeItem("token");
-        // window.location.href = "/login";
-      } else if (status === 403) {
-        // Доступ запрещён
-        console.error("Доступ запрещён");
-      } else if (status === 400 || status === 422) {
-        // Ошибки валидации — прокидываем наверх
-        return Promise.reject(error);
-      } else if (status >= 500) {
-        console.error("Серверная ошибка");
+  (response) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as AxiosRequestConfig & {
+      _retry?: boolean;
+    };
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      const errorMessage = (error.response.data as any)?.message;
+
+      // Проверяем: истёк ли accessToken
+      if (errorMessage === "Access token expired") {
+        if (isRefreshing) {
+          // Ждём, пока обновится токен
+          return new Promise((resolve, reject) => {
+            failedQueue.push({
+              resolve: (token: string) => {
+                if (originalRequest.headers) {
+                  originalRequest.headers["Authorization"] = `Bearer ${token}`;
+                }
+                resolve(axiosInstance(originalRequest));
+              },
+              reject,
+            });
+          });
+        }
+
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        try {
+          const refreshToken = localStorage.getItem("refreshToken");
+          if (!refreshToken) {
+            throw new Error("No refresh token");
+          }
+
+          // Запрос на обновление
+          const res = await axios.post(`${apiUrl}/auth/refresh`, {
+            refreshToken,
+          });
+
+          const { accessToken, refreshToken: newRefresh } = res.data;
+
+          // Сохраняем новые токены
+          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("refreshToken", newRefresh);
+
+          axiosInstance.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${accessToken}`;
+
+          processQueue(null, accessToken);
+          return axiosInstance(originalRequest);
+        } catch (err) {
+          processQueue(err, null);
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          window.location.href = "/login";
+          return Promise.reject(err);
+        } finally {
+          isRefreshing = false;
+        }
       }
-    } else if (error.request) {
-      // Нет ответа от сервера (сетевая ошибка)
-      console.error("Нет соединения с сервером");
-    } else {
-      // Ошибка при настройке запроса
-      console.error("Ошибка запроса:", error.message);
     }
 
     return Promise.reject(error);

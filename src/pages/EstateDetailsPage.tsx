@@ -10,7 +10,12 @@ import EstateImageGallery from "../components/EstateImageGallery";
 import EstateQuickStats from "../components/EstateQuickStats";
 // import { useSimilarEstates } from "../hooks/useSimilarEstates";
 import OpenStreetMap from "../components/OpenStreetMap";
-import { formatPrice, propertyApi, type Property } from "../api/propertyApi";
+import {
+  formatFullName,
+  formatPrice,
+  propertyApi,
+  type PropertyResponse,
+} from "../api/propertyApi";
 import toast from "react-hot-toast";
 
 // Хелпер для отображения типа недвижимости
@@ -41,7 +46,7 @@ const getConditionLabel = (condition: string) => {
 const EstateDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [estate, setEstate] = useState<Property | null>(null);
+  const [estate, setEstate] = useState<PropertyResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -84,11 +89,6 @@ const EstateDetailsPage: React.FC = () => {
       window.scrollTo({ top: 0 });
     }
   }, [estate]);
-
-  const handleImageClick = (index: number) => {
-    setCurrentImageIndex(index);
-    setModalOpen(true);
-  };
 
   if (loading) {
     return (
@@ -170,7 +170,7 @@ const EstateDetailsPage: React.FC = () => {
         </div>
       </div>
 
-      <EstateImageGallery estate={estate} onImageClick={handleImageClick} />
+      <EstateImageGallery photos={estate.photos} />
 
       {modalOpen && (
         <ImageModal
@@ -186,8 +186,7 @@ const EstateDetailsPage: React.FC = () => {
         {/* Price and Title */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            {estate.rooms}-комнатная {getCategoryLabel(estate.type)},{" "}
-            {estate.area} м²
+            {estate.title}
           </h1>
           <div className="flex items-center gap-2 text-gray-600 mb-4">
             <MapPin size={16} />
@@ -207,11 +206,13 @@ const EstateDetailsPage: React.FC = () => {
           </div>
         </div>
 
-        <OpenStreetMap
-          lat={estate.latitude || 0}
-          lng={estate.longitude || 0}
-          address={fullAddress}
-        />
+        {estate.coordinates && (
+          <OpenStreetMap
+            lat={estate.coordinates?.lat || 0}
+            lng={estate.coordinates?.lng || 0}
+            address={fullAddress}
+          />
+        )}
 
         {/* Quick Stats */}
         <EstateQuickStats estate={estate} />
@@ -220,19 +221,21 @@ const EstateDetailsPage: React.FC = () => {
         <EstateContactButtons />
 
         {/* Loan Calculator */}
-        <EstateLoanCalculator price={estate.price} id={estate.id} />
+        <EstateLoanCalculator price={estate.price} id={estate.id!} />
 
         {/* Description */}
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-3">Описание</h2>
-          <p className="text-gray-700 leading-relaxed">{estate.description}</p>
+          <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+            {estate.description}
+          </div>
         </div>
 
         {/* Details Section */}
         <EstateDetailsSection estate={estate} />
 
         {/* Amenities Section */}
-        <EstateAmenitiesSection estate={estate} />
+        {/* <EstateAmenitiesSection estate={estate} /> */}
 
         {/* Agent Info Section */}
         <EstateAgentSection estate={estate} />
@@ -244,8 +247,10 @@ const EstateDetailsPage: React.FC = () => {
   );
 };
 
-// Обновлённые компоненты под Property
-const EstateDetailsSection: React.FC<{ estate: Property }> = ({ estate }) => (
+// Обновлённые компоненты под PropertyDto
+const EstateDetailsSection: React.FC<{ estate: PropertyResponse }> = ({
+  estate,
+}) => (
   <div className="mb-6">
     <h2 className="text-xl font-semibold mb-3">Характеристики</h2>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -293,38 +298,50 @@ const EstateDetailsSection: React.FC<{ estate: Property }> = ({ estate }) => (
   </div>
 );
 
-const EstateAmenitiesSection: React.FC<{ estate: Property }> = ({ estate }) =>
-  estate.amenities &&
-  estate.amenities.length > 0 && (
-    <div className="mb-6">
-      <h2 className="text-xl font-semibold mb-3">Удобства</h2>
-      <div className="flex flex-wrap gap-2">
-        {estate.amenities.map((amenity, index) => (
-          <span
-            key={index}
-            className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
-          >
-            {amenity}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
+// const EstateAmenitiesSection: React.FC<{ estate: PropertyDto }> = ({
+//   estate,
+// }) =>
+//   estate?.amenities &&
+//   estate?.amenities.length > 0 && (
+//     <div className="mb-6">
+//       <h2 className="text-xl font-semibold mb-3">Удобства</h2>
+//       <div className="flex flex-wrap gap-2">
+//         {estate.amenities.map((amenity, index) => (
+//           <span
+//             key={index}
+//             className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+//           >
+//             {amenity}
+//           </span>
+//         ))}
+//       </div>
+//     </div>
+//   );
 
-const EstateAgentSection: React.FC<{ estate: Property }> = ({ estate }) => (
+const EstateAgentSection: React.FC<{ estate: PropertyResponse }> = ({
+  estate,
+}) => (
   <div className="mb-8 p-4 bg-gray-50 rounded-xl">
     <h2 className="text-xl font-semibold mb-3">Контактное лицо</h2>
     <div className="flex items-center gap-3">
       <img
-        src={estate.owner.avatar || "https://placehold.co/48"}
-        alt={estate.owner.name}
+        src={estate.owner?.avatar || "https://placehold.co/48"}
+        alt={formatFullName({
+          firstName: estate.owner?.firstName,
+          lastName: estate.owner?.firstName,
+        })}
         className="w-12 h-12 rounded-full object-cover"
       />
       <div>
-        <div className="font-semibold">{estate.owner.name}</div>
-        <div className="text-sm text-gray-600">{estate.agency.name}</div>
+        <div className="font-semibold">
+          {formatFullName({
+            firstName: estate.owner?.firstName,
+            lastName: estate.owner?.lastName,
+          })}
+        </div>
+        <div className="text-sm text-gray-600">{estate.agency?.name}</div>
         <div className="text-sm text-blue-600">
-          {estate.owner.phone || "Нет телефона"}
+          {estate.owner?.phone || "Нет телефона"}
         </div>
       </div>
     </div>

@@ -4,11 +4,9 @@ import {
   Building,
   User,
   Users,
-  FileText,
   Settings,
   BarChart3,
   Plus,
-  MapPin,
   Landmark,
   Shield,
 } from "lucide-react";
@@ -26,9 +24,9 @@ export type NavigationItem = {
 export const navigationItems: NavigationItem[] = [
   // === Общие пункты (для всех авторизованных) ===
   {
-    id: "dashboard",
+    id: "/",
     title: "Главная",
-    path: "/dashboard",
+    path: "/",
     icon: Home,
     section: "main",
     requiresAuth: true,
@@ -63,21 +61,12 @@ export const navigationItems: NavigationItem[] = [
     requiresAuth: true,
     roles: ["realtor", "agency_admin", "admin"],
   },
-  {
-    id: "leads",
-    title: "Заявки",
-    path: "/leads",
-    icon: FileText,
-    section: "main",
-    requiresAuth: true,
-    roles: ["realtor", "agency_admin", "admin"],
-  },
 
   // === Пункты для админа агентства ===
   {
     id: "agency-realtors",
     title: "Риелторы агентства",
-    path: "/agency/realtors",
+    path: "/realtors",
     icon: Users,
     section: "main",
     requiresAuth: true,
@@ -86,7 +75,7 @@ export const navigationItems: NavigationItem[] = [
   {
     id: "agency-properties",
     title: "Объекты агентства",
-    path: "/agency/properties",
+    path: "/agency-properties",
     icon: Building,
     section: "main",
     requiresAuth: true,
@@ -138,16 +127,5 @@ export const navigationItems: NavigationItem[] = [
     section: "main",
     requiresAuth: true,
     roles: ["admin"],
-  },
-
-  // === Публичные пункты (для всех) ===
-  {
-    id: "public-properties",
-    title: "Каталог",
-    path: "/",
-    icon: MapPin,
-    section: "main",
-    requiresAuth: false,
-    roles: ["realtor", "agency_admin", "admin"],
   },
 ];

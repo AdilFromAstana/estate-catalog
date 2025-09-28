@@ -150,6 +150,7 @@ export const authApi = {
    */
   getCurrentUser: (): User | null => {
     const userStr = localStorage.getItem("user");
+    console.log("userStr: ", userStr);
     if (!userStr) return null;
 
     try {

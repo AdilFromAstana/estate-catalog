@@ -1,198 +1,267 @@
 // src/api/propertyApi.ts
 import axiosInstance from "./axiosInstance";
 
-// Типы данных — адаптируй под твою сущность Property в NestJS
 export interface Coordinates {
   lat: number;
   lng: number;
 }
 
-export interface AgentInfo {
-  id: string;
-  name: string;
-  phone?: string;
-  avatar?: string;
-}
+export type PropertyType =
+  | "apartment"
+  | "house"
+  | "commercial"
+  | "land"
+  | "garage"
+  | "office"
+  | "warehouse"
+  | "cottage";
 
-export interface AgencyInfo {
-  id: string;
-  name: string;
-  logo?: string;
-  phone?: string;
-}
+export type PropertyStatus =
+  | "active"
+  | "inactive"
+  | "sold"
+  | "rented"
+  | "reserved"
+  | "under_construction";
 
-export type PropertyStatus = "sale" | "rent" | "hidden";
-export type PropertyCategory = "apartment" | "house" | "commercial";
+export type Currency = "KZT" | "USD" | "EUR";
 
-export interface PropertyCreateDto {
+/**
+ * Базовые поля недвижимости (общие)
+ */
+export interface BaseProperty {
   title: string;
   description: string;
-  type:
-    | "apartment"
-    | "house"
-    | "commercial"
-    | "land"
-    | "garage"
-    | "office"
-    | "warehouse"
-    | "cottage";
-  status:
-    | "active"
-    | "inactive"
-    | "sold"
-    | "rented"
-    | "reserved"
-    | "under_construction";
+
+  type: PropertyType;
+  status: PropertyStatus;
+
+  price: number;
+  currency?: Currency;
+
   city: string;
   cityId: number;
   district: string;
   districtId: number;
-  address: string;
-  // street?: string;        // ← раскомментируй, если есть в DTO
-  // houseNumber?: string;   // ← раскомментируй, если есть в DTO
-  latitude?: number;
-  longitude?: number;
+  street?: string;
+  houseNumber?: string;
+  address?: string;
+
   area: number;
+  kitchenArea?: number;
   rooms: number;
-  floor: number;
-  totalFloors: number;
-  price: number;
-  currency?: string;
-  photos?: string[]; // ← или images?
-  mainPhoto?: string;
-  hasBalcony?: boolean;
-  hasParking?: boolean;
+  bathrooms?: number;
+
+  floor?: number;
+  totalFloors?: number;
+
+  buildingType?: string;
+  condition?: string;
   yearBuilt?: number;
-  condition: string;
-  isExclusive: boolean;
-  views: number;
-  priority: number;
+
+  balcony?: string;
+  parking?: string;
+  furniture?: string;
+  complex?: string;
+
+  coordinates?: Coordinates;
+
+  photos: string[];
+  mainPhoto?: string;
+
+  isPublished?: boolean;
+  isExclusive?: boolean;
 }
 
-export interface Property {
+/**
+ * 🔹 DTO для создания (отправляем на бэкенд)
+ */
+export interface PropertyCreateDto extends BaseProperty {
+  importUrl?: string;
+}
+
+/**
+ * 🔹 DTO для обновления (частичные поля)
+ */
+export type PropertyUpdateDto = Partial<PropertyCreateDto>;
+
+/**
+ * 🔹 DTO для ответа от API (чтение)
+ * Содержит все поля + системные
+ */
+export interface PropertyResponse extends BaseProperty {
   id: number;
-  title: string;
-  description: string;
-  price: number;
-  status: string;
-  type: string; // или 'apartment' | 'house' | ...
-  city: string;
-  cityId: number;
-  district: string;
-  districtId: number;
-  address: string;
-  street: string;
-  houseNumber: string;
-  area: number; // totalArea
-  rooms: number; // roomCount
-  floor: number;
-  totalFloors: number;
-  condition: string;
-  isPublished: boolean;
-  isExclusive: boolean;
-  newBuilding?: boolean;
-  amenities: string[];
-  photos: string[];
-  latitude?: number;
-  longitude?: number;
-  yearBuilt: number;
-  coordinates: { lat: number; lng: number };
-  agency: {
+  createdAt: string;
+  updatedAt: string;
+  owner?: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    phone?: string;
+    avatar?: string;
+  };
+  agency?: {
     id: number;
     name: string;
     logo?: string;
   };
-  owner: {
-    id: number;
-    name: string;
-    avatar?: string;
-    phone?: string;
-  };
-  createdAt: string;
-  updatedAt: string;
 }
 
+/**
+ * 🔹 Параметры фильтрации/поиска
+ */
 export interface GetPropertiesParams {
+  ownerId?: number;
+  agencyId?: number;
   page?: number;
   limit?: number;
   search?: string;
-  type?: string;
-  status?: string;
-  cityId?: string;
-  districtId?: string;
+  type?: PropertyType;
+  status?: PropertyStatus;
+  cityId?: number;
+  districtId?: number;
   minPrice?: number;
   maxPrice?: number;
   minArea?: number;
   maxArea?: number;
+  minFloor?: number;
+  maxFloor?: number;
   rooms?: number;
 }
 
-export interface PropertyResponse extends PropertyCreateDto {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
+/**
+ * 🔹 Данные, приходящие с Krisha.kz (парсер)
+ */
+export interface ParsedPropertyData {
+  title: string;
+  price: string;
+  currency: string;
+  address: string;
+  city: string;
+  district: string;
+  street: string;
+  houseNumber: string;
+  area: string;
+  kitchenArea: string;
+  rooms: string;
+  floorInfo: string;
+  floor: string;
+  totalFloors: string;
+  buildingType: string;
+  yearBuilt: string;
+  condition: string;
+  bathroom: string;
+  balcony: string;
+  parking: string;
+  furniture: string;
+  complex: string;
+  description: string;
+  photos: string[];
+  sourceUrl: string;
+  coordinates: string; // "lat,lng" или пустая строка
 }
 
-// Сервис для работы с объектами недвижимости
 export const propertyApi = {
-  /**
-   * Создать новый объект недвижимости
-   */
   create: async (dto: PropertyCreateDto): Promise<PropertyResponse> => {
-    const response = await axiosInstance.post<PropertyResponse>(
-      "/properties",
-      dto
-    );
-    return response.data;
+    const res = await axiosInstance.post<PropertyResponse>("/properties", dto);
+    return res.data;
   },
 
-  /**
-   * Получить список объектов (опционально — для будущего использования)
-   */
   getAll: async (
     params?: GetPropertiesParams
-  ): Promise<{ data: Property[]; total: number }> => {
-    const response = await axiosInstance.get<{
-      data: Property[];
+  ): Promise<{ data: PropertyResponse[]; total: number }> => {
+    const res = await axiosInstance.get<{
+      data: PropertyResponse[];
       total: number;
-    }>("/properties", {
-      params,
-    });
-    return response.data;
+    }>("/properties", { params });
+    return res.data;
   },
 
-  /**
-   * Получить объект по ID
-   */
-  getById: async (id: number): Promise<Property> => {
-    const response = await axiosInstance.get<Property>(`/properties/${id}`);
-    return response.data;
+  getById: async (id: number): Promise<PropertyResponse> => {
+    const res = await axiosInstance.get<PropertyResponse>(`/properties/${id}`);
+    return res.data;
   },
 
-  /**
-   * Обновить объект
-   */
   update: async (
-    id: string,
-    dto: Partial<PropertyCreateDto>
+    id: number,
+    dto: PropertyUpdateDto
   ): Promise<PropertyResponse> => {
-    const response = await axiosInstance.patch<PropertyResponse>(
+    const res = await axiosInstance.put<PropertyResponse>(
       `/properties/${id}`,
       dto
     );
-    return response.data;
+    return res.data;
   },
 
-  /**
-   * Удалить объект
-   */
-  delete: async (id: string): Promise<void> => {
+  delete: async (id: number): Promise<void> => {
     await axiosInstance.delete(`/properties/${id}`);
+  },
+
+  importFromKrisha: async (url: string): Promise<ParsedPropertyData> => {
+    const res = await axiosInstance.post<ParsedPropertyData>(
+      "/properties/parse",
+      { url }
+    );
+    return res.data;
+  },
+
+  previewLink: async (url: string) => {
+    const res = await axiosInstance.get("/properties/preview", {
+      params: { url },
+    });
+    return res.data as {
+      title: string;
+      description: string;
+      image: string;
+      url: string;
+    };
   },
 };
 
+/**
+ * 🔹 Форматирование цены
+ */
 export const formatPrice = (amount: any) => {
   const num = Number(amount);
   if (isNaN(num)) return "₸";
   return `${Math.floor(num).toLocaleString()} ₸`;
+};
+
+export const normalizeCurrency = (
+  val: string
+): "KZT" | "USD" | "EUR" | undefined => {
+  if (!val) return undefined;
+  if (val.includes("〒") || val.toLowerCase().includes("kzt")) return "KZT";
+  if (val.toLowerCase().includes("usd") || val.includes("$")) return "USD";
+  if (val.toLowerCase().includes("eur") || val.includes("€")) return "EUR";
+  return undefined;
+};
+
+export const parseCoordinates = (val: string): { lat: number; lng: number } => {
+  if (!val) return { lat: 0, lng: 0 };
+  const [lat, lng] = val.split(",").map((n) => parseFloat(n.trim()));
+  return {
+    lat: isNaN(lat) ? 0 : lat,
+    lng: isNaN(lng) ? 0 : lng,
+  };
+};
+
+export const formatFullName = (owner: {
+  firstName?: string;
+  lastName?: string;
+}) => {
+  if (!owner) return "-";
+
+  const lastName = owner.lastName ?? "";
+  const firstName = owner.firstName ?? "";
+
+  const fullName = `${lastName} ${firstName}`.trim();
+  return fullName || "-";
+};
+
+export const formatRooms = (rooms: number): string => {
+  if (rooms === 0) return "Студия";
+  if (rooms === 1) return "1 к.";
+  if (rooms >= 2) return `${rooms} к.`;
+  return `${rooms} к.`; // Более краткий формат для таблицы
 };

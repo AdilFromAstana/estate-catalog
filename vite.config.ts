@@ -9,4 +9,7 @@ export default defineConfig({
     host: true, // <-- это позволит заходить через IP
     port: 5173, // можно указать порт явно
   },
+  define: {
+    __API_URL__: JSON.stringify(process.env.VITE_API_URL),
+  },
 });

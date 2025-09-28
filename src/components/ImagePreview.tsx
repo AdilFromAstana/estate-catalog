@@ -1,18 +1,14 @@
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
-interface Props {
-  photos: string[];
-}
-
-const EstateImageGallery: React.FC<Props> = ({ photos }) => {
+export const ImagePreview: React.FC<{ images: string[] }> = ({ images }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const closeModal = () => setIsOpen(false);
   const prevImage = () =>
-    setCurrentIndex((prev) => (prev - 1 + photos.length) % photos.length);
-  const nextImage = () => setCurrentIndex((prev) => (prev + 1) % photos.length);
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  const nextImage = () => setCurrentIndex((prev) => (prev + 1) % images.length);
 
   // 🔹 Клавиатура + блокировка скролла
   useEffect(() => {
@@ -33,52 +29,50 @@ const EstateImageGallery: React.FC<Props> = ({ photos }) => {
     };
   }, [isOpen]);
 
-  if (!photos?.length) return null;
+  if (!images?.length) return null;
 
   return (
-    <div className="relative">
-      <div
-        className="grid grid-cols-3 grid-rows-2 gap-1 p-1 h-64"
-        onClick={() => setIsOpen(true)}
-      >
-        {/* Первое фото */}
-        {photos[0] && (
-          <img
-            key={0}
-            src={photos[0]}
-            alt={`1`}
-            className="w-full h-full object-cover cursor-pointer col-span-2 row-span-2"
-          />
-        )}
+    <div className="mb-6">
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Импортированные изображения ({images.length})
+      </label>
 
-        {/* Второе фото */}
-        {photos[1] && (
-          <img
-            key={1}
-            src={photos[1]}
-            alt={`2`}
-            className="w-full h-full object-cover cursor-pointer"
-          />
-        )}
-
-        {/* Третье фото */}
-        {photos[2] && (
-          <img
-            key={2}
-            src={photos[2]}
-            alt={`3`}
-            className="w-full h-full object-cover cursor-pointer"
-          />
+      {/* Мини-превью */}
+      <div className="flex flex-wrap gap-2">
+        {images.slice(0, 5).map((url, idx) => (
+          <div
+            key={idx}
+            className="w-20 h-20 border rounded overflow-hidden cursor-pointer"
+            onClick={() => {
+              setCurrentIndex(idx);
+              setIsOpen(true);
+            }}
+          >
+            <img
+              src={url}
+              alt={`Импорт ${idx + 1}`}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src =
+                  "https://placehold.co/80?text=Ошибка";
+              }}
+            />
+          </div>
+        ))}
+        {images.length > 5 && (
+          <div
+            className="w-20 h-20 border rounded flex items-center justify-center text-xs text-gray-500 cursor-pointer"
+            onClick={() => {
+              setCurrentIndex(5);
+              setIsOpen(true);
+            }}
+          >
+            +{images.length - 5} ещё
+          </div>
         )}
       </div>
-      {photos.length > 4 && (
-        <div className="absolute bottom-4 right-4">
-          <button className="bg-black/70 text-white px-3 py-1 rounded-full text-sm">
-            +{photos.length - 4} фото
-          </button>
-        </div>
-      )}
 
+      {/* Модалка */}
       {isOpen && (
         <>
           {/* Фон */}
@@ -99,7 +93,7 @@ const EstateImageGallery: React.FC<Props> = ({ photos }) => {
               </button>
 
               {/* Стрелки */}
-              {photos.length > 1 && (
+              {images.length > 1 && (
                 <>
                   <button
                     type="button"
@@ -120,7 +114,7 @@ const EstateImageGallery: React.FC<Props> = ({ photos }) => {
 
               {/* Фото */}
               <img
-                src={photos[currentIndex]}
+                src={images[currentIndex]}
                 alt={`image-${currentIndex}`}
                 className="max-h-[90vh] min-h-[50vh] object-contain rounded-lg"
               />
@@ -131,5 +125,3 @@ const EstateImageGallery: React.FC<Props> = ({ photos }) => {
     </div>
   );
 };
-
-export default EstateImageGallery;

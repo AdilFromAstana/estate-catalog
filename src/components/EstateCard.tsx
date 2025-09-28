@@ -1,11 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Bed, Square, Ruler, Heart } from "lucide-react";
-import { formatPrice, type Property } from "../api/propertyApi";
+import { MapPin, Bed, Square, Ruler, Heart, Eye } from "lucide-react";
+import {
+  formatFullName,
+  formatPrice,
+  type PropertyResponse,
+} from "../api/propertyApi";
+import { dictionaryLabels } from "../contants/dictionaryLabels";
 
-const EstateCard: React.FC<Property> = ({
+const EstateCard: React.FC<PropertyResponse> = ({
   id,
-  type,
   city,
   district,
   price,
@@ -14,52 +18,10 @@ const EstateCard: React.FC<Property> = ({
   floor,
   totalFloors,
   photos,
-  amenities,
-  // status,
+  status,
   owner,
+  title,
 }) => {
-  const getCategoryLabel = (type: string) => {
-    const labels: { [key: string]: string } = {
-      apartment: "Квартира",
-      house: "Дом",
-      commercial: "Коммерческая",
-      land: "Участок",
-      townhouse: "Таунхаус",
-    };
-    return labels[type] || type;
-  };
-
-  // const getStatusInfo = () => {
-  //   if (urgency && urgencyLabels[urgency as keyof typeof urgencyLabels]) {
-  //     return urgencyLabels[urgency as keyof typeof urgencyLabels];
-  //   }
-
-  //   // Если нет срочности, отображаем стандартный статус
-  //   const statusLabels: {
-  //     [key: string]: { text: string; color: string; textColor: string };
-  //   } = {
-  //     active: {
-  //       text: "Активно",
-  //       color: "bg-green-100",
-  //       textColor: "text-green-800",
-  //     },
-  //     reserved: {
-  //       text: "Забронировано",
-  //       color: "bg-yellow-100",
-  //       textColor: "text-yellow-800",
-  //     },
-  //     sold: {
-  //       text: "Продано",
-  //       color: "bg-gray-100",
-  //       textColor: "text-gray-800",
-  //     },
-  //   };
-
-  //   return statusLabels[status] || statusLabels.active;
-  // };
-
-  // const statusInfo = getStatusInfo();
-
   return (
     <Link
       to={`/estate/${id}`}
@@ -74,18 +36,16 @@ const EstateCard: React.FC<Property> = ({
         />
 
         {/* Status Badge */}
-        {/* <div className="absolute top-3 left-3">
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-semibold ${statusInfo.color} ${statusInfo.textColor}`}
-          >
-            {statusInfo.text}
+        <div className="absolute top-3 left-3">
+          <span className={`px-2 py-1 rounded-full text-xs font-semibold `}>
+            {dictionaryLabels[status]}
           </span>
-        </div> */}
+        </div>
 
-        {/* <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-black/70 text-white px-2 py-1 rounded-full">
+        <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-black/70 text-white px-2 py-1 rounded-full">
           <Eye size={14} />
-          <span className="text-xs">{views}</span>
-        </div> */}
+          {/* <span className="text-xs">{views}</span> */}
+        </div>
       </div>
 
       {/* Content Section */}
@@ -104,7 +64,7 @@ const EstateCard: React.FC<Property> = ({
 
         {/* Title */}
         <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1">
-          {getCategoryLabel(type)}, {rooms}-комнатная
+          {title}
         </h3>
 
         {/* Location */}
@@ -134,7 +94,7 @@ const EstateCard: React.FC<Property> = ({
         </div>
 
         {/* Amenities */}
-        {amenities && amenities.length > 0 && (
+        {/* {amenities && amenities.length > 0 && (
           <div className="mb-3">
             <div className="flex flex-wrap gap-1">
               {amenities.slice(0, 3).map((amenity, index) => (
@@ -152,20 +112,25 @@ const EstateCard: React.FC<Property> = ({
               )}
             </div>
           </div>
-        )}
+        )} */}
 
         {/* Agent Info */}
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
           <div className="flex items-center gap-2">
             <img
-              // src={agent.avatar || "/placeholder-agent.jpg"}
               src={
+                owner?.avatar ||
                 "https://avatars.mds.yandex.net/i?id=4befe74649a710df0b066c24bf40f767_l-5869782-images-thumbs&n=13"
               }
-              alt={owner.name}
+              alt={owner?.firstName}
               className="w-6 h-6 rounded-full object-cover"
             />
-            <span className="text-sm text-gray-600">{owner.name}</span>
+            <span className="text-sm text-gray-600">
+              {formatFullName({
+                lastName: owner?.lastName,
+                firstName: owner?.firstName,
+              })}
+            </span>
           </div>
 
           <div className="flex items-center gap-2">

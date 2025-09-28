@@ -1,10 +1,8 @@
-// components/MapView.tsx
 import React from "react";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-// import type { Estate } from "../contants/estates";
-import type { Property } from "../api/propertyApi";
+import type { PropertyResponse } from "../api/propertyApi";
 
 // Фикс для иконок
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -18,12 +16,17 @@ L.Icon.Default.mergeOptions({
 });
 
 interface MapViewProps {
-  estates: Property[];
-  onEstateClick: (estate: Property) => void;
+  estates: PropertyResponse[];
+  onEstateClick: (estate: PropertyResponse) => void;
 }
 
 const MapView: React.FC<MapViewProps> = ({ estates, onEstateClick }) => {
-  if (estates.length === 0) {
+  // оставляем только те объекты, у которых есть координаты
+  const estatesWithCoords = estates.filter(
+    (e) => e.coordinates && e.coordinates.lat && e.coordinates.lng
+  );
+
+  if (estatesWithCoords.length === 0) {
     return (
       <div className="h-96 flex items-center justify-center bg-gray-100 rounded-lg">
         <p className="text-gray-500">Нет объектов для отображения на карте</p>
@@ -33,11 +36,11 @@ const MapView: React.FC<MapViewProps> = ({ estates, onEstateClick }) => {
 
   // Средние координаты для центра карты
   const centerLat =
-    estates.reduce((sum, estate) => sum + estate.coordinates.lat, 0) /
-    estates.length;
+    estatesWithCoords.reduce((sum, e) => sum + (e.coordinates?.lat ?? 0), 0) /
+    estatesWithCoords.length;
   const centerLng =
-    estates.reduce((sum, estate) => sum + estate.coordinates.lng, 0) /
-    estates.length;
+    estatesWithCoords.reduce((sum, e) => sum + (e.coordinates?.lng ?? 0), 0) /
+    estatesWithCoords.length;
 
   return (
     <div className="h-[75vh] rounded-lg overflow-hidden border border-gray-200">
@@ -51,14 +54,14 @@ const MapView: React.FC<MapViewProps> = ({ estates, onEstateClick }) => {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {estates.map((estate) => (
+        {estatesWithCoords.map((estate) => (
           <Marker
             key={estate.id}
-            position={[estate.coordinates.lat, estate.coordinates.lng]}
+            position={[estate.coordinates!.lat, estate.coordinates!.lng]}
             eventHandlers={{
               click: () => onEstateClick(estate),
             }}
-          ></Marker>
+          />
         ))}
       </MapContainer>
     </div>

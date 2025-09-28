@@ -27,13 +27,26 @@ import CollageGenerator from "./components/CollageGenerator/CollageGenerator";
 import RegisterPage from "./pages/RegisterPage";
 import { Toaster } from "react-hot-toast";
 import RealtorSettingsPage from "./pages/RealtorSettingsPage";
+import RealtorDetailPage from "./pages/RealtorDetailPage";
+import AgencyPropertiesPage from "./pages/AgencyPropertiesPage";
 
 // Компонент для защищенных маршрутов
 const ProtectedRoute: React.FC<{
   children: React.ReactNode;
   roles?: string[];
 }> = ({ children }) => {
-  const { user } = useApp();
+  const { user, loading } = useApp();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center w-full h-[50vh]">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+          <p className="mt-4 text-gray-600">Проверка авторизации...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user?.isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -176,6 +189,14 @@ const AppContent: React.FC = () => {
             }
           />
           <Route
+            path="/agency-properties"
+            element={
+              <WithSidebarLayout>
+                <AgencyPropertiesPage />
+              </WithSidebarLayout>
+            }
+          />
+          <Route
             path="/realtors"
             element={
               <WithSidebarLayout>
@@ -187,7 +208,7 @@ const AppContent: React.FC = () => {
             path="/realtors/:id"
             element={
               <WithSidebarLayout>
-                <RealtorEstates />
+                <RealtorDetailPage />
               </WithSidebarLayout>
             }
           />
@@ -261,11 +282,11 @@ const App: React.FC = () => {
   return (
     <>
       <Toaster position="top-right" />
-      <Router>
-        <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen">
+        <Router>
           <AppContent />
-        </div>
-      </Router>
+        </Router>
+      </div>
     </>
   );
 };

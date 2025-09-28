@@ -22,6 +22,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // Инициализация: проверка авторизации при старте приложения
   useEffect(() => {
     const initAuth = () => {
+      console.log("ВРОДЕ РАБТОАЕТ")
       try {
         const savedUser = authApi.getCurrentUser();
         setUser(savedUser);

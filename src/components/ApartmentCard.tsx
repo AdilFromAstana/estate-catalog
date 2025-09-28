@@ -11,7 +11,7 @@ export default function ApartmentCard({
   selected,
   onToggle,
 }: Props) {
-  const firstPhoto = apartment.images?.[0];
+  const firstPhoto = apartment.photos?.[0];
 
   return (
     <div

@@ -125,7 +125,7 @@ export interface Agency {
 }
 
 export interface User {
-  id: string;
+  id: number;
   name: string;
   email: string;
   roles: UserRole[]; // ← массив ролей
@@ -133,7 +133,7 @@ export interface User {
   avatar?: string;
   phone?: string;
   agency?: Agency;
-  agencyId?: string;
+  agencyId?: number;
   createdAt: string;
   isActive: boolean;
 }

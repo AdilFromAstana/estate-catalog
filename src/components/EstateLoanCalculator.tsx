@@ -184,14 +184,14 @@ const EstateLoanCalculator: React.FC<Props> = ({ price, id }) => {
             {!isNotValid ? formatPrice(initialPayment) : "—"}
           </span>
         </div>
-        <div className="flex justify-between">
+        {/* <div className="flex justify-between">
           <span className="text-gray-600">Общая переплата:</span>
           <span className="font-medium">
             {!isNotValid
               ? formatPrice(monthlyPayment * term - calculateLoanAmount())
               : "—"}
           </span>
-        </div>
+        </div> */}
       </div>
     </div>
   );

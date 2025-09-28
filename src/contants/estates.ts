@@ -60,7 +60,7 @@ export interface Estate {
   };
 
   // 9. Медиа
-  images: string[]; // URL фотографий
+  photos: string[]; // URL фотографий
   videoTour?: string; // URL видео-тура
   virtualTour?: string; // URL 3D-тура (Matterport)
   floorPlan?: string; // URL планировки
@@ -174,7 +174,7 @@ export const astanaEstates: Estate[] = [
       water: "central",
       sewerage: "central",
     },
-    images: [
+    photos: [
       "https://astps-photos-kr.kcdn.kz/webp/0d/0d52c501-0afb-4695-9587-c2a2aea900b2/18-full.webp",
       "https://astps-photos-kr.kcdn.kz/webp/0d/0d52c501-0afb-4695-9587-c2a2aea900b2/19-full.webp",
       "https://astps-photos-kr.kcdn.kz/webp/0d/0d52c501-0afb-4695-9587-c2a2aea900b2/7-full.webp",
@@ -242,7 +242,7 @@ export const astanaEstates: Estate[] = [
       "кондиционер",
       "умный дом",
     ],
-    images: [
+    photos: [
       "https://astps-photos-kr.kcdn.kz/webp/e2/e27fd401-5e3f-4cc9-b16a-f5488709edf1/12-full.webp",
       "https://astps-photos-kr.kcdn.kz/webp/e2/e27fd401-5e3f-4cc9-b16a-f5488709edf1/1-full.webp",
       "https://astps-photos-kr.kcdn.kz/webp/e2/e27fd401-5e3f-4cc9-b16a-f5488709edf1/2-full.webp",
@@ -301,7 +301,7 @@ export const astanaEstates: Estate[] = [
     condition: "good",
     renovation: "cosmetic",
     amenities: ["балкон", "охрана", "паркинг"],
-    images: [
+    photos: [
       "https://astps-photos-kr.kcdn.kz/webp/11/11278266-37f1-4ac7-a115-167620ebfacb/1-full.webp",
       "https://astps-photos-kr.kcdn.kz/webp/11/11278266-37f1-4ac7-a115-167620ebfacb/2-full.webp",
       "https://astps-photos-kr.kcdn.kz/webp/11/11278266-37f1-4ac7-a115-167620ebfacb/3-full.webp",
@@ -365,7 +365,7 @@ export const astanaEstates: Estate[] = [
       "консьерж",
       "кондиционер",
     ],
-    images: [
+    photos: [
       "https://astps-photos-kr.kcdn.kz/webp/b5/b5abfe95-4573-4934-886c-7d407b3d3093/1-full.webp",
       "https://astps-photos-kr.kcdn.kz/webp/b5/b5abfe95-4573-4934-886c-7d407b3d3093/2-full.webp",
       "https://astps-photos-kr.kcdn.kz/webp/b5/b5abfe95-4573-4934-886c-7d407b3d3093/3-full.webp",
@@ -441,7 +441,7 @@ export const astanaEstates: Estate[] = [
       "кондиционер",
       "камин",
     ],
-    images: [
+    photos: [
       "https://astps-photos-kr.kcdn.kz/webp/95/95507342-38e9-4266-a02a-0883712a687b/27-full.webp",
       "https://astps-photos-kr.kcdn.kz/webp/95/95507342-38e9-4266-a02a-0883712a687b/13-full.webp",
       "https://astps-photos-kr.kcdn.kz/webp/95/95507342-38e9-4266-a02a-0883712a687b/1-full.webp",
@@ -515,7 +515,7 @@ export const astanaEstates: Estate[] = [
       "паркинг",
       "спортзал",
     ],
-    images: [
+    photos: [
       "https://astps-photos-kr.kcdn.kz/webp/f4/f4cb8da2-b443-4b99-a262-59945614c42b/10-full.webp",
       "https://astps-photos-kr.kcdn.kz/webp/f4/f4cb8da2-b443-4b99-a262-59945614c42b/11-full.webp",
       "https://astps-photos-kr.kcdn.kz/webp/f4/f4cb8da2-b443-4b99-a262-59945614c42b/9-full.webp",
@@ -589,7 +589,7 @@ export const astanaEstates: Estate[] = [
       "детская площадка",
       "ландшафтный дизайн",
     ],
-    images: [
+    photos: [
       "https://krisha-photos.kcdn.online/webp/2d/2dd33e76-8e7e-42bf-8ef6-492fb7d675cf/3-full.webp",
       "https://krisha-photos.kcdn.online/webp/2d/2dd33e76-8e7e-42bf-8ef6-492fb7d675cf/2-full.webp",
       "https://krisha-photos.kcdn.online/webp/2d/2dd33e76-8e7e-42bf-8ef6-492fb7d675cf/1-full.webp",
@@ -660,7 +660,7 @@ export const astanaEstates: Estate[] = [
       "паркинг",
       "детская площадка",
     ],
-    images: [
+    photos: [
       "https://astps-photos-kr.kcdn.kz/webp/4c/4ce22e74-6347-4585-8ead-883e77737afb/14-full.webp",
       "https://astps-photos-kr.kcdn.kz/webp/4c/4ce22e74-6347-4585-8ead-883e77737afb/15-full.webp",
       "https://astps-photos-kr.kcdn.kz/webp/4c/4ce22e74-6347-4585-8ead-883e77737afb/16-full.webp",
@@ -731,7 +731,7 @@ export const astanaEstates: Estate[] = [
       "подземный паркинг",
       "сад",
     ],
-    images: [
+    photos: [
       "https://astps-photos-kr.kcdn.kz/webp/da/da46ec0a-fb47-4107-ab3b-e23cdfcdb5f5/118-full.webp",
       "https://astps-photos-kr.kcdn.kz/webp/da/da46ec0a-fb47-4107-ab3b-e23cdfcdb5f5/119-full.webp",
       "https://astps-photos-kr.kcdn.kz/webp/da/da46ec0a-fb47-4107-ab3b-e23cdfcdb5f5/120-full.webp",
@@ -810,7 +810,7 @@ export const astanaEstates: Estate[] = [
       "SPA",
       "спортзал",
     ],
-    images: [
+    photos: [
       "https://astps-photos-kr.kcdn.kz/webp/cb/cbf6a8d1-554f-4d59-b20f-9c44106dfed9/65-full.webp",
       "https://astps-photos-kr.kcdn.kz/webp/cb/cbf6a8d1-554f-4d59-b20f-9c44106dfed9/66-full.webp",
       "https://astps-photos-kr.kcdn.kz/webp/cb/cbf6a8d1-554f-4d59-b20f-9c44106dfed9/67-full.webp",
