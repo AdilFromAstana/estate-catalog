@@ -241,7 +241,7 @@ export const PropertyForm: React.FC<Props> = ({
       />
 
       {/* 🔹 Превью картинок */}
-      <ImagePreview images={formData.images} />
+      <ImagePreview images={formData.photos} />
 
       {/* 🔹 Кнопки */}
       <div className="flex justify-between mt-6">
