@@ -12,7 +12,7 @@ export const ImportPreview: React.FC<Props> = ({ data }) => {
     <div className="mt-4 border rounded-md p-4 bg-gray-50">
       <div className="flex gap-4">
         <img
-          src={data.images?.[0] || "https://placehold.co/120x80?text=No+Image"}
+          src={data.photos?.[0] || "https://placehold.co/120x80?text=No+Image"}
           alt="preview"
           className="w-32 h-24 object-cover rounded"
         />

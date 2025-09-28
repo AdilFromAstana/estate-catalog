@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 import { useBuildingTypes, useConditions } from "./usePropertyDictionaries";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export const usePropertyForm = (user: any, navigate: any) => {
+export const usePropertyForm = (_: any, navigate: any) => {
   const queryClient = useQueryClient();
   const importMutation = useImportProperty();
   const { data: cities = [] } = useCities();

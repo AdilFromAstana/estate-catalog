@@ -1,15 +1,15 @@
 // components/EstateQuickStats.tsx
 import React from "react";
 import { Bed, Square, Ruler } from "lucide-react";
-import type { Property } from "../api/propertyApi";
+import type { PropertyResponse } from "../api/propertyApi";
 
 interface Props {
-  estate: Property;
+  estate: PropertyResponse;
 }
 
 const EstateQuickStats: React.FC<Props> = ({ estate }) => {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-xl">
+    <div className="grid grid-cols-3 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-xl">
       <div className="text-center">
         <Bed size={24} className="mx-auto text-gray-600 mb-1" />
         <div className="font-semibold">{estate.rooms} комн.</div>

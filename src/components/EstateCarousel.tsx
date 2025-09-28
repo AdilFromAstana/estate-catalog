@@ -65,7 +65,7 @@ const EstateCarousel: React.FC<EstateCarouselProps> = ({ estates, title }) => {
                 {/* Image */}
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <img
-                    src={estate.images[0] || "/placeholder-estate.jpg"}
+                    src={estate.photos[0] || "/placeholder-estate.jpg"}
                     alt={estate.district}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
