@@ -20,7 +20,6 @@ import LoginPage from "./pages/LoginPage";
 import CollectionsList from "./pages/CollectionsList";
 import CreateCollection from "./pages/CreateCollection";
 import CollectionDetail from "./pages/CollectionDetail";
-import RealtorEstates from "./pages/RealtorEstates";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import { useApp } from "./AppContext";
 import CollageGenerator from "./components/CollageGenerator/CollageGenerator";

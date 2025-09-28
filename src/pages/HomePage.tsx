@@ -69,6 +69,9 @@ const HomePage: React.FC = () => {
   const estates = data?.data ?? [];
   const total = data?.total ?? 0;
 
+  console.log("error: ", error);
+  console.log("total: ", total);
+
   // Обработчики
   const handleEstateClick = (estate: PropertyResponse) => {
     if (viewMode === "map") {
