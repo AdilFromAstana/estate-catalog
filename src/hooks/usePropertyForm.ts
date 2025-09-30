@@ -9,7 +9,12 @@ import {
   type PropertyCreateDto,
 } from "../api/propertyApi";
 import toast from "react-hot-toast";
-import { useBuildingTypes, useConditions } from "./usePropertyDictionaries";
+import {
+  getBuildingTypeLabels,
+  getConditionLabels,
+  useBuildingTypes,
+  useConditions,
+} from "./usePropertyDictionaries";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const usePropertyForm = (_: any, navigate: any) => {
@@ -20,6 +25,9 @@ export const usePropertyForm = (_: any, navigate: any) => {
   const { data: districts = [] } = useDistricts(selectedCityId || undefined);
   const { data: buildingTypes = [] } = useBuildingTypes();
   const { data: conditions = [] } = useConditions();
+
+  const buildingTypeLabels = getBuildingTypeLabels(buildingTypes);
+  const conditionLabels = getConditionLabels(conditions);
 
   const [formData, setFormData] = useState<PropertyCreateDto>({
     title: "",
@@ -85,6 +93,24 @@ export const usePropertyForm = (_: any, navigate: any) => {
         const matchedCity = cities.find(
           (c) => c.name.toLowerCase() === data.city.toLowerCase()
         );
+        // 🔍 Найти buildingType по label (русскому названию)
+        const buildingTypeIndex = buildingTypeLabels.findIndex(
+          (label) => label.toLowerCase() === data.buildingType?.toLowerCase()
+        );
+        const conditionIndex = conditionLabels.findIndex(
+          (label) => label.toLowerCase() === data.condition?.toLowerCase()
+        );
+
+        const matchedBuildingType =
+          buildingTypeIndex !== -1 ? buildingTypes[buildingTypeIndex] : "";
+        const matchedCondition =
+          conditionIndex !== -1 ? conditions[conditionIndex] : "";
+
+        console.log(matchedBuildingType);
+        console.log("conditions: ", conditions);
+        console.log("conditionLabels: ", conditionLabels);
+        console.log("matchedCondition: ", matchedCondition);
+        console.log("conditionIndex: ", conditionIndex);
 
         setFormData((prev) => ({
           ...prev,
@@ -103,6 +129,7 @@ export const usePropertyForm = (_: any, navigate: any) => {
           kitchenArea: parseFloat(data.kitchenArea) || 0,
           currency: normalizeCurrency(data.currency),
           coordinates: parseCoordinates(data.coordinates),
+          buildingType: matchedBuildingType,
         }));
 
         if (matchedCity) {
@@ -158,10 +185,11 @@ export const usePropertyForm = (_: any, navigate: any) => {
   };
 
   useEffect(() => {
-    if (!parsedData || !districts.length || selectedCityId) return;
+    if (!parsedData || !districts.length || !selectedCityId) return;
 
     const matchedDistrict = districts.find(
-      (d) => d.name.toLowerCase() === parsedData.district.toLowerCase()
+      (d) =>
+        d.name.toLowerCase() === parsedData.district.toLowerCase().split(" ")[0]
     );
 
     if (matchedDistrict) {

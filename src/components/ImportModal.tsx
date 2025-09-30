@@ -33,7 +33,7 @@ export const ImportModal: React.FC<Props> = ({
         <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold">Импорт с Krisha.kz</h2>
-            <button onClick={onClose}>
+            <button onClick={onClose} disabled={isLoading || isImporting}>
               <X size={20} className="text-gray-500 hover:text-gray-700" />
             </button>
           </div>

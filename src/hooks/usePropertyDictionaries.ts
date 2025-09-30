@@ -40,3 +40,33 @@ export function usePropertyStatuses() {
     gcTime: Infinity, // ✅ хранить бесконечно
   });
 }
+
+const dictionaryLabels: Record<string, string> = {
+  // BuildingType
+  panel: "Панельный",
+  brick: "Кирпичный",
+  monolith: "Монолитный",
+  monolith_brick: "Монолитно-кирпичный",
+  wood: "Деревянный",
+  block: "Блочный",
+
+  // Condition
+  needs_repair: "Требует ремонта",
+  rough_finish: "Черновая отделка",
+  fresh_renovation: "Свежий ремонт",
+  tidy_renovation: "Не новый, но аккуратный ремонт",
+  open_plan: "Свободная планировка",
+};
+
+export const getBuildingTypeLabels = (types: string[]): string[] => {
+  return types
+    .map((key) => dictionaryLabels[key] || key) // fallback на ключ, если нет перевода
+    .filter(Boolean); // убираем пустые/undefined
+};
+
+/**
+ * Преобразует массив ключей состояний в человекочитаемые названия
+ */
+export const getConditionLabels = (conditions: string[]): string[] => {
+  return conditions.map((key) => dictionaryLabels[key] || key).filter(Boolean);
+};

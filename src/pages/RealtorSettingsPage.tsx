@@ -4,7 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { Upload, Save, Key, Edit3 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useApp } from "../AppContext";
-import { useRealtor, useUpdateRealtor } from "../hooks/useRealtor";
+import {
+  getAvatar,
+  useRealtor,
+  useUpdateRealtor,
+  useUploadRealtorAvatar,
+} from "../hooks/useRealtor";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 
 const InputField: React.FC<{
   label: string;
@@ -45,7 +52,6 @@ const InputField: React.FC<{
     />
   </div>
 );
-
 const RealtorSettingsPage: React.FC = () => {
   const { user } = useApp();
   const navigate = useNavigate();
@@ -55,6 +61,34 @@ const RealtorSettingsPage: React.FC = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<any>({});
+
+  const { mutate: uploadAvatar, isPending } = useUploadRealtorAvatar(user?.id!);
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 👀 Предпросмотр (base64)
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setFormData((prev: any) => ({
+        ...prev,
+        avatar: event.target?.result as string, // локальный preview
+      }));
+    };
+    reader.readAsDataURL(file);
+
+    // 🚀 Отправляем на сервер через useMutation
+    uploadAvatar(file, {
+      onSuccess: (url) => {
+        setFormData((prev: any) => ({ ...prev, avatar: url }));
+        toast.success("Аватар обновлён!");
+      },
+      onError: () => {
+        toast.error("Не удалось загрузить аватар");
+      },
+    });
+  };
 
   // когда включаем редактирование — копируем данные в форму
   const startEditing = () => {
@@ -70,27 +104,13 @@ const RealtorSettingsPage: React.FC = () => {
     }));
   };
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isEditing) return;
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setFormData((prev: any) => ({
-          ...prev,
-          avatar: event.target?.result as string,
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user?.id) return;
 
     try {
-      await updateRealtor.mutateAsync(formData);
+      const { avatar, ...otherData } = formData;
+      await updateRealtor.mutateAsync(otherData);
       toast.success("Данные успешно обновлены!");
       setIsEditing(false);
     } catch (error: any) {
@@ -120,23 +140,48 @@ const RealtorSettingsPage: React.FC = () => {
           <div className="flex flex-col items-center">
             <div className="relative">
               <img
-                src={
-                  currentData.avatar || "https://placehold.co/120?text=Аватар"
-                }
+                src={getAvatar(currentData.avatar!)}
                 alt="Аватар"
                 className="w-24 h-24 rounded-full object-cover border-2 border-gray-200"
               />
-              {isEditing && (
-                <label className="absolute bottom-0 right-0 bg-blue-600 rounded-full p-2 cursor-pointer hover:bg-blue-700">
-                  <Upload size={16} className="text-white" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                    className="hidden"
-                  />
-                </label>
+
+              {/* 👀 Лоадер поверх аватара */}
+              {isPending && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full">
+                  <svg
+                    className="animate-spin h-6 w-6 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    />
+                  </svg>
+                </div>
               )}
+
+              {/* Кнопка загрузки */}
+              <label className="absolute bottom-0 right-0 bg-blue-600 rounded-full p-2 cursor-pointer hover:bg-blue-700">
+                <Upload size={16} className="text-white" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  className="hidden"
+                  disabled={isPending} // 🚫 запрещаем клик во время загрузки
+                />
+              </label>
             </div>
           </div>
 
@@ -174,13 +219,35 @@ const RealtorSettingsPage: React.FC = () => {
               disabled={!isEditing}
               required
             />
-            <InputField
-              label="Телефон"
-              name="phone"
-              value={currentData.phone || ""}
-              onChange={handleInputChange}
-              disabled={!isEditing}
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Телефон
+              </label>
+              <PhoneInput
+                international
+                defaultCountry="KZ"
+                countryCallingCodeEditable={false}
+                value={currentData.phone || undefined}
+                onChange={(value) => {
+                  // value — всегда либо undefined, либо строка вида "+79123456789"
+                  setFormData((prev: any) => ({
+                    ...prev,
+                    phone: value || "",
+                  }));
+                }}
+                disabled={!isEditing}
+                // ❌ НЕТ placeholder — чтобы не было "лишнего текста"
+                // ❌ НЕТ кастомных масок — всё делает libphonenumber
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                  !isEditing
+                    ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                    : "focus:ring-blue-500 border-gray-300"
+                }`}
+                inputClassName="w-full px-3 py-2 border-0 outline-none"
+                // 🔒 Опционально: отключить выбор других стран
+                countries={["KZ"]} // разрешить ТОЛЬКО Россию
+              />
+            </div>
             <InputField
               label="Место работы (агентство)"
               name="agency"

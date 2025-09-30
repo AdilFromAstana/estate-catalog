@@ -53,6 +53,20 @@ export const useUpdateRealtor = (id: string | number) => {
   });
 };
 
+export const useUploadRealtorAvatar = (id: string | number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (file: File) => realtorApi.uploadAvatar(id, file),
+    onSuccess: (url) => {
+      queryClient.setQueryData<Realtor>(realtorKeys.detail(id), (prev) =>
+        prev ? { ...prev, avatar: url } : prev
+      );
+      queryClient.invalidateQueries({ queryKey: realtorKeys.all });
+    },
+  });
+};
+
 export const getStatusClass = (isActive: boolean, isVerified: boolean) => {
   if (!isActive) return "bg-red-100 text-red-800";
   if (!isVerified) return "bg-yellow-100 text-yellow-800";
@@ -63,4 +77,14 @@ export const getStatusText = (isActive: boolean, isVerified: boolean) => {
   if (!isActive) return "Неактивный";
   if (!isVerified) return "На проверке";
   return "Активный";
+};
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+export const getAvatar = (avatar: string) => {
+  if (avatar) {
+    return API_URL + avatar;
+  } else {
+    return "https://placehold.co/48";
+  }
 };
