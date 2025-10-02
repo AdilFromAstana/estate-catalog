@@ -103,8 +103,9 @@ export const useLinkPreview = (url?: string) => {
 
   return useQuery({
     queryKey: ["linkPreview", url],
-    queryFn: () => propertyApi.previewLink(url!),
-    enabled: !!isValidUrl, // запрос только если URL валидный
+    queryFn: ({ signal }) => propertyApi.previewLink(url!, signal), // ✅ передаём signal
+    enabled: !!isValidUrl,
     staleTime: 1000 * 60 * 5,
+    gcTime: 0, // очищаем кеш при анмаунте
   });
 };

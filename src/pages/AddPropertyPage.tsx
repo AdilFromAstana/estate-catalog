@@ -65,7 +65,10 @@ const AddPropertyPage: React.FC = () => {
           handleImport={handleImport}
           isImporting={importMutation.isPending}
           importError={importError}
-          onClose={() => setShowImportModal(false)}
+          onClose={() => {
+            setFormData((p: typeof formData) => ({ ...p, importUrl: "" })); // 👈 сброс
+            setShowImportModal(false);
+          }}
         />
       )}
     </div>
