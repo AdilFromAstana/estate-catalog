@@ -41,7 +41,17 @@ export const PropertyForm: React.FC<Props> = ({
       onSubmit={onSubmit}
       className="bg-white rounded-lg shadow-md p-6 space-y-6"
     >
-      <h2 className="text-xl font-semibold mb-4">Данные объекта</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold mb-4">Данные объекта</h2>
+        <button
+          type="button"
+          onClick={onOpenImport}
+          className="px-6 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 flex items-center"
+        >
+          <Download size={16} className="mr-1" />
+          Импорт с Krisha.kz
+        </button>
+      </div>
 
       {/* 🔹 Название и цена */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -245,15 +255,6 @@ export const PropertyForm: React.FC<Props> = ({
 
       {/* 🔹 Кнопки */}
       <div className="flex justify-between mt-6">
-        <button
-          type="button"
-          onClick={onOpenImport}
-          className="px-6 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 flex items-center"
-        >
-          <Download size={16} className="mr-1" />
-          Импорт с Krisha.kz
-        </button>
-
         <div className="flex gap-4">
           <button
             type="button"

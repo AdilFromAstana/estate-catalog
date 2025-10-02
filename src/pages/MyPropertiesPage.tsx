@@ -16,12 +16,13 @@ import {
   Clock,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useMyProperties } from "../hooks/useProperties";
+import { useMyProperties, useToggleVisibility } from "../hooks/useProperties";
 import {
   formatPrice,
   formatRooms,
   type PropertyResponse,
 } from "../api/propertyApi";
+import toast from "react-hot-toast";
 
 const MyPropertiesPage: React.FC = () => {
   const { user } = useApp();
@@ -39,6 +40,24 @@ const MyPropertiesPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>(""); // Состояние для поиска
+
+  const { mutate: toggleVisibilityMutation } = useToggleVisibility();
+
+  const toggleVisibility = (property: PropertyResponse) => {
+    const newStatus = !property.isPublished;
+    toggleVisibilityMutation(
+      { id: property.id, isPublished: newStatus },
+      {
+        onSuccess: () => {
+          toast.success(
+            `Объект ID ${property.id} теперь ${
+              newStatus ? "опубликован" : "скрыт"
+            }`
+          );
+        },
+      }
+    );
+  };
 
   // Используем mockProperties напрямую
   const myProperties: PropertyResponse[] = data?.data ?? [];
@@ -140,12 +159,6 @@ const MyPropertiesPage: React.FC = () => {
     alert(
       `Вы уверены, что хотите удалить объект ID: ${id}? (имитация удаления)`
     );
-  };
-
-  const toggleVisibility = (id: number, currentStatus: string) => {
-    // В реальном приложении здесь будет вызов API
-    const newStatus = currentStatus === "active" ? "hidden" : "active";
-    alert(`Статус объекта ID ${id} изменен на "${newStatus}" (имитация)`);
   };
 
   // --- Рендеринг пустого состояния (если нет объектов вообще) ---
@@ -372,15 +385,11 @@ const MyPropertiesPage: React.FC = () => {
                         <Edit size={20} />
                       </button>
                       <button
-                        onClick={() =>
-                          toggleVisibility(property.id, property.status)
-                        }
+                        onClick={() => toggleVisibility(property)}
                         className="p-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition shadow-sm"
-                        title={
-                          property.status === "active" ? "Скрыть" : "Показать"
-                        }
+                        title={property.isPublished ? "Скрыть" : "Показать"}
                       >
-                        {property.status === "active" ? (
+                        {property.isPublished ? (
                           <EyeOff size={20} />
                         ) : (
                           <Eye size={20} />

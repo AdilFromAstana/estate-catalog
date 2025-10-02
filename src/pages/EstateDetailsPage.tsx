@@ -17,6 +17,7 @@ import {
   type PropertyResponse,
 } from "../api/propertyApi";
 import toast from "react-hot-toast";
+import { getAvatar } from "../hooks/useRealtor";
 
 // Хелпер для отображения типа недвижимости
 const getCategoryLabel = (type: string) => {
@@ -325,10 +326,10 @@ const EstateAgentSection: React.FC<{ estate: PropertyResponse }> = ({
     <h2 className="text-xl font-semibold mb-3">Контактное лицо</h2>
     <div className="flex items-center gap-3">
       <img
-        src={estate.owner?.avatar || "https://placehold.co/48"}
+        src={getAvatar(estate.owner?.avatar!)}
         alt={formatFullName({
           firstName: estate.owner?.firstName,
-          lastName: estate.owner?.firstName,
+          lastName: estate.owner?.lastName,
         })}
         className="w-12 h-12 rounded-full object-cover"
       />

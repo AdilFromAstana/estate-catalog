@@ -15,6 +15,7 @@ import {
   Plus,
 } from "lucide-react";
 import {
+  getAvatar,
   getStatusClass,
   getStatusText,
   useRealtors,
@@ -218,10 +219,7 @@ const RealtorsPage: React.FC = () => {
                     <div className="flex items-center space-x-3 min-w-[150px] lg:min-w-auto">
                       <img
                         className="h-10 w-10 rounded-full object-cover"
-                        src={
-                          realtor.avatar ||
-                          "https://placehold.co/40x40/f3f4f6/374151?text=A"
-                        }
+                        src={getAvatar(realtor.avatar!)}
                         alt={`${realtor.firstName} ${realtor.lastName}`}
                       />
                       <div>

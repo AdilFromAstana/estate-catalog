@@ -7,6 +7,7 @@ import {
   type PropertyResponse,
 } from "../api/propertyApi";
 import { dictionaryLabels } from "../contants/dictionaryLabels";
+import { getAvatar } from "../hooks/useRealtor";
 
 const EstateCard: React.FC<PropertyResponse> = ({
   id,
@@ -118,10 +119,7 @@ const EstateCard: React.FC<PropertyResponse> = ({
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
           <div className="flex items-center gap-2">
             <img
-              src={
-                owner?.avatar ||
-                "https://avatars.mds.yandex.net/i?id=4befe74649a710df0b066c24bf40f767_l-5869782-images-thumbs&n=13"
-              }
+              src={getAvatar(owner?.avatar!)}
               alt={owner?.firstName}
               className="w-6 h-6 rounded-full object-cover"
             />

@@ -193,6 +193,16 @@ export const propertyApi = {
     return res.data;
   },
 
+  updateVisibility: async (
+    id: number,
+    isPublished: boolean
+  ): Promise<PropertyResponse> => {
+    const res = await axiosInstance.put<PropertyResponse>(`/properties/${id}`, {
+      isPublished: isPublished,
+    });
+    return res.data;
+  },
+
   delete: async (id: number): Promise<void> => {
     await axiosInstance.delete(`/properties/${id}`);
   },

@@ -71,13 +71,13 @@ export const realtorApi = {
     return response.data;
   },
 
-  // Дополнительно: можно добавить uploadAvatar
-  uploadAvatar: async (file: File): Promise<string> => {
+  // ✅ Загрузка аватара конкретного риелтора
+  uploadAvatar: async (id: string | number, file: File): Promise<string> => {
     const formData = new FormData();
-    formData.append("avatar", file);
+    formData.append("file", file);
 
     const response = await axiosInstance.post<{ url: string }>(
-      "/upload/avatar",
+      `/users/${id}/avatar`,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
