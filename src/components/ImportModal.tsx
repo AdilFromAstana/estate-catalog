@@ -19,7 +19,8 @@ export const ImportModal: React.FC<Props> = ({
   importError,
   onClose,
 }) => {
-  const { data: preview, isLoading } = useLinkPreview(importUrl);
+  const { data: preview, isLoading } = useLinkPreview(importUrl || "");
+
   return (
     <>
       {/* 🔹 Серый фон */}
@@ -45,6 +46,7 @@ export const ImportModal: React.FC<Props> = ({
               </div>
             )}
 
+            {/* 🚨 Рендерим превью только если есть данные */}
             {preview && (
               <div className="mt-3 border rounded p-3 bg-gray-50 flex gap-3 flex-col">
                 {preview.image && (
@@ -56,9 +58,7 @@ export const ImportModal: React.FC<Props> = ({
                 )}
                 <div>
                   <p className="font-semibold">{preview.title}</p>
-                  <p className="text-sm text-gray-600 line-clamp-2">
-                    {preview.description}
-                  </p>
+                  <p className="text-sm text-gray-600">{preview.description}</p>
                 </div>
               </div>
             )}
