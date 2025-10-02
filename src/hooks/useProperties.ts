@@ -24,6 +24,19 @@ export const useMyProperties = (
   return useProperties({ ...params, ownerId: userId });
 };
 
+export const useToggleVisibility = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, isPublished }: { id: number; isPublished: boolean }) =>
+      propertyApi.updateVisibility(id, isPublished),
+    onSuccess: () => {
+      // Инвалидируем все списки properties
+      queryClient.invalidateQueries({ queryKey: ["properties"] });
+    },
+  });
+};
+
 export const useAgencyProperties = (
   agencyId: number,
   params?: GetPropertiesParams
