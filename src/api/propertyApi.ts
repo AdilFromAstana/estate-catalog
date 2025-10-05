@@ -215,9 +215,10 @@ export const propertyApi = {
     return res.data;
   },
 
-  previewLink: async (url: string) => {
+  previewLink: async (url: string, signal?: AbortSignal) => {
     const res = await axiosInstance.get("/properties/preview", {
       params: { url },
+      signal, // 👈 вот так добавляем поддержку отмены
     });
     return res.data as {
       title: string;
