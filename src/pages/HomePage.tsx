@@ -10,6 +10,7 @@ import {
 } from "../api/propertyApi";
 import { useProperties } from "../hooks/useProperties";
 import { useCities, useDistricts } from "../hooks/useCities";
+import MapViewYandex from "../components/MapViewYandex";
 
 const getCategoryLabel = (category: string) => {
   const labels: { [key: string]: string } = {
@@ -178,7 +179,11 @@ const HomePage: React.FC = () => {
               ))}
             </div>
           ) : (
-            <MapView estates={estates} onEstateClick={handleEstateClick} />
+            // <MapView estates={estates} onEstateClick={handleEstateClick} />
+            <MapViewYandex
+              estates={estates}
+              onEstateClick={handleEstateClick}
+            />
           )}
         </>
       )}

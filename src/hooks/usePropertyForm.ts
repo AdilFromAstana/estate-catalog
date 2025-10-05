@@ -16,13 +16,19 @@ import {
   useConditions,
 } from "./usePropertyDictionaries";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useComplexes } from "./useComplexes";
 
 export const usePropertyForm = (_: any, navigate: any) => {
   const queryClient = useQueryClient();
   const importMutation = useImportProperty();
   const { data: cities = [] } = useCities();
   const [selectedCityId, setSelectedCityId] = useState<number>(0);
+  const [complexName, setComplexName] = useState<string>("");
+  const [selectedComplexId, setSelectedComplexId] = useState<number>(0);
   const { data: districts = [] } = useDistricts(selectedCityId || undefined);
+  const { data: complexes = [] } = useComplexes({
+    search: complexName || "",
+  });
   const { data: buildingTypes = [] } = useBuildingTypes();
   const { data: conditions = [] } = useConditions();
 
@@ -100,6 +106,8 @@ export const usePropertyForm = (_: any, navigate: any) => {
         const conditionIndex = conditionLabels.findIndex(
           (label) => label.toLowerCase() === data.condition?.toLowerCase()
         );
+
+        setComplexName(data.complex);
 
         const matchedBuildingType =
           buildingTypeIndex !== -1 ? buildingTypes[buildingTypeIndex] : "";
@@ -185,6 +193,25 @@ export const usePropertyForm = (_: any, navigate: any) => {
   };
 
   useEffect(() => {
+    if (!complexes?.length || !complexName) return;
+
+    const matchedComplex = complexes.find(
+      (c) => c.name.trim().toLowerCase() === complexName.trim().toLowerCase()
+    );
+
+    if (matchedComplex) {
+      setSelectedComplexId(matchedComplex.id);
+      setFormData((prev) => ({
+        ...prev,
+        complexId: matchedComplex.id,
+        complex: matchedComplex.name,
+      }));
+    } else {
+      setSelectedComplexId(0);
+    }
+  }, [complexes, complexName]);
+
+  useEffect(() => {
     if (!parsedData || !districts.length || !selectedCityId) return;
 
     const matchedDistrict = districts.find(
@@ -220,5 +247,6 @@ export const usePropertyForm = (_: any, navigate: any) => {
     buildingTypes,
     conditions,
     isSubmitting: createMutation.isPending,
+    complexes,
   };
 };

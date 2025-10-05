@@ -1,6 +1,4 @@
 import { useParams, Link } from "react-router-dom";
-// import { astanaEstates } from "../contants/estates";
-// import EstateCard from "../components/EstateCard";
 import { useState } from "react";
 
 export default function CollectionDetail() {

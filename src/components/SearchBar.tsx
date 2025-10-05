@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Filter } from "lucide-react";
-import { astanaEstates } from "../contants/estates";
 import type { City, District } from "../api/cityApi";
 import type { GetPropertiesParams } from "../api/propertyApi";
 
@@ -121,7 +120,6 @@ const FilterContent: React.FC<{
         </div>
         <div className="flex justify-between text-xs text-gray-500 mt-1">
           <span>0 м²</span>
-          <span>{Math.max(...astanaEstates.map((e) => e.totalArea))} м²</span>
         </div>
       </div>
 

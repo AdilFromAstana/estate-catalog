@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start:prod": "cross-env NODE_ENV=production vite preview --mode production"
+    "start:prod": "cross-env NODE_ENV=production vite --mode production"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.12",

@@ -25,11 +25,11 @@ const AddPropertyPage: React.FC = () => {
     districts,
     buildingTypes,
     conditions,
+    complexes,
   } = usePropertyForm(user, navigate);
 
   const [showImportModal, setShowImportModal] = useState(false);
 
-  // 👇 Закрываем модалку аккуратно после успешного импорта
   useEffect(() => {
     if (importMutation.isSuccess) {
       setShowImportModal(false);
@@ -41,6 +41,7 @@ const AddPropertyPage: React.FC = () => {
     <div className="bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <PropertyForm
+          complexes={complexes}
           buildingTypes={buildingTypes}
           conditions={conditions}
           formData={formData}

@@ -6,6 +6,7 @@ import { LabeledInput } from "./LabeledInput";
 import { LabeledTextarea } from "./LabeledTextarea";
 import { LabeledSelect } from "./LabeledSelect";
 import { dictionaryLabels } from "../contants/dictionaryLabels";
+import type { Complex } from "../api/complexApi";
 
 interface Props {
   formData: any;
@@ -20,6 +21,7 @@ interface Props {
   onOpenImport: () => void; // 🔹 добавили
   buildingTypes: string[];
   conditions: string[];
+  complexes: Complex[];
 }
 
 export const PropertyForm: React.FC<Props> = ({
@@ -35,6 +37,7 @@ export const PropertyForm: React.FC<Props> = ({
   onOpenImport,
   buildingTypes,
   conditions,
+  complexes,
 }) => {
   return (
     <form
@@ -230,13 +233,17 @@ export const PropertyForm: React.FC<Props> = ({
           label="Мебель"
           className="px-3 py-2 border rounded-md"
         />
-        <LabeledInput
-          type="text"
-          name="complex"
-          value={formData.complex}
-          onChange={onChange}
-          label="ЖК"
-          className="px-3 py-2 border rounded-md"
+        <LabeledSelect
+          label="Жилой комплекс"
+          name="complexId"
+          value={formData.complexId || ""}
+          onChange={(e) =>
+            onChange({
+              target: { name: "complexId", value: Number(e.target.value) },
+            } as any)
+          }
+          options={complexes.map((c) => ({ value: c.id, label: c.name }))}
+          required
         />
       </div>
 

@@ -1,7 +1,6 @@
 // src/pages/CreateCollection.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { astanaEstates } from "../contants/estates";
 import ApartmentCard from "../components/ApartmentCard";
 
 export default function CreateCollection() {
@@ -49,16 +48,7 @@ export default function CreateCollection() {
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        <div className="grid grid-cols-1 gap-4">
-          {astanaEstates.map((a) => (
-            <ApartmentCard
-              key={a.id}
-              apartment={a}
-              selected={selected.includes(a.id)}
-              onToggle={toggleSelect}
-            />
-          ))}
-        </div>
+        <div className="grid grid-cols-1 gap-4"></div>
       </div>
 
       {/* Sticky кнопка снизу */}

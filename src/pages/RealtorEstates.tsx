@@ -1,7 +1,5 @@
 // src/pages/RealtorEstates.tsx
 import { useParams, Link } from "react-router-dom";
-// import { astanaEstates } from "../contants/estates";
-// import EstateCard from "../components/EstateCard";
 import { useEffect } from "react";
 import { getAvatar } from "../hooks/useRealtor";
 
