@@ -28,6 +28,7 @@ import { Toaster } from "react-hot-toast";
 import RealtorSettingsPage from "./pages/RealtorSettingsPage";
 import RealtorDetailPage from "./pages/RealtorDetailPage";
 import AgencyPropertiesPage from "./pages/AgencyPropertiesPage";
+import EditPropertyPage from "./pages/EditPropertyPage";
 
 // Компонент для защищенных маршрутов
 const ProtectedRoute: React.FC<{
@@ -153,6 +154,16 @@ const AppContent: React.FC = () => {
               <WithSidebarLayout>
                 <ProtectedRoute>
                   <ComparePage />
+                </ProtectedRoute>
+              </WithSidebarLayout>
+            }
+          />
+          <Route
+            path="/edit-property/:id"
+            element={
+              <WithSidebarLayout>
+                <ProtectedRoute roles={["admin", "realtor"]}>
+                  <EditPropertyPage />
                 </ProtectedRoute>
               </WithSidebarLayout>
             }
