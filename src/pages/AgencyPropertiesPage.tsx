@@ -23,15 +23,12 @@ import {
   formatRooms,
   type PropertyResponse,
 } from "../api/propertyApi";
-
-const statusOptions = [
-  { value: "all", label: "Все статусы" },
-  { value: "active", label: "Активные" },
-  { value: "hidden", label: "Скрытые" },
-  { value: "sold", label: "Проданные" },
-  { value: "archived", label: "В архиве" },
-  { value: "draft", label: "Черновики" },
-];
+import {
+  PROPERTY_STATUS_COLORS,
+  PROPERTY_STATUS_LABELS,
+  PROPERTY_STATUS_OPTIONS,
+  PropertyStatus,
+} from "../contants/property-status";
 
 const typeOptions = [
   { value: "all", label: "Все типы" },
@@ -50,7 +47,7 @@ const AgencyPropertiesPage: React.FC = () => {
   // === Фильтры
   const [filters, setFilters] = useState({
     search: "",
-    status: "all",
+    status: PropertyStatus.ACTIVE,
     type: "all",
     ownerId: undefined as number | undefined,
     sortBy: "updatedAt",
@@ -63,7 +60,7 @@ const AgencyPropertiesPage: React.FC = () => {
     page: currentPage,
     limit: itemsPerPage,
     search: filters.search,
-    status: filters.status !== "all" ? (filters.status as any) : undefined,
+    status: filters.status,
     type: filters.type !== "all" ? (filters.type as any) : undefined,
     ownerId: filters.ownerId,
     // sortBy: filters.sortBy,
@@ -78,42 +75,8 @@ const AgencyPropertiesPage: React.FC = () => {
   const { data: realtorsData } = useRealtors(user?.agencyId!, 1, 100, {
     status: "active",
   });
+
   const owners = realtorsData?.data ?? [];
-
-  // === Вспомогательные функции
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800 border-green-300";
-      case "hidden":
-        return "bg-gray-200 text-gray-700 border-gray-400";
-      case "sold":
-        return "bg-blue-100 text-blue-800 border-blue-300";
-      case "archived":
-        return "bg-red-100 text-red-800 border-red-300";
-      case "draft":
-        return "bg-yellow-100 text-yellow-800 border-yellow-300";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-300";
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "active":
-        return "Активно";
-      case "hidden":
-        return "Скрыто";
-      case "sold":
-        return "Продано";
-      case "archived":
-        return "В архиве";
-      case "draft":
-        return "Черновик";
-      default:
-        return status;
-    }
-  };
 
   const handleEdit = (id: number) => {
     navigate(`/edit-property/${id}`);
@@ -219,11 +182,14 @@ const AgencyPropertiesPage: React.FC = () => {
               <select
                 value={filters.status}
                 onChange={(e) =>
-                  setFilters((prev) => ({ ...prev, status: e.target.value }))
+                  setFilters((prev) => ({
+                    ...prev,
+                    status: e.target.value as PropertyStatus,
+                  }))
                 }
                 className="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none transition"
               >
-                {statusOptions.map((o) => (
+                {PROPERTY_STATUS_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
                   </option>
@@ -340,11 +306,11 @@ const AgencyPropertiesPage: React.FC = () => {
                     {/* Status */}
                     <div className="col-span-1">
                       <span
-                        className={`inline-flex items-center px-3 py-1 border rounded-full text-xs font-semibold ${getStatusColor(
-                          p.status
-                        )}`}
+                        className={`inline-flex items-center px-3 py-1 border rounded-full text-xs font-semibold bg-${
+                          PROPERTY_STATUS_COLORS[p.status]
+                        }-400`}
                       >
-                        {getStatusLabel(p.status)}
+                        {PROPERTY_STATUS_LABELS[p.status]}
                       </span>
                       <div className="text-xs text-gray-500 flex items-center mt-1">
                         <Clock size={12} className="mr-1" />

@@ -23,8 +23,20 @@ import {
   type PropertyResponse,
 } from "../api/propertyApi";
 import toast from "react-hot-toast";
+import {
+  PROPERTY_STATUS_COLORS,
+  PROPERTY_STATUS_LABELS,
+  PROPERTY_STATUS_OPTIONS,
+  PropertyStatus,
+} from "../contants/property-status";
 
 const MyPropertiesPage: React.FC = () => {
+  const [statusFilter, setStatusFilter] = useState<PropertyStatus>(
+    PropertyStatus.ACTIVE
+  );
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>(""); // Состояние для поиска
+
   const { user } = useApp();
   const navigate = useNavigate();
 
@@ -35,11 +47,8 @@ const MyPropertiesPage: React.FC = () => {
   const { data } = useMyProperties(user.id, {
     page: 1,
     limit: 50,
+    status: statusFilter,
   });
-
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [typeFilter, setTypeFilter] = useState<string>("all");
-  const [searchQuery, setSearchQuery] = useState<string>(""); // Состояние для поиска
 
   const { mutate: toggleVisibilityMutation } = useToggleVisibility();
 
@@ -62,16 +71,6 @@ const MyPropertiesPage: React.FC = () => {
   // Используем mockProperties напрямую
   const myProperties: PropertyResponse[] = data?.data ?? [];
 
-  // Параметры фильтров
-  const statusOptions = [
-    { value: "all", label: "Все статусы" },
-    { value: "active", label: "Активные" },
-    { value: "hidden", label: "Скрытые" },
-    { value: "sold", label: "Проданные" },
-    { value: "archived", label: "В архиве" },
-    { value: "draft", label: "Черновики" },
-  ];
-
   const typeOptions = [
     { value: "all", label: "Все типы" },
     { value: "apartment", label: "Квартиры" },
@@ -82,11 +81,6 @@ const MyPropertiesPage: React.FC = () => {
   // Логика фильтрации, поиска и сортировки
   const filteredProperties = useMemo(() => {
     let result = [...myProperties];
-
-    // 1. Фильтрация по статусу
-    if (statusFilter !== "all") {
-      result = result.filter((prop) => prop.status === statusFilter);
-    }
 
     // 2. Фильтрация по типу
     if (typeFilter !== "all") {
@@ -113,42 +107,6 @@ const MyPropertiesPage: React.FC = () => {
     return result;
   }, [myProperties, statusFilter, typeFilter, searchQuery]);
 
-  // --- Вспомогательные функции рендеринга ---
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800 border-green-300";
-      case "hidden":
-        return "bg-gray-200 text-gray-700 border-gray-400";
-      case "sold":
-        return "bg-blue-100 text-blue-800 border-blue-300";
-      case "archived":
-        return "bg-red-100 text-red-800 border-red-300";
-      case "draft":
-        return "bg-yellow-100 text-yellow-800 border-yellow-300";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-300";
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "active":
-        return "Активно";
-      case "hidden":
-        return "Скрыто";
-      case "sold":
-        return "Продано";
-      case "archived":
-        return "В архиве";
-      case "draft":
-        return "Черновик";
-      default:
-        return status;
-    }
-  };
-
   const handleEdit = (id: number) => {
     navigate(`/edit-property/${id}`);
   };
@@ -165,7 +123,7 @@ const MyPropertiesPage: React.FC = () => {
   if (myProperties.length === 0 && !searchQuery) {
     return (
       <div className="min-h-screen bg-gray-50 py-12 px-4 ">
-        <div className="max-w-4xl mx-auto">
+        <div className="!max-w-5xl mx-auto">
           <h1 className="text-3xl font-bold mb-10 text-gray-800">
             Моя недвижимость
           </h1>
@@ -243,10 +201,12 @@ const MyPropertiesPage: React.FC = () => {
               </label>
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                onChange={(e) =>
+                  setStatusFilter(e.target.value as PropertyStatus)
+                }
                 className="w-full px-3 py-2.5 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none transition"
               >
-                {statusOptions.map((option) => (
+                {PROPERTY_STATUS_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -352,11 +312,11 @@ const MyPropertiesPage: React.FC = () => {
                     {/* Column 3: Status / Updated */}
                     <div className="col-span-1 min-w-[150px]">
                       <span
-                        className={`inline-flex items-center px-3 py-1 border rounded-full text-xs font-semibold ${getStatusColor(
-                          property.status
-                        )}`}
+                        className={`inline-flex items-center px-3 py-1 border rounded-full text-xs font-semibold bg-${
+                          PROPERTY_STATUS_COLORS[property.status]
+                        }-700`}
                       >
-                        {getStatusLabel(property.status)}
+                        {PROPERTY_STATUS_LABELS[property.status]}
                       </span>
                       <div className="text-xs text-gray-500 flex items-center mt-1">
                         <Clock size={12} className="mr-1" />

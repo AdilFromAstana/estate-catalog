@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import EstateCard from "../components/EstateCard";
 import SearchBar from "../components/SearchBar";
 import { useNavigate } from "react-router-dom";
-import MapView from "../components/MapView";
 import { List, Map } from "lucide-react";
 import {
   type GetPropertiesParams,
@@ -11,6 +10,7 @@ import {
 import { useProperties } from "../hooks/useProperties";
 import { useCities, useDistricts } from "../hooks/useCities";
 import MapViewYandex from "../components/MapViewYandex";
+import { PropertyStatus } from "../contants/property-status";
 
 const getCategoryLabel = (category: string) => {
   const labels: { [key: string]: string } = {
@@ -61,6 +61,7 @@ const HomePage: React.FC = () => {
     maxArea: filters.maxArea || undefined,
     agencyId: filters.agencyId,
     isPublished: true,
+    status: PropertyStatus.ACTIVE,
   };
 
   const { data, isLoading, error } = useProperties(params);

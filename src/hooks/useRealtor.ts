@@ -29,6 +29,7 @@ export const useRealtors = (
   useQuery({
     queryKey: ["realtors", agencyId, page, limit, filters],
     queryFn: () => realtorApi.getByAgency(agencyId, page, limit, filters),
+    enabled: !!agencyId,
   });
 
 export const useRealtor = (id: string | number) =>

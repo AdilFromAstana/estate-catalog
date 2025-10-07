@@ -1,4 +1,5 @@
 // src/api/propertyApi.ts
+import type { PropertyStatus } from "../contants/property-status";
 import axiosInstance from "./axiosInstance";
 
 export interface Coordinates {
@@ -15,14 +16,6 @@ export type PropertyType =
   | "office"
   | "warehouse"
   | "cottage";
-
-export type PropertyStatus =
-  | "active"
-  | "inactive"
-  | "sold"
-  | "rented"
-  | "reserved"
-  | "under_construction";
 
 export type Currency = "KZT" | "USD" | "EUR";
 

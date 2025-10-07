@@ -1,5 +1,3 @@
-// src/constants/property-status.ts
-
 export enum PropertyStatus {
   DRAFT = "draft",
   ACTIVE = "active",
@@ -7,9 +5,38 @@ export enum PropertyStatus {
   SOLD = "sold",
 }
 
+export interface PropertyStatusOption {
+  value: PropertyStatus;
+  label: string;
+  color: string;
+}
+
+export const PROPERTY_STATUS_OPTIONS: PropertyStatusOption[] = [
+  {
+    value: PropertyStatus.DRAFT,
+    label: "Черновик",
+    color: "gray",
+  },
+  {
+    value: PropertyStatus.ACTIVE,
+    label: "Активно",
+    color: "green",
+  },
+  {
+    value: PropertyStatus.RESERVED,
+    label: "Забронировано",
+    color: "orange",
+  },
+  {
+    value: PropertyStatus.SOLD,
+    label: "Продано",
+    color: "blue",
+  },
+];
+
 export const PROPERTY_STATUS_LABELS: Record<PropertyStatus, string> = {
   [PropertyStatus.DRAFT]: "Черновик",
-  [PropertyStatus.ACTIVE]: "Активно продаётся",
+  [PropertyStatus.ACTIVE]: "Активно",
   [PropertyStatus.RESERVED]: "Забронировано",
   [PropertyStatus.SOLD]: "Продано",
 };

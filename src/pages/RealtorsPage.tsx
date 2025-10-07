@@ -22,6 +22,7 @@ import {
 } from "../hooks/useRealtor";
 import type { Realtor } from "../api/realtorApi";
 import { useApp } from "../AppContext";
+import { PROPERTY_STATUS_OPTIONS } from "../contants/property-status";
 
 const customStyles = {
   // Desktop table layout (min-width: 1024px)
@@ -33,13 +34,6 @@ const customStyles = {
     gridTemplateColumns: "minmax(180px, 1.5fr) 1fr 1fr 1fr 50px",
   },
 };
-
-const statusOptions = [
-  { value: "all", label: "Все статусы" },
-  { value: "active", label: "Активный" },
-  { value: "inactive", label: "Неактивный" },
-  { value: "pending", label: "На проверке" },
-];
 
 const sortOptions = [{ value: "createdAt", label: "Дата регистрации" }];
 
@@ -121,7 +115,7 @@ const RealtorsPage: React.FC = () => {
                   setFilters((prev) => ({ ...prev, status: e.target.value }))
                 }
               >
-                {statusOptions.map((option) => (
+                {PROPERTY_STATUS_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
