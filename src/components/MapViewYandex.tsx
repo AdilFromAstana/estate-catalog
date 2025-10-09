@@ -6,6 +6,12 @@ interface MapViewProps {
   onEstateClick: (estate: PropertyResponse) => void;
 }
 
+declare global {
+  interface Window {
+    ymaps?: any;
+  }
+}
+
 const MapViewYandex: React.FC<MapViewProps> = ({ estates, onEstateClick }) => {
   const mapRef = useRef<HTMLDivElement>(null);
 

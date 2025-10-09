@@ -1,7 +1,6 @@
 import React from "react";
 import { ImagePreview } from "./ImagePreview";
 import type { City, District } from "../api/cityApi";
-import { Download } from "lucide-react";
 import { LabeledInput } from "./LabeledInput";
 import { LabeledTextarea } from "./LabeledTextarea";
 import { LabeledSelect } from "./LabeledSelect";
@@ -18,7 +17,6 @@ interface Props {
   districts: District[];
   selectedCityId: number;
   setSelectedCityId: (id: number) => void;
-  onOpenImport: () => void; // 🔹 добавили
   buildingTypes: string[];
   conditions: string[];
   complexes: Complex[];
@@ -34,7 +32,6 @@ export const PropertyForm: React.FC<Props> = ({
   districts,
   selectedCityId,
   setSelectedCityId,
-  onOpenImport,
   buildingTypes,
   conditions,
   complexes,
@@ -46,14 +43,6 @@ export const PropertyForm: React.FC<Props> = ({
     >
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold mb-4">Данные объекта</h2>
-        <button
-          type="button"
-          onClick={onOpenImport}
-          className="px-6 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 flex items-center"
-        >
-          <Download size={16} className="mr-1" />
-          Импорт с Krisha.kz
-        </button>
       </div>
 
       {/* 🔹 Название и цена */}

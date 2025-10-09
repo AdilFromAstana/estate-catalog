@@ -6,17 +6,16 @@ import {
   parseCoordinates,
   propertyApi,
   type ParsedPropertyData,
-  type PropertyCreateDto,
 } from "../api/propertyApi";
 import toast from "react-hot-toast";
 import {
   getBuildingTypeLabels,
-  getConditionLabels,
   useBuildingTypes,
   useConditions,
 } from "./usePropertyDictionaries";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useComplexes } from "./useComplexes";
+import { PropertyStatus } from "../contants/property-status";
 
 export const usePropertyForm = (_: any, navigate: any) => {
   const queryClient = useQueryClient();
@@ -24,7 +23,6 @@ export const usePropertyForm = (_: any, navigate: any) => {
   const { data: cities = [] } = useCities();
   const [selectedCityId, setSelectedCityId] = useState<number>(0);
   const [complexName, setComplexName] = useState<string>("");
-  const [selectedComplexId, setSelectedComplexId] = useState<number>(0);
   const { data: districts = [] } = useDistricts(selectedCityId || undefined);
   const { data: complexes = [] } = useComplexes({
     search: complexName || "",
@@ -33,9 +31,8 @@ export const usePropertyForm = (_: any, navigate: any) => {
   const { data: conditions = [] } = useConditions();
 
   const buildingTypeLabels = getBuildingTypeLabels(buildingTypes);
-  const conditionLabels = getConditionLabels(conditions);
 
-  const [formData, setFormData] = useState<PropertyCreateDto>({
+  const [formData, setFormData] = useState<any>({
     title: "",
     description: "",
     price: 0,
@@ -43,7 +40,7 @@ export const usePropertyForm = (_: any, navigate: any) => {
     rooms: 0,
     bathrooms: 0,
     type: "apartment",
-    status: "active",
+    status: PropertyStatus.ACTIVE,
     photos: [],
     city: "",
     cityId: 0,
@@ -101,26 +98,18 @@ export const usePropertyForm = (_: any, navigate: any) => {
         );
         // 🔍 Найти buildingType по label (русскому названию)
         const buildingTypeIndex = buildingTypeLabels.findIndex(
-          (label) => label.toLowerCase() === data.buildingType?.toLowerCase()
-        );
-        const conditionIndex = conditionLabels.findIndex(
-          (label) => label.toLowerCase() === data.condition?.toLowerCase()
+          (label) =>
+            label.toLowerCase() === data.buildingTypeCode?.toLowerCase()
         );
 
-        setComplexName(data.complex);
+        setComplexName(data.complex!);
 
         const matchedBuildingType =
           buildingTypeIndex !== -1 ? buildingTypes[buildingTypeIndex] : "";
-        const matchedCondition =
-          conditionIndex !== -1 ? conditions[conditionIndex] : "";
 
         console.log(matchedBuildingType);
-        console.log("conditions: ", conditions);
-        console.log("conditionLabels: ", conditionLabels);
-        console.log("matchedCondition: ", matchedCondition);
-        console.log("conditionIndex: ", conditionIndex);
 
-        setFormData((prev) => ({
+        setFormData((prev: any) => ({
           ...prev,
           ...data,
           cityId: matchedCity?.id || 0,
@@ -128,16 +117,19 @@ export const usePropertyForm = (_: any, navigate: any) => {
           // временно districtId = 0 (заполним позже)
           districtId: 0,
           district: data.district,
-          price: parseFloat(data.price) || 0,
-          area: parseFloat(data.area) || 0,
-          rooms: parseInt(data.rooms) || 0,
-          floor: parseInt(data.floor) || 0,
-          totalFloors: parseInt(data.totalFloors) || 0,
-          yearBuilt: parseInt(data.yearBuilt) || 0,
-          kitchenArea: parseFloat(data.kitchenArea) || 0,
+          price: data.price || 0,
+          area: data.area || 0,
+          rooms: data.rooms || 0,
+          floor: data.floor || 0,
+          totalFloors: data.totalFloors || 0,
+          yearBuilt: data.yearBuilt! || 0,
           currency: normalizeCurrency(data.currency),
-          coordinates: parseCoordinates(data.coordinates),
+          coordinates: parseCoordinates(data.coordinates!),
           buildingType: matchedBuildingType,
+          photos: [],
+          type: "apartment",
+          title: "",
+          status: PropertyStatus.DRAFT,
         }));
 
         if (matchedCity) {
@@ -200,14 +192,14 @@ export const usePropertyForm = (_: any, navigate: any) => {
     );
 
     if (matchedComplex) {
-      setSelectedComplexId(matchedComplex.id);
-      setFormData((prev) => ({
+      // setSelectedComplexId(matchedComplex.id);
+      setFormData((prev: any) => ({
         ...prev,
         complexId: matchedComplex.id,
         complex: matchedComplex.name,
       }));
     } else {
-      setSelectedComplexId(0);
+      // setSelectedComplexId(0);
     }
   }, [complexes, complexName]);
 
@@ -220,7 +212,7 @@ export const usePropertyForm = (_: any, navigate: any) => {
     );
 
     if (matchedDistrict) {
-      setFormData((prev) => ({
+      setFormData((prev: any) => ({
         ...prev,
         districtId: matchedDistrict.id,
         district: matchedDistrict.name,

@@ -126,32 +126,64 @@ export interface GetPropertiesParams {
  * 🔹 Данные, приходящие с Krisha.kz (парсер)
  */
 export interface ParsedPropertyData {
+  id?: number;
   title: string;
-  price: string;
-  currency: string;
-  address: string;
+  description: string | null;
+
+  // Локация
   city: string;
+  cityId?: number;
   district: string;
-  street: string;
-  houseNumber: string;
-  area: string;
-  kitchenArea: string;
-  rooms: string;
-  floorInfo: string;
-  floor: string;
-  totalFloors: string;
-  buildingType: string;
-  yearBuilt: string;
-  condition: string;
-  bathroom: string;
-  balcony: string;
-  parking: string;
-  furniture: string;
-  complex: string;
-  description: string;
+  districtId?: number;
+  address: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  coordinates?: string; // "lat,lng" — для совместимости с UI
+
+  // Комплекс / здание
+  complex?: string;
+  complexId?: number | null;
+  buildingTypeCode?: string | null; // "brick", "panel" и т.д.
+  flatRenovationCode?: string | null; // "rough_finish", "euro", и т.п.
+  flatParkingCode?: string | null;
+  flatSecurityCodes?: string[];
+  liveFurnitureCode?: string | null;
+  flatToiletCode?: string | null;
+  flatBalconyCode?: string | null;
+
+  // Параметры объекта
+  ceiling?: string | null;
+  area: number;
+  rooms: number;
+  floor: number;
+  totalFloors: number;
+  yearBuilt?: number | null;
+  type?: string; // "apartment", "house", etc.
+
+  // Финансы
+  price: number;
+  currency: string;
+
+  // Статус / публикация
+  status?: string; // "draft", "active", etc.
+  isPublished?: boolean;
+
+  // Мета-инфо
+  importUrl?: string | null;
   photos: string[];
-  sourceUrl: string;
-  coordinates: string; // "lat,lng" или пустая строка
+
+  // Владельцы / агентство
+  ownerId?: number;
+  agencyId?: number;
+
+  // Соцсети
+  instagramPost?: string | null;
+  tiktokVideo?: string | null;
+
+  // Теги и служебные поля
+  tags?: string[] | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export const propertyApi = {

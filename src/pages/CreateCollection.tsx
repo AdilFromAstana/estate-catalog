@@ -1,18 +1,11 @@
 // src/pages/CreateCollection.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ApartmentCard from "../components/ApartmentCard";
 
 export default function CreateCollection() {
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selected] = useState<string[]>([]);
   const [name, setName] = useState("");
   const navigate = useNavigate();
-
-  const toggleSelect = (id: string) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  };
 
   const handleSave = () => {
     if (!name.trim()) return alert("Введите название подборки");
