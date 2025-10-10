@@ -3,35 +3,101 @@ import { Filter } from "lucide-react";
 import type { City, District } from "../api/cityApi";
 import type { GetPropertiesParams } from "../api/propertyApi";
 
-const formatPrice = (price: number) => {
-  if (price >= 1000000) {
-    return `${(price / 1000000).toFixed(0)} млн ₸`;
-  }
-  return `${(price / 1000).toFixed(0)} тыс ₸`;
+const formatNumber = (value: string | number) => {
+  if (!value) return "";
+  const num = parseInt(value.toString().replace(/\D/g, ""), 10);
+  if (isNaN(num)) return "";
+  return num.toLocaleString("ru-RU"); // разделяет по тысячам (1 000 000)
 };
 
-const FilterContent: React.FC<{
+const PriceFilter = ({ filters, onFilterChange, filterOptions }: any) => {
+  const [minDisplay, setMinDisplay] = useState(
+    filters.minPrice?.toString() || ""
+  );
+  const [maxDisplay, setMaxDisplay] = useState(
+    filters.maxPrice?.toString() || ""
+  );
+
+  const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\s/g, ""); // убираем пробелы
+    setMinDisplay(formatNumber(raw));
+    const numeric = parseInt(raw.replace(/\D/g, ""), 10);
+    onFilterChange("minPrice", isNaN(numeric) ? null : numeric);
+  };
+
+  const handleMaxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\s/g, "");
+    setMaxDisplay(formatNumber(raw));
+    const numeric = parseInt(raw.replace(/\D/g, ""), 10);
+    onFilterChange("maxPrice", isNaN(numeric) ? null : numeric);
+  };
+
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Цена, ₸
+      </label>
+      <div className="grid grid-cols-2 gap-3">
+        <input
+          type="text"
+          inputMode="numeric"
+          placeholder="От"
+          value={minDisplay}
+          onChange={handleMinChange}
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+        />
+        <input
+          type="text"
+          inputMode="numeric"
+          placeholder="До"
+          value={maxDisplay}
+          onChange={handleMaxChange}
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+        />
+      </div>
+
+      <div className="flex justify-between text-xs text-gray-500 mt-1">
+        <span>0 ₸</span>
+        <span>{formatNumber(filterOptions.maxPrice)} ₸</span>
+      </div>
+    </div>
+  );
+};
+
+export const FilterContent: React.FC<{
   filters: GetPropertiesParams;
   onFilterChange: (key: keyof GetPropertiesParams, value: any) => void;
   onResetFilters: () => void;
   filterOptions: {
     cities: City[];
-    categories: string[];
     districts: District[];
     maxPrice: number;
     rooms: number[];
     minFloor: number | null;
     maxFloor: number | null;
-    buildingType: string[];
-    condition: string[];
-    amenities: string[];
-    hasPhoto: boolean | null;
-    minCeilingHeight: number | null;
   };
 }> = ({ filterOptions, onFilterChange, filters }) => {
   return (
     <div className="space-y-4 flex-1 overflow-y-scroll hide-scrollbar">
-      {/* Район */}
+      {/* Города */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Города
+        </label>
+        <select
+          value={filters.cityId || ""}
+          onChange={(e) => onFilterChange("cityId", e.target.value || null)}
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400"
+        >
+          <option value="">Все города</option>
+          {filterOptions.cities.map((city) => (
+            <option key={city.id} value={city.id}>
+              {city.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Район
@@ -51,41 +117,11 @@ const FilterContent: React.FC<{
       </div>
 
       {/* Цена */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Цена, ₸
-        </label>
-        <div className="grid grid-cols-2 gap-3">
-          <input
-            type="number"
-            placeholder="От"
-            value={filters.minPrice || ""}
-            onChange={(e) =>
-              onFilterChange(
-                "minPrice",
-                e.target.value ? Number(e.target.value) : null
-              )
-            }
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-          />
-          <input
-            type="number"
-            placeholder="До"
-            value={filters.maxPrice || ""}
-            onChange={(e) =>
-              onFilterChange(
-                "maxPrice",
-                e.target.value ? Number(e.target.value) : null
-              )
-            }
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-          />
-        </div>
-        <div className="flex justify-between text-xs text-gray-500 mt-1">
-          <span>0 ₸</span>
-          <span>{formatPrice(filterOptions.maxPrice)}</span>
-        </div>
-      </div>
+      <PriceFilter
+        filters={filters}
+        onFilterChange={onFilterChange}
+        filterOptions={filterOptions}
+      />
 
       {/* Площадь, м² */}
       <div>
@@ -157,128 +193,25 @@ const FilterContent: React.FC<{
         </div>
       </div>
 
-      {/* <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Тип дома
-        </label>
-        <div className="grid grid-cols-2 gap-2">
-          {["panel", "brick", "monolithic", "stalin"].map((type) => (
-            <button
-              key={type}
-              type="button"
-              onClick={() => {
-                const current = filters.buildingType || [];
-                onFilterChange(
-                  "buildingType",
-                  current.includes(type)
-                    ? current.filter((t) => t !== type)
-                    : [...current, type]
-                );
-              }}
-              className={`p-2 text-sm rounded-lg border transition-colors ${
-                filters.buildingType?.includes(type)
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "bg-white text-gray-700 border-gray-300"
-              }`}
-            >
-              {type === "panel" && "Панельный"}
-              {type === "brick" && "Кирпичный"}
-              {type === "monolithic" && "Монолитный"}
-              {type === "stalin" && "Сталинский"}
-            </button>
-          ))}
-        </div>
-      </div> */}
-
-      {/* <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Ремонт
-                </label>
-                <select
-                  value={filters.renovation?.[0] || ""}
-                  onChange={(e) =>
-                    onFilterChange(
-                      "renovation",
-                      e.target.value ? [e.target.value] : []
-                    )
-                  }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                >
-                  <option value="">Любой ремонт</option>
-                  <option value="euro">Евроремонт</option>
-                  <option value="designer">Дизайнерский</option>
-                  <option value="cosmetic">Косметический</option>
-                  <option value="without">Без ремонта</option>
-                </select>
-              </div> */}
-
-      {/* <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Удобства
-        </label>
-        <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
-          {Array.from(
-            new Set(astanaEstates.flatMap((estate) => estate.amenities))
-          ).map((amenity) => (
-            <label key={amenity} className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={filters.amenities?.includes(amenity) || false}
-                onChange={(e) => {
-                  const current = filters.amenities || [];
-                  onFilterChange(
-                    "amenities",
-                    e.target.checked
-                      ? [...current, amenity]
-                      : current.filter((a) => a !== amenity)
-                  );
-                }}
-                className="rounded border-gray-300"
-              />
-              <span className="whitespace-break-spaces">{amenity}</span>
-            </label>
-          ))}
-        </div>
-      </div> */}
-
-      {/* <div className="grid grid-cols-1 gap-3">
-         <label className="flex items-center gap-2 text-md border-t-2 border-gray-300 pt-2">
-                  <input
-                    type="checkbox"
-                    checked={filters.newBuilding || false}
-                    onChange={(e) =>
-                      onFilterChange("newBuilding", e.target.checked)
-                    }
-                    className="rounded border-gray-300"
-                  />
-                  <span>Новостройка</span>
-                </label>
-      </div> */}
-
       {/* Комнаты */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Количество комнат
         </label>
         <div className="flex flex-wrap gap-2">
-          {[1, 2, 3, 4, 5, 6].map((room) => (
+          {[1, 2, 3, 4].map((room) => (
             <button
               key={room}
               type="button"
               onClick={() => {
-                // const currentRooms = filters?.rooms || [];
-                // if (currentRooms.includes(room)) {
-                //   // Убираем комнату если уже выбрана
-                //   onFilterChange(
-                //     "rooms",
-                //     currentRooms.filter((r) => r !== room)
-                //   );
-                // } else {
-                // Добавляем комнату
-                onFilterChange("rooms", room);
-                // }
+                // если уже выбрана та же комната → очищаем фильтр
+                if (filters.rooms === room) {
+                  onFilterChange("rooms", null);
+                } else {
+                  onFilterChange("rooms", room);
+                }
               }}
-              className={`px-3 py-2 rounded-lg border transition-colors text-sm font-medium ${
+              className={`px-3 cursor-pointer py-2 rounded-lg border transition-colors text-sm font-medium ${
                 filters.rooms === room
                   ? "bg-blue-600 text-white border-blue-600"
                   : "bg-white text-gray-700 border-gray-300 hover:border-blue-300"
@@ -300,17 +233,11 @@ interface SearchBarProps {
   onResetFilters: () => void;
   filterOptions: {
     cities: City[];
-    categories: string[];
     districts: District[];
     maxPrice: number;
     rooms: number[];
     minFloor: number | null;
     maxFloor: number | null;
-    buildingType: string[];
-    condition: string[];
-    amenities: string[];
-    hasPhoto: boolean | null;
-    minCeilingHeight: number | null;
   };
   filteredEstatesLength: number;
 }

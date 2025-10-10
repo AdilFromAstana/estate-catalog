@@ -54,7 +54,6 @@ const AgencyPropertiesPage: React.FC = () => {
   const { data, isLoading } = useAgencyProperties(user?.agencyId!, {
     page: currentPage,
     limit: itemsPerPage,
-    search: filters.search,
     status: filters.status,
     ownerId: filters.ownerId,
   });

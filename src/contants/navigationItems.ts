@@ -9,6 +9,7 @@ import {
   Plus,
   Landmark,
   Shield,
+  List,
 } from "lucide-react";
 
 export type NavigationItem = {
@@ -29,11 +30,20 @@ export const navigationItems: NavigationItem[] = [
     path: "/",
     icon: Home,
     section: "main",
-    requiresAuth: true,
-    roles: ["realtor", "agency_admin", "admin"],
+    requiresAuth: false,
+    roles: [],
   },
 
   // === Пункты для риелтора ===
+  {
+    id: "add-selection",
+    title: "Создать подборку",
+    path: "/add-selection",
+    icon: List,
+    section: "main",
+    requiresAuth: true,
+    roles: ["realtor", "agency_admin", "admin"],
+  },
   {
     id: "my-properties",
     title: "Мои объекты",

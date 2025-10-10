@@ -104,22 +104,41 @@ export interface PropertyResponse extends BaseProperty {
  * 🔹 Параметры фильтрации/поиска
  */
 export interface GetPropertiesParams {
-  ownerId?: number;
-  agencyId?: number;
   page?: number;
   limit?: number;
-  search?: string;
-  type?: PropertyType;
-  status?: PropertyStatus;
+  type?: string; // PropertyType (enum на backend-е)
+  status?: string; // PropertyStatus
+  tags?: string[]; // PropertyTag[]
+
   cityId?: number;
   districtId?: number;
+  complexId?: number;
+
   minPrice?: number;
   maxPrice?: number;
   minArea?: number;
   maxArea?: number;
   minFloor?: number;
   maxFloor?: number;
+  minCeiling?: number;
+  maxCeiling?: number;
+
+  buildingTypeCodes?: string[];
+  flatRenovationCodes?: string[];
+  flatParkingCodes?: string[];
+  flatSecurityCodes?: string[];
+  liveFurnitureCodes?: string[];
+  flatToiletCodes?: string[];
+  flatBalconyCodes?: string[];
+
   rooms?: number;
+  isPublished?: boolean;
+
+  agencyId?: number;
+  ownerId?: number;
+
+  sortBy?: "price" | "area" | "createdAt";
+  sortOrder?: "ASC" | "DESC";
 }
 
 /**
@@ -192,12 +211,26 @@ export const propertyApi = {
     return res.data;
   },
 
+  createSelection: async (dto: any): Promise<any> => {
+    const res = await axiosInstance.post<PropertyResponse>("/selections", dto);
+    return res.data;
+  },
+
   getAll: async (
     params?: GetPropertiesParams
-  ): Promise<{ data: PropertyResponse[]; total: number }> => {
+  ): Promise<{
+    data: PropertyResponse[];
+    page: string;
+    limit: string;
+    total: number;
+    totalPages: number;
+  }> => {
     const res = await axiosInstance.get<{
       data: PropertyResponse[];
+      page: string;
+      limit: string;
       total: number;
+      totalPages: number;
     }>("/properties", { params });
     return res.data;
   },

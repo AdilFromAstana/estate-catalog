@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
   propertyApi,
   type BaseProperty,
@@ -6,22 +6,28 @@ import {
   type ParsedPropertyData,
   type PropertyCreateDto,
 } from "../api/propertyApi";
+import { useDebounce } from "./useDebounce";
 
 // === Получить список объектов ===
 export const useProperties = (params?: GetPropertiesParams) => {
+  const debouncedParams = useDebounce(params, 400);
+
   return useQuery({
-    queryKey: ["properties", params],
-    queryFn: () => propertyApi.getAll(params),
-    staleTime: Infinity, // ✅ кеш без протухания
-    gcTime: Infinity, // ✅ хранить бесконечно
+    queryKey: ["properties", debouncedParams],
+    queryFn: () => propertyApi.getAll(debouncedParams),
+    placeholderData: keepPreviousData, // 👈 теперь правильно для v5
+    staleTime: Infinity,
+    gcTime: Infinity,
   });
 };
 
 export const useMyProperties = (
   userId: number,
+  page: number,
+  limit: number,
   params?: GetPropertiesParams
 ) => {
-  return useProperties({ ...params, ownerId: userId });
+  return useProperties({ ...params, ownerId: userId, limit, page });
 };
 
 export const useToggleVisibility = () => {

@@ -29,6 +29,7 @@ import RealtorSettingsPage from "./pages/RealtorSettingsPage";
 import RealtorDetailPage from "./pages/RealtorDetailPage";
 import AgencyPropertiesPage from "./pages/AgencyPropertiesPage";
 import EditPropertyPage from "./pages/EditPropertyPage";
+import CreateSelectionPage from "./pages/CreateSelectionPage";
 
 // Компонент для защищенных маршрутов
 const ProtectedRoute: React.FC<{
@@ -117,6 +118,14 @@ const AppContent: React.FC = () => {
             element={
               <WithSidebarLayout>
                 <HomePage />
+              </WithSidebarLayout>
+            }
+          />
+          <Route
+            path="/add-selection"
+            element={
+              <WithSidebarLayout>
+                <CreateSelectionPage />
               </WithSidebarLayout>
             }
           />

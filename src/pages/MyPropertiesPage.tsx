@@ -19,6 +19,7 @@ import { useMyProperties, useToggleVisibility } from "../hooks/useProperties";
 import {
   formatPrice,
   formatRooms,
+  type GetPropertiesParams,
   type PropertyResponse,
 } from "../api/propertyApi";
 import toast from "react-hot-toast";
@@ -38,21 +39,21 @@ const MyPropertiesPage: React.FC = () => {
   const navigate = useNavigate();
 
   const [filters, setFilters] = useState<{
-    search: string;
+    params: GetPropertiesParams;
     status: PropertyStatus | undefined;
   }>({
-    search: "",
+    params: {},
     status: undefined,
   });
 
   if (!user?.id) return null;
 
-  const { data } = useMyProperties(user.id, {
-    page: currentPage,
-    limit: itemsPerPage,
-    search: filters.search,
-    status: filters.status,
-  });
+  const { data } = useMyProperties(
+    user.id,
+    currentPage,
+    itemsPerPage,
+    filters // просто распыляем
+  );
 
   const properties: PropertyResponse[] = data?.data ?? [];
   const total = data?.total ?? 0;

@@ -135,18 +135,12 @@ const HomePage: React.FC = () => {
         onFilterChange={updateFilter}
         onResetFilters={resetFilters}
         filterOptions={{
-          categories,
           cities: cities || [], // передаём города
           districts: districts || [], // передаём районы
           maxPrice,
           rooms: roomOptions,
           minFloor: null,
           maxFloor: null,
-          buildingType: [],
-          condition: [],
-          amenities: [],
-          hasPhoto: null,
-          minCeilingHeight: null,
         }}
         filteredEstatesLength={estates.length}
       />
