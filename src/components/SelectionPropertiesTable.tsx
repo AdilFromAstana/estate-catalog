@@ -68,11 +68,11 @@ export default function PropertiesTable({
         <div className="p-6 text-center text-gray-500">Загрузка...</div>
       ) : (
         <>
-          <table className="min-w-full text-sm">
+          <table className="min-w-full text-sm table-fixed border-collapse">
             <thead className="bg-gray-50">
               <tr>
                 {selectable && (
-                  <th className="p-3 text-left">
+                  <th className="p-3 w-[4%] text-left">
                     <input
                       type="checkbox"
                       checked={
@@ -87,16 +87,16 @@ export default function PropertiesTable({
                     />
                   </th>
                 )}
-                <th className="p-3 text-left font-medium text-gray-700">
+                <th className="p-3 w-[25%] text-left font-medium text-gray-700">
                   Фото
                 </th>
-                <th className="p-3 text-left font-medium text-gray-700">
+                <th className="p-3 w-[40%] text-left font-medium text-gray-700">
                   Название
                 </th>
-                <th className="p-3 text-left font-medium text-gray-700">
+                <th className="p-3 w-[15%] text-left font-medium text-gray-700">
                   Цена
                 </th>
-                <th className="p-3 text-left font-medium text-gray-700">
+                <th className="p-3 w-[10%] text-left font-medium text-gray-700">
                   Комнат
                 </th>
               </tr>
@@ -109,7 +109,7 @@ export default function PropertiesTable({
                   className="border-t border-gray-100 hover:bg-gray-50 transition"
                 >
                   {selectable && (
-                    <td className="p-3">
+                    <td className="p-3 w-[4%]">
                       <input
                         type="checkbox"
                         checked={selectedIds.includes(p.id)}
@@ -117,26 +117,26 @@ export default function PropertiesTable({
                       />
                     </td>
                   )}
-                  <td className="p-3">
+                  <td className="p-3 w-[25%]">
                     {p.photos && p.photos.length > 0 ? (
                       <img
                         src={p.photos[0]}
                         alt={p.title || "Фото"}
-                        className="w-16 h-16 object-cover rounded-md border border-gray-200"
+                        className="w-full h-auto object-cover rounded-md border border-gray-200"
                       />
                     ) : (
-                      <div className="w-16 h-16 flex items-center justify-center bg-gray-100 text-gray-400 text-xs rounded-md border border-gray-200">
+                      <div className="w-32 h-24 flex items-center justify-center bg-gray-100 text-gray-400 text-xs rounded-md border border-gray-200">
                         Нет фото
                       </div>
                     )}
                   </td>
-                  <td className="p-3 font-medium text-gray-800 truncate max-w-[200px]">
+                  <td className="p-3 w-[40%] font-medium text-gray-800 truncate">
                     {p.title || "Без названия"}
                   </td>
-                  <td className="p-3 whitespace-nowrap">
+                  <td className="p-3 w-[15%] whitespace-nowrap">
                     {formatPrice(p.price)}
                   </td>
-                  <td className="p-3">{p.rooms ?? "-"}</td>
+                  <td className="p-3 w-[10%]">{p.rooms ?? "-"}</td>
                 </tr>
               ))}
             </tbody>

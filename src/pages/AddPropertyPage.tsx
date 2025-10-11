@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useApp } from "../AppContext";
+import { useAuth } from "../AppContext";
 import { usePropertyForm } from "../hooks/usePropertyForm";
 import { PropertyForm } from "../components/PropertyForm";
 import toast from "react-hot-toast";
@@ -8,7 +8,7 @@ import { Download } from "lucide-react";
 
 const AddPropertyPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useApp();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<"manual" | "import">("manual");
 
   const {

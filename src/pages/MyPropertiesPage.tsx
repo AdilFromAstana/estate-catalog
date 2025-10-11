@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useApp } from "../AppContext";
+import { useAuth } from "../AppContext";
 import {
   Edit,
   Trash2,
@@ -35,7 +35,7 @@ const MyPropertiesPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
-  const { user } = useApp();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [filters, setFilters] = useState<{

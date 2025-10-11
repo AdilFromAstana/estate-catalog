@@ -8,12 +8,11 @@ import {
 } from "../api/propertyApi";
 import { useDebounce } from "./useDebounce";
 
-// === Получить список объектов ===
 export const useProperties = (params?: GetPropertiesParams) => {
   const debouncedParams = useDebounce(params, 400);
 
   return useQuery({
-    queryKey: ["properties", debouncedParams],
+    queryKey: ["properties", debouncedParams ?? {}],
     queryFn: () => propertyApi.getAll(debouncedParams),
     placeholderData: keepPreviousData, // 👈 теперь правильно для v5
     staleTime: Infinity,
@@ -50,7 +49,6 @@ export const useAgencyProperties = (
   return useProperties({ ...params, agencyId });
 };
 
-// === Получить объект по ID ===
 export const useProperty = (id: number) => {
   return useQuery<BaseProperty>({
     queryKey: ["property", id],

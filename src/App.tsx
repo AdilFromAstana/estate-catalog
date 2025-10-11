@@ -6,308 +6,224 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+
+import { useAuth, AuthProvider } from "./AppContext";
 import Header from "./components/Header";
-import Sidebar from "./components/Sidebar";
+import Footer from "./components/Footer";
+
+// Pages
 import HomePage from "./pages/HomePage";
-import EstateDetailsPage from "./pages/EstateDetailsPage";
-import FavoritesPage from "./pages/FavoritesPage";
-import ComparePage from "./pages/ComparePage";
-import NotFoundPage from "./pages/NotFoundPage";
-import AddPropertyPage from "./pages/AddPropertyPage";
-import MyPropertiesPage from "./pages/MyPropertiesPage";
-import RealtorsPage from "./pages/RealtorsPage";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import SelectionDetailPage from "./pages/SelectionDetailPage/SelectionDetailPage";
+import CreateSelectionPage from "./pages/CreateSelectionPage";
+import EditSelectionPage from "./pages/EditSelectionPage";
+import CollectionsTable from "./pages/CollectionsTable";
+import MyPropertiesPage from "./pages/MyPropertiesPage";
+import AddPropertyPage from "./pages/AddPropertyPage";
+import EditPropertyPage from "./pages/EditPropertyPage";
+import RealtorSettingsPage from "./pages/RealtorSettingsPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
 import CollectionsList from "./pages/CollectionsList";
 import CreateCollection from "./pages/CreateCollection";
 import CollectionDetail from "./pages/CollectionDetail";
-import AnalyticsPage from "./pages/AnalyticsPage";
-import { useApp } from "./AppContext";
-import CollageGenerator from "./components/CollageGenerator/CollageGenerator";
-import RegisterPage from "./pages/RegisterPage";
-import { Toaster } from "react-hot-toast";
-import RealtorSettingsPage from "./pages/RealtorSettingsPage";
-import RealtorDetailPage from "./pages/RealtorDetailPage";
 import AgencyPropertiesPage from "./pages/AgencyPropertiesPage";
-import EditPropertyPage from "./pages/EditPropertyPage";
-import CreateSelectionPage from "./pages/CreateSelectionPage";
+import EstateDetailsPage from "./pages/EstateDetailsPage";
+import RealtorDetailPage from "./pages/RealtorDetailPage";
+import RealtorsPage from "./pages/RealtorsPage";
 
-// Компонент для защищенных маршрутов
+/* -------------------------------------------------------------------------- */
+/*                                ProtectedRoute                              */
+/* -------------------------------------------------------------------------- */
 const ProtectedRoute: React.FC<{
   children: React.ReactNode;
   roles?: string[];
-}> = ({ children }) => {
-  const { user, loading } = useApp();
+}> = ({ children, roles }) => {
+  const { user, loading } = useAuth();
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center w-full h-[50vh]">
+      <div className="flex items-center justify-center w-full h-[60vh]">
         <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto" />
           <p className="mt-4 text-gray-600">Проверка авторизации...</p>
         </div>
       </div>
     );
   }
 
-  if (!user?.isAuthenticated) {
-    return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/login" replace />;
+
+  if (roles?.length) {
+    const userRoleNames = user.roles?.map((r: any) => r.name) ?? [];
+    const hasAccess = roles.some((r) => userRoleNames.includes(r));
+    if (!hasAccess) return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
 };
 
-// Компонент для маршрутов без сайдбара
-const NoSidebarLayout: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  return (
-    <div className="flex-1">
-      <main className="pt-16 p-4 bg-gray-50 min-h-screen">
-        <div className="max-w-screen-xl mx-auto">{children}</div>
-      </main>
+/* -------------------------------------------------------------------------- */
+/*                                    Layout                                  */
+/* -------------------------------------------------------------------------- */
+const BaseLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <main className="pt-16 bg-gray-50 min-h-screen w-full">
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {children}
     </div>
-  );
-};
+  </main>
+);
 
-// Компонент для маршрутов с сайдбаром
-const WithSidebarLayout: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  return (
-    <>
-      <div className="hidden lg:block w-64 flex-shrink-0 pt-16 sticky top-0 h-screen">
-        <Sidebar />
+/* -------------------------------------------------------------------------- */
+/*                                 Route Config                               */
+/* -------------------------------------------------------------------------- */
+const routes = [
+  // === Public routes (no sidebar)
+  { path: "/login", element: <LoginPage />, layout: "none" },
+  { path: "/register", element: <RegisterPage />, layout: "none" },
+
+  // === Public routes (with sidebar)
+  { path: "/", element: <HomePage />, layout: "sidebar" },
+  {
+    path: "/selections/:id",
+    element: <SelectionDetailPage />,
+    layout: "sidebar",
+  },
+  { path: "/estate/:id", element: <EstateDetailsPage />, layout: "sidebar" },
+  { path: "/realtors", element: <RealtorsPage />, layout: "sidebar" },
+  { path: "/realtors/:id", element: <RealtorDetailPage />, layout: "sidebar" },
+  {
+    path: "/agency-properties",
+    element: <AgencyPropertiesPage />,
+    layout: "sidebar",
+  },
+  {
+    path: "/premium",
+    element: (
+      <div className="py-8">
+        <h1 className="text-2xl font-bold text-center">Премиум объекты</h1>
       </div>
-      <div className="flex-1">
-        <main className="pt-16 p-4 bg-gray-50 min-h-screen">
-          <div className="max-w-screen-xl mx-auto">{children}</div>
-        </main>
-      </div>
-    </>
-  );
-};
+    ),
+    layout: "sidebar",
+  },
 
-const AppContent: React.FC = () => {
-  return (
-    <>
-      <Header />
+  // === Protected routes
+  {
+    path: "/edit-selection/:id",
+    element: <EditSelectionPage />,
+    layout: "sidebar",
+    protected: true,
+  },
+  {
+    path: "/add-selection",
+    element: <CreateSelectionPage />,
+    layout: "sidebar",
+    protected: true,
+  },
+  {
+    path: "/selections",
+    element: <CollectionsTable />,
+    layout: "sidebar",
+    protected: true,
+  },
+  {
+    path: "/edit-property/:id",
+    element: <EditPropertyPage />,
+    layout: "sidebar",
+    protected: true,
+    roles: ["admin", "realtor"],
+  },
+  {
+    path: "/add-property",
+    element: <AddPropertyPage />,
+    layout: "sidebar",
+    protected: true,
+    roles: ["admin", "realtor"],
+  },
+  {
+    path: "/my-properties",
+    element: <MyPropertiesPage />,
+    layout: "sidebar",
+    protected: true,
+    roles: ["admin", "realtor"],
+  },
+  {
+    path: "/my-settings",
+    element: <RealtorSettingsPage />,
+    layout: "sidebar",
+    protected: true,
+    roles: ["admin", "realtor"],
+  },
+  {
+    path: "/statistics",
+    element: <AnalyticsPage />,
+    layout: "sidebar",
+    protected: true,
+    roles: ["admin", "realtor"],
+  },
+  {
+    path: "/collections",
+    element: <CollectionsList />,
+    layout: "sidebar",
+    protected: true,
+  },
+  {
+    path: "/collections/create",
+    element: <CreateCollection />,
+    layout: "sidebar",
+    protected: true,
+  },
+  {
+    path: "/collections/:id",
+    element: <CollectionDetail />,
+    layout: "sidebar",
+    protected: true,
+  },
 
-      <div className="flex flex-1">
-        <Routes>
-          {/* Маршруты без сайдбара */}
-          <Route
-            path="/login"
-            element={
-              <NoSidebarLayout>
-                <LoginPage />
-              </NoSidebarLayout>
-            }
-          />
-          <Route
-            path="/register"
-            element={
-              <NoSidebarLayout>
-                <RegisterPage />
-              </NoSidebarLayout>
-            }
-          />
+  // === Fallback
+  { path: "*", element: <NotFoundPage />, layout: "sidebar" },
+];
 
-          {/* Маршруты с сайдбаром */}
+/* -------------------------------------------------------------------------- */
+/*                               AppContent Router                            */
+/* -------------------------------------------------------------------------- */
+const AppContent: React.FC = () => (
+  <>
+    <Header />
+    <Routes>
+      {routes.map(({ path, element, protected: isProtected, roles }) => {
+        const content = <BaseLayout>{element}</BaseLayout>;
+        return (
           <Route
-            path="/"
+            key={path}
+            path={path}
             element={
-              <WithSidebarLayout>
-                <HomePage />
-              </WithSidebarLayout>
+              isProtected ? (
+                <ProtectedRoute roles={roles}>{content}</ProtectedRoute>
+              ) : (
+                content
+              )
             }
           />
-          <Route
-            path="/add-selection"
-            element={
-              <WithSidebarLayout>
-                <CreateSelectionPage />
-              </WithSidebarLayout>
-            }
-          />
-          <Route
-            path="/estate/:id"
-            element={
-              <WithSidebarLayout>
-                <EstateDetailsPage />
-              </WithSidebarLayout>
-            }
-          />
-          <Route
-            path="/collage"
-            element={
-              <WithSidebarLayout>
-                <ProtectedRoute>
-                  <CollageGenerator />
-                </ProtectedRoute>
-              </WithSidebarLayout>
-            }
-          />
-          <Route
-            path="/favorites"
-            element={
-              <WithSidebarLayout>
-                <ProtectedRoute>
-                  <FavoritesPage />
-                </ProtectedRoute>
-              </WithSidebarLayout>
-            }
-          />
-          <Route
-            path="/compare"
-            element={
-              <WithSidebarLayout>
-                <ProtectedRoute>
-                  <ComparePage />
-                </ProtectedRoute>
-              </WithSidebarLayout>
-            }
-          />
-          <Route
-            path="/edit-property/:id"
-            element={
-              <WithSidebarLayout>
-                <ProtectedRoute roles={["admin", "realtor"]}>
-                  <EditPropertyPage />
-                </ProtectedRoute>
-              </WithSidebarLayout>
-            }
-          />
-          <Route
-            path="/add-property"
-            element={
-              <WithSidebarLayout>
-                <ProtectedRoute roles={["admin", "realtor"]}>
-                  <AddPropertyPage />
-                </ProtectedRoute>
-              </WithSidebarLayout>
-            }
-          />
-          <Route
-            path="/my-properties"
-            element={
-              <WithSidebarLayout>
-                <ProtectedRoute roles={["admin", "realtor"]}>
-                  <MyPropertiesPage />
-                </ProtectedRoute>
-              </WithSidebarLayout>
-            }
-          />
-          <Route
-            path="/my-settings"
-            element={
-              <WithSidebarLayout>
-                <ProtectedRoute roles={["admin", "realtor"]}>
-                  <RealtorSettingsPage />
-                </ProtectedRoute>
-              </WithSidebarLayout>
-            }
-          />
-          <Route
-            path="/agency-properties"
-            element={
-              <WithSidebarLayout>
-                <AgencyPropertiesPage />
-              </WithSidebarLayout>
-            }
-          />
-          <Route
-            path="/realtors"
-            element={
-              <WithSidebarLayout>
-                <RealtorsPage />
-              </WithSidebarLayout>
-            }
-          />
-          <Route
-            path="/realtors/:id"
-            element={
-              <WithSidebarLayout>
-                <RealtorDetailPage />
-              </WithSidebarLayout>
-            }
-          />
-          <Route
-            path="/statistics"
-            element={
-              <WithSidebarLayout>
-                <ProtectedRoute roles={["admin", "realtor"]}>
-                  <AnalyticsPage />
-                </ProtectedRoute>
-              </WithSidebarLayout>
-            }
-          />
-          <Route
-            path="/collections"
-            element={
-              <WithSidebarLayout>
-                <ProtectedRoute>
-                  <CollectionsList />
-                </ProtectedRoute>
-              </WithSidebarLayout>
-            }
-          />
-          <Route
-            path="/collections/create"
-            element={
-              <WithSidebarLayout>
-                <ProtectedRoute>
-                  <CreateCollection />
-                </ProtectedRoute>
-              </WithSidebarLayout>
-            }
-          />
-          <Route
-            path="/collections/:id"
-            element={
-              <WithSidebarLayout>
-                <ProtectedRoute>
-                  <CollectionDetail />
-                </ProtectedRoute>
-              </WithSidebarLayout>
-            }
-          />
-          <Route
-            path="/premium"
-            element={
-              <WithSidebarLayout>
-                <div className="py-8">
-                  <h1 className="text-2xl font-bold text-center">
-                    Премиум объекты
-                  </h1>
-                </div>
-              </WithSidebarLayout>
-            }
-          />
-          <Route
-            path="*"
-            element={
-              <WithSidebarLayout>
-                <NotFoundPage />
-              </WithSidebarLayout>
-            }
-          />
-        </Routes>
-      </div>
-    </>
-  );
-};
+        );
+      })}
+    </Routes>
+    <Footer />
+  </>
+);
 
-const App: React.FC = () => {
-  return (
-    <>
+/* -------------------------------------------------------------------------- */
+/*                                    App                                     */
+/* -------------------------------------------------------------------------- */
+const App: React.FC = () => (
+  <AuthProvider>
+    <Router>
       <Toaster position="top-right" />
-      <div className="flex flex-col min-h-screen">
-        <Router>
-          <AppContent />
-        </Router>
-      </div>
-    </>
-  );
-};
+      <AppContent />
+    </Router>
+  </AuthProvider>
+);
 
 export default App;

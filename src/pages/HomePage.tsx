@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import EstateCard from "../components/EstateCard";
 import SearchBar from "../components/SearchBar";
 import { useNavigate } from "react-router-dom";
@@ -49,20 +49,23 @@ const HomePage: React.FC = () => {
   const [isModalClosing, setIsModalClosing] = useState(false);
 
   // ✅ формируем query-параметры для API
-  const params = {
-    page: 1,
-    limit: 100,
-    search: searchQuery || undefined,
-    cityId: filters.cityId || undefined,
-    districtId: filters.districtId || undefined,
-    minPrice: filters.minPrice || undefined,
-    maxPrice: filters.maxPrice || undefined,
-    minArea: filters.minArea || undefined,
-    maxArea: filters.maxArea || undefined,
-    agencyId: filters.agencyId,
-    isPublished: true,
-    status: PropertyStatus.ACTIVE,
-  };
+  const params = useMemo(
+    () => ({
+      page: 1,
+      limit: 100,
+      search: searchQuery || undefined,
+      cityId: filters.cityId || undefined,
+      districtId: filters.districtId || undefined,
+      minPrice: filters.minPrice || undefined,
+      maxPrice: filters.maxPrice || undefined,
+      minArea: filters.minArea || undefined,
+      maxArea: filters.maxArea || undefined,
+      agencyId: filters.agencyId,
+      isPublished: true,
+      status: PropertyStatus.ACTIVE,
+    }),
+    [filters, searchQuery]
+  );
 
   const { data, isLoading, error } = useProperties(params);
   const { data: cities } = useCities();
@@ -120,8 +123,6 @@ const HomePage: React.FC = () => {
     setSearchQuery("");
   };
 
-  // Подготовка данных для SearchBar
-  const categories = ["apartment", "house", "commercial", "land", "townhouse"];
   const roomOptions = [1, 2, 3, 4, 5];
   const maxPrice = estates.length
     ? Math.max(...estates.map((e) => e.price))

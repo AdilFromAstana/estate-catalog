@@ -2,11 +2,11 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff, Home } from "lucide-react";
-import { useApp } from "../AppContext";
+import { useAuth } from "../AppContext";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useApp();
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -25,22 +25,11 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
     setError("");
 
-    try {
-      // 1. Выполняем вход через API
-      login(formData.email, formData.password);
-      navigate("/");
-    } catch (err: any) {
-      console.error(err);
-      if (err.response?.status === 401) {
-        setError("Неверный email или пароль");
-      } else if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else {
-        setError("Произошла ошибка при входе");
-      }
-    } finally {
-      setIsLoading(false);
-    }
+    const result = await login(formData.email, formData.password);
+    if (result.success) navigate("/");
+    else setError(result.message || "Ошибка входа");
+
+    setIsLoading(false);
   };
 
   return (
@@ -58,7 +47,7 @@ const LoginPage: React.FC = () => {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-center">
                 {error}
               </div>
             )}

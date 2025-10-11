@@ -2,6 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Filter } from "lucide-react";
 import type { City, District } from "../api/cityApi";
 import type { GetPropertiesParams } from "../api/propertyApi";
+import {
+  MapPin,
+  Ruler,
+  Building,
+  DollarSign,
+  Bed,
+  XCircle,
+} from "lucide-react";
 
 const formatNumber = (value: string | number) => {
   if (!value) return "";
@@ -34,9 +42,6 @@ const PriceFilter = ({ filters, onFilterChange, filterOptions }: any) => {
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        Цена, ₸
-      </label>
       <div className="grid grid-cols-2 gap-3">
         <input
           type="text"
@@ -76,18 +81,40 @@ export const FilterContent: React.FC<{
     minFloor: number | null;
     maxFloor: number | null;
   };
-}> = ({ filterOptions, onFilterChange, filters }) => {
+}> = ({ filterOptions, onFilterChange, onResetFilters, filters }) => {
   return (
-    <div className="space-y-4 flex-1 overflow-y-scroll hide-scrollbar">
+    <div className="space-y-6 flex-1 overflow-y-auto hide-scrollbar">
+      {/* Заголовок */}
+      <div className="flex justify-between items-center border-b pb-3">
+        <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+          <DollarSign className="w-5 h-5 mr-2 text-indigo-600" />
+          Фильтры поиска
+        </h3>
+        <button
+          type="button"
+          onClick={onResetFilters}
+          className="text-sm flex items-center text-gray-500 hover:text-red-600 transition"
+        >
+          <XCircle className="w-4 h-4 mr-1" />
+          Сбросить
+        </button>
+      </div>
+
       {/* Города */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Города
+        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+          <MapPin className="w-4 h-4 mr-2 text-indigo-500" />
+          Город
         </label>
         <select
           value={filters.cityId || ""}
-          onChange={(e) => onFilterChange("cityId", e.target.value || null)}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400"
+          onChange={(e) =>
+            onFilterChange(
+              "cityId",
+              e.target.value ? Number(e.target.value) : null
+            )
+          }
+          className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
         >
           <option value="">Все города</option>
           {filterOptions.cities.map((city) => (
@@ -98,14 +125,21 @@ export const FilterContent: React.FC<{
         </select>
       </div>
 
+      {/* Район */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+          <MapPin className="w-4 h-4 mr-2 text-indigo-500" />
           Район
         </label>
         <select
           value={filters.districtId || ""}
-          onChange={(e) => onFilterChange("districtId", e.target.value || null)}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400"
+          onChange={(e) =>
+            onFilterChange(
+              "districtId",
+              e.target.value ? Number(e.target.value) : null
+            )
+          }
+          className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
         >
           <option value="">Все районы</option>
           {filterOptions.districts.map((district) => (
@@ -117,15 +151,22 @@ export const FilterContent: React.FC<{
       </div>
 
       {/* Цена */}
-      <PriceFilter
-        filters={filters}
-        onFilterChange={onFilterChange}
-        filterOptions={filterOptions}
-      />
-
-      {/* Площадь, м² */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+          <DollarSign className="w-4 h-4 mr-2 text-indigo-500" />
+          Цена (₸)
+        </label>
+        <PriceFilter
+          filters={filters}
+          onFilterChange={onFilterChange}
+          filterOptions={filterOptions}
+        />
+      </div>
+
+      {/* Площадь */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+          <Ruler className="w-4 h-4 mr-2 text-indigo-500" />
           Площадь, м²
         </label>
         <div className="grid grid-cols-2 gap-3">
@@ -139,7 +180,7 @@ export const FilterContent: React.FC<{
                 e.target.value ? Number(e.target.value) : null
               )
             }
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500"
           />
           <input
             type="number"
@@ -151,16 +192,15 @@ export const FilterContent: React.FC<{
                 e.target.value ? Number(e.target.value) : null
               )
             }
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500"
           />
-        </div>
-        <div className="flex justify-between text-xs text-gray-500 mt-1">
-          <span>0 м²</span>
         </div>
       </div>
 
+      {/* Этаж */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+          <Building className="w-4 h-4 mr-2 text-indigo-500" />
           Этаж
         </label>
         <div className="grid grid-cols-2 gap-3">
@@ -175,7 +215,7 @@ export const FilterContent: React.FC<{
                 e.target.value ? Number(e.target.value) : null
               )
             }
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500"
           />
           <input
             type="number"
@@ -188,36 +228,34 @@ export const FilterContent: React.FC<{
                 e.target.value ? Number(e.target.value) : null
               )
             }
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500"
           />
         </div>
       </div>
 
       {/* Комнаты */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+          <Bed className="w-4 h-4 mr-2 text-indigo-500" />
           Количество комнат
         </label>
         <div className="flex flex-wrap gap-2">
-          {[1, 2, 3, 4].map((room) => (
+          {filterOptions.rooms.map((room) => (
             <button
               key={room}
               type="button"
-              onClick={() => {
-                // если уже выбрана та же комната → очищаем фильтр
-                if (filters.rooms === room) {
-                  onFilterChange("rooms", null);
-                } else {
-                  onFilterChange("rooms", room);
-                }
-              }}
-              className={`px-3 cursor-pointer py-2 rounded-lg border transition-colors text-sm font-medium ${
+              onClick={() =>
                 filters.rooms === room
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "bg-white text-gray-700 border-gray-300 hover:border-blue-300"
+                  ? onFilterChange("rooms", null)
+                  : onFilterChange("rooms", room)
+              }
+              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                filters.rooms === room
+                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-400/40"
+                  : "bg-gray-100 text-gray-700 hover:bg-indigo-100"
               }`}
             >
-              {room === 6 ? "6+" : room}
+              {room === 4 ? "4+" : room}
             </button>
           ))}
         </div>

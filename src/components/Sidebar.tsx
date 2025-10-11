@@ -1,8 +1,7 @@
-// src/components/Sidebar.tsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useApp } from "../AppContext";
-import { LogOut, Key } from "lucide-react";
+import { useAuth } from "../AppContext";
+import { LogOut, Key, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   navigationItems,
   type NavigationItem,
@@ -11,95 +10,179 @@ import {
 const Sidebar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useApp();
+  const { user, logout } = useAuth();
+
+  const [isExpanded, setIsExpanded] = useState<boolean>(() => {
+    const stored = localStorage.getItem("sidebarExpanded");
+    return stored ? JSON.parse(stored) : true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("sidebarExpanded", JSON.stringify(isExpanded));
+  }, [isExpanded]);
 
   const handleLogout = () => {
     logout();
     navigate("/");
   };
 
-  // Фильтрация пунктов по роли
+  const toggleSidebar = () => setIsExpanded((prev) => !prev);
+
+  const userRoleNames = user?.roles?.map((r) => r.name) ?? [];
+
   const filterNavItems = (section: "main" | "user"): NavigationItem[] => {
     return navigationItems.filter((item) => {
-      if (!item.requiresAuth) {
-        return item.section === section;
-      }
-
-      if (!user?.isAuthenticated || !user.roles?.length) {
-        return false;
-      }
-
-      // Проверяем, есть ли у пользователя хотя бы одна из разрешённых ролей
+      if (!item.requiresAuth) return item.section === section;
+      if (!user || userRoleNames.length === 0) return false;
       return (
         item.section === section &&
-        item.roles.some((role) => user.roles.includes(role))
+        item.roles?.some((role) => userRoleNames.includes(role))
       );
     });
   };
 
   const mainNavItems = filterNavItems("main");
-  // userNavItems можно убрать, если не используешь раздел "Для вас"
+
+  const groupedItems = mainNavItems.reduce<Record<string, NavigationItem[]>>(
+    (acc, item) => {
+      if (!acc[item.group!]) acc[item.group!] = [];
+      acc[item.group!].push(item);
+      return acc;
+    },
+    {}
+  );
 
   return (
-    <div className="w-64 text-white h-full flex flex-col bg-gray-800">
-      <nav className="flex-1 overflow-y-auto p-4">
-        <ul className="space-y-2">
-          {mainNavItems.map((item) => {
-            const IconComponent = item.icon;
-            return (
-              <li key={item.id}>
-                <Link
-                  to={item.path}
-                  className={`flex items-center gap-3 px-4 py-2 rounded-md transition-colors ${
-                    location.pathname === item.path
-                      ? "bg-blue-600 text-white"
-                      : "text-gray-300 hover:bg-gray-700 hover:text-white"
-                  }`}
-                >
-                  <IconComponent size={20} />
-                  <span>{item.title}</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-
-        {/* Блок профиля и выхода */}
-        <div className="mt-auto pt-6 border-t border-gray-700">
-          {user?.isAuthenticated ? (
-            <div className="space-y-3">
-              <div className="px-4">
-                <div className="text-sm font-medium text-white">
-                  {user.name}
-                </div>
-                <div className="text-xs text-gray-400">
-                  {user.roles.includes("admin")
-                    ? "Суперадмин"
-                    : user.roles.includes("agency_admin")
-                    ? "Админ агентства"
-                    : "Риелтор"}
-                </div>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-2 rounded-md text-left text-red-400 hover:bg-red-600 hover:text-white transition-colors"
-              >
-                <LogOut size={20} />
-                <span>Выход</span>
-              </button>
-            </div>
+    <aside
+      className={`${
+        isExpanded ? "w-64" : "w-20"
+      } hidden lg:flex flex-col bg-gray-800 border-r border-gray-700 text-white transition-all duration-300 ease-in-out pt-16`}
+    >
+      {/* === Верхняя панель === */}
+      <div className="flex items-center justify-between px-4 py-4">
+        <Link
+          to="/"
+          className="text-lg font-semibold text-white whitespace-nowrap"
+        >
+          {isExpanded ? (
+            <span>
+              <span className="text-blue-400">JUZ</span> - Real Estate
+            </span>
           ) : (
-            <Link
-              to="/login"
-              className="flex items-center gap-3 px-4 py-2 rounded-md text-blue-200 hover:bg-blue-600 hover:text-white transition-colors"
-            >
-              <Key size={20} />
-              <span>Вход</span>
-            </Link>
+            <span className="text-blue-400 text-xl font-bold">JZ</span>
           )}
-        </div>
+        </Link>
+        <button
+          onClick={toggleSidebar}
+          className="text-gray-400 hover:text-white transition ml-2"
+          title={isExpanded ? "Свернуть" : "Развернуть"}
+        >
+          {isExpanded ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+        </button>
+      </div>
+
+      {/* === Навигация === */}
+      <nav className="flex-1 overflow-y-auto px-3 space-y-6">
+        {Object.entries(groupedItems).map(([groupName, items]) => (
+          <div key={groupName}>
+            {isExpanded && (
+              <p className="text-xs font-semibold text-gray-400 uppercase mb-2 px-2">
+                {groupName}
+              </p>
+            )}
+            <div className="space-y-1">
+              {items.map((item) => {
+                const IconComponent = item.icon;
+                const isActive = location.pathname === item.path;
+                return (
+                  <Link
+                    key={item.id}
+                    to={item.path}
+                    className={`group flex items-center gap-3 rounded-md transition-all duration-200 ${
+                      isActive
+                        ? "bg-blue-600 text-white"
+                        : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                    } ${isExpanded ? "px-4 py-2" : "justify-center py-3"}`}
+                    title={!isExpanded ? item.title : ""}
+                  >
+                    <IconComponent size={20} />
+                    {isExpanded && (
+                      <span className="text-sm font-medium truncate">
+                        {item.title}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
-    </div>
+
+      {/* === Нижний блок === */}
+      <div className="mt-auto border-t border-gray-700 p-3">
+        {user ? (
+          <div>
+            <div
+              className={`flex items-center ${
+                isExpanded ? "gap-3" : "justify-center"
+              } mb-3`}
+            >
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.firstName}
+                  className="w-10 h-10 rounded-full object-cover border border-gray-600"
+                  title={`${user.firstName} ${user.lastName}`}
+                />
+              ) : (
+                <div
+                  className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400"
+                  title={`${user.firstName} ${user.lastName}`}
+                >
+                  {user.firstName?.[0] || "?"}
+                </div>
+              )}
+              {isExpanded && (
+                <div>
+                  <div className="text-sm font-medium text-white">
+                    {user.firstName} {user.lastName}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {userRoleNames.includes("admin")
+                      ? "Суперадмин"
+                      : userRoleNames.includes("agency_admin")
+                      ? "Админ агентства"
+                      : "Риелтор"}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={handleLogout}
+              className={`flex items-center gap-3 w-full text-red-400 hover:bg-red-600 hover:text-white rounded-md transition ${
+                isExpanded ? "px-4 py-2" : "justify-center py-3"
+              }`}
+              title={!isExpanded ? "Выход" : ""}
+            >
+              <LogOut size={20} />
+              {isExpanded && <span>Выход</span>}
+            </button>
+          </div>
+        ) : (
+          <Link
+            to="/login"
+            className={`flex items-center gap-3 text-blue-200 hover:bg-blue-600 hover:text-white rounded-md transition ${
+              isExpanded ? "px-4 py-2" : "justify-center py-3"
+            }`}
+          >
+            <Key size={20} />
+            {isExpanded && <span>Вход</span>}
+          </Link>
+        )}
+      </div>
+    </aside>
   );
 };
 

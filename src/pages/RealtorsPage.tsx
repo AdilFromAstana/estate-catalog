@@ -21,7 +21,7 @@ import {
   useRealtors,
 } from "../hooks/useRealtor";
 import type { Realtor } from "../api/realtorApi";
-import { useApp } from "../AppContext";
+import { useAuth } from "../AppContext";
 import { PROPERTY_STATUS_OPTIONS } from "../contants/property-status";
 
 const customStyles = {
@@ -38,7 +38,7 @@ const customStyles = {
 const sortOptions = [{ value: "createdAt", label: "Дата регистрации" }];
 
 const RealtorsPage: React.FC = () => {
-  const { user } = useApp();
+  const { user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 

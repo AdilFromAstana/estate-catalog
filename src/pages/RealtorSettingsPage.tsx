@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Upload, Save, Key, Edit3 } from "lucide-react";
 import toast from "react-hot-toast";
-import { useApp } from "../AppContext";
+import { useAuth } from "../AppContext";
 import {
   getAvatar,
   useRealtor,
@@ -53,7 +53,7 @@ const InputField: React.FC<{
   </div>
 );
 const RealtorSettingsPage: React.FC = () => {
-  const { user } = useApp();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const { data: realtor, isLoading } = useRealtor(user?.id || "");

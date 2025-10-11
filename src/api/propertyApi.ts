@@ -1,5 +1,6 @@
 // src/api/propertyApi.ts
 import type { PropertyStatus } from "../contants/property-status";
+import type { SelectionResponse } from "../types/property";
 import axiosInstance from "./axiosInstance";
 
 export interface Coordinates {
@@ -212,7 +213,17 @@ export const propertyApi = {
   },
 
   createSelection: async (dto: any): Promise<any> => {
-    const res = await axiosInstance.post<PropertyResponse>("/selections", dto);
+    const res = await axiosInstance.post<any>("/selections", dto);
+    return res.data;
+  },
+
+  updateSelection: async (id: number, dto: any): Promise<any> => {
+    const res = await axiosInstance.put<any>(`/selections/${id}`, dto);
+    return res.data;
+  },
+
+  getSelectionById: async (id: number): Promise<SelectionResponse> => {
+    const res = await axiosInstance.get(`/selections/${id}`);
     return res.data;
   },
 
@@ -293,7 +304,7 @@ export const propertyApi = {
 export const formatPrice = (amount: any) => {
   const num = Number(amount);
   if (isNaN(num)) return "₸";
-  return `${Math.floor(num).toLocaleString()} ₸`;
+  return `${Math.floor(num).toLocaleString()}`;
 };
 
 export const normalizeCurrency = (

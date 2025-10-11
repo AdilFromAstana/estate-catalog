@@ -1,4 +1,4 @@
-// src/AppContext.tsx
+// src/context/AuthContext.tsx
 import React, {
   createContext,
   useContext,
@@ -6,115 +6,53 @@ import React, {
   useEffect,
   type ReactNode,
 } from "react";
-import type { User, AppContextType } from "./types";
-import { authApi } from "./api/authApi";
+import { authService } from "./services/authService";
+import type { User } from "./types/user";
 
-const AppContext = createContext<AppContextType | undefined>(undefined);
-
-interface AppProviderProps {
-  children: ReactNode;
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  login: (
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; message?: string }>;
+  logout: () => Promise<void>;
 }
 
-export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Инициализация: проверка авторизации при старте приложения
   useEffect(() => {
-    const initAuth = () => {
-      console.log("ВРОДЕ РАБТОАЕТ")
-      try {
-        const savedUser = authApi.getCurrentUser();
-        setUser(savedUser);
-      } catch (error) {
-        console.error("Ошибка инициализации авторизации:", error);
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initAuth();
+    const storedUser = authService.getCurrentUser();
+    setUser(storedUser);
+    setLoading(false);
   }, []);
 
-  // === Методы авторизации ===
-  const login = async (email: string, password: string): Promise<boolean> => {
-    try {
-      await authApi.login({ email, password });
-      const currentUser = authApi.getCurrentUser();
-      setUser(currentUser);
-      return true;
-    } catch (error) {
-      console.error("Ошибка входа:", error);
-      return false;
-    }
+  const login = async (email: string, password: string) => {
+    const result = await authService.login(email, password);
+    if (result.success && result.user) setUser(result.user);
+    return { success: result.success, message: result.message };
   };
 
-  const register = async (
-    email: string,
-    password: string,
-    agencyId: string
-  ): Promise<boolean> => {
-    try {
-      await authApi.register({
-        email,
-        password,
-        agencyId: Number(agencyId),
-      });
-      return true;
-    } catch (error) {
-      console.error("Ошибка регистрации:", error);
-      return false;
-    }
-  };
-
-  const logout = () => {
-    authApi.logout();
+  const logout = async () => {
+    await authService.logout();
     setUser(null);
   };
 
-  // === Методы для работы с данными (временно оставим, но лучше перенести в компоненты) ===
-  const addProperty = () =>
-    // propertyData: Omit<Property, "id" | "createdAt" | "updatedAt">
-    {
-      // В будущем: вызов propertyApi.create()
-      // const newProperty: Property = {
-      //   ...propertyData,
-      //   id: Date.now().toString(),
-      //   createdAt: new Date().toISOString(),
-      //   updatedAt: new Date().toISOString(),
-      // };
-      // Но сейчас свойства не хранятся в контексте — удалим это позже
-    };
-
-  // const updateProperty = (id: string, updates: Partial<Property>) => {
-  //   // В будущем: вызов propertyApi.update()
-  // };
-
-  // const deleteProperty = (id: string) => {
-  //   // В будущем: вызов propertyApi.delete()
-  // };
-
-  const value: AppContextType = {
-    user,
-    properties: [], // ← временно пустой массив
-    realtors: [], // ← временно пустой массив
-    login,
-    register,
-    logout,
-    addProperty,
-    // updateProperty,
-    // deleteProperty,
-    loading,
-  };
-
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-export const useApp = () => {
-  const context = useContext(AppContext);
-  if (context === undefined) {
-    throw new Error("useApp must be used within an AppProvider");
-  }
-  return context;
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
 };
