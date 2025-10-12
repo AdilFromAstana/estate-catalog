@@ -9,8 +9,9 @@ import {
 } from "../api/propertyApi";
 import { useProperties } from "../hooks/useProperties";
 import { useCities, useDistricts } from "../hooks/useCities";
-import MapViewYandex from "../components/MapViewYandex";
+import MapViewYandex from "../components/YandexMap";
 import { PropertyStatus } from "../contants/property-status";
+import DrawMap from "../components/YandexMap/DrawMap";
 
 const getCategoryLabel = (category: string) => {
   const labels: { [key: string]: string } = {
@@ -168,19 +169,34 @@ const HomePage: React.FC = () => {
         </div>
       ) : (
         <>
-          {viewMode === "list" ? (
+          <div
+            className={`transition-opacity duration-300 ${
+              viewMode === "map"
+                ? "opacity-100 pointer-events-auto"
+                : "opacity-0 pointer-events-none h-0"
+            }`}
+          >
+            {/* <MapViewYandex
+              estates={estates}
+              onEstateClick={handleEstateClick}
+            /> */}
+            <DrawMap estates={estates} />
+          </div>
+
+          {/* Список */}
+          <div
+            className={`transition-opacity duration-300 ${
+              viewMode === "list"
+                ? "opacity-100 pointer-events-auto"
+                : "opacity-0 pointer-events-none h-0"
+            }`}
+          >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
               {estates.map((estate) => (
                 <EstateCard key={estate.id} {...estate} />
               ))}
             </div>
-          ) : (
-            // <MapView estates={estates} onEstateClick={handleEstateClick} />
-            <MapViewYandex
-              estates={estates}
-              onEstateClick={handleEstateClick}
-            />
-          )}
+          </div>
         </>
       )}
 

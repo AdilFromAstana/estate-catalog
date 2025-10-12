@@ -3,11 +3,6 @@ import type { PropertyStatus } from "../contants/property-status";
 import type { SelectionResponse } from "../types/property";
 import axiosInstance from "./axiosInstance";
 
-export interface Coordinates {
-  lat: number;
-  lng: number;
-}
-
 export type PropertyType =
   | "apartment"
   | "house"
@@ -57,8 +52,8 @@ export interface BaseProperty {
   parking?: string;
   furniture?: string;
   complex?: string;
-
-  coordinates?: Coordinates;
+  latitude?: number;
+  longitude?: number;
 
   photos: string[];
   mainPhoto?: string;
