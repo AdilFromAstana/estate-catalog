@@ -29,7 +29,7 @@ export const SelectionDetailPage: React.FC = () => {
   const { selection, properties, createdBy } = data;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="w-full mx-auto">
       <SelectionInfoCard
         selection={selection}
         total={properties.total}

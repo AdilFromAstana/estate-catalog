@@ -18,6 +18,7 @@ import {
 } from "../api/propertyApi";
 import toast from "react-hot-toast";
 import { getAvatar } from "../hooks/useRealtor";
+import SafeImage from "../components/SafeImage";
 
 // Хелпер для отображения типа недвижимости
 const getCategoryLabel = (type: string) => {
@@ -129,9 +130,9 @@ const EstateDetailsPage: React.FC = () => {
   const fullAddress = `${estate.city}, ${estate.district}, ${estate.street} ${estate.houseNumber}`;
 
   return (
-    <div className="max-w-4xl mx-auto bg-white min-h-screen">
+    <div className="w-full mx-auto min-h-screen">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-white border-b border-gray-200 p-4">
+      <div className="sticky top-0 bg-white border-b border-gray-200 p-4">
         <div className="flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
@@ -325,14 +326,7 @@ const EstateAgentSection: React.FC<{ estate: PropertyResponse }> = ({
   <div className="mb-8 p-4 bg-gray-50 rounded-xl">
     <h2 className="text-xl font-semibold mb-3">Контактное лицо</h2>
     <div className="flex items-center gap-3">
-      <img
-        src={getAvatar(estate.owner?.avatar!)}
-        alt={formatFullName({
-          firstName: estate.owner?.firstName,
-          lastName: estate.owner?.lastName,
-        })}
-        className="w-12 h-12 rounded-full object-cover"
-      />
+      <SafeImage srcPath={estate?.owner?.avatar} size={64} />
       <div>
         <div className="font-semibold">
           {formatFullName({

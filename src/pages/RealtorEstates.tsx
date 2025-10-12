@@ -1,7 +1,7 @@
 // src/pages/RealtorEstates.tsx
 import { useParams, Link } from "react-router-dom";
 import { useEffect } from "react";
-import { getAvatar } from "../hooks/useRealtor";
+import SafeImage from "../components/SafeImage";
 
 export default function RealtorEstates() {
   const { id } = useParams<{ id: string }>();
@@ -46,11 +46,7 @@ export default function RealtorEstates() {
 
       {/* Блок риэлтора */}
       <div className="flex items-center gap-4 mt-6 p-4 border rounded-lg bg-gray-50 shadow-sm">
-        <img
-          src={getAvatar(realtor?.avatar!)}
-          alt={realtor?.name}
-          className="w-16 h-16 rounded-full object-cover"
-        />
+        <SafeImage srcPath={realtor?.avatar} />
         <div>
           <h1 className="text-xl font-bold">{realtor?.name}</h1>
           <p className="text-gray-600">Телефон: {realtor?.phone}</p>

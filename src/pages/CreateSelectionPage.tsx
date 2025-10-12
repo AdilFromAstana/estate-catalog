@@ -2,10 +2,10 @@ import { useState, useMemo } from "react";
 import { toast } from "react-hot-toast";
 import { useCities, useDistricts } from "../hooks/useCities";
 import { FilterContent } from "../components/SearchBar";
-import PropertiesTable from "../components/SelectionPropertiesTable";
+import { SelectionPropertiesTable } from "../components/PropertyTable/SelectionPropertiesTable";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { propertyApi } from "../api/propertyApi";
 import { useNavigate } from "react-router-dom";
+import { selectionApi } from "../api/selectionApi";
 
 export default function CreateSelectionPage() {
   const [mode, setMode] = useState<"filter" | "manual">("filter");
@@ -22,7 +22,7 @@ export default function CreateSelectionPage() {
   const { data: districts } = useDistricts(filters.cityId || undefined);
 
   const createMutation = useMutation({
-    mutationFn: (payload: any) => propertyApi.createSelection(payload),
+    mutationFn: (payload: any) => selectionApi.createSelection(payload),
     onSuccess: () => {
       toast.success("Подборка успешно создана!");
       queryClient.invalidateQueries({ queryKey: ["selections"] }); // обновляем список подборок
@@ -68,8 +68,8 @@ export default function CreateSelectionPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 font-inter">
-      <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-8 border-b pb-4">
+    <>
+      <h1 className="text-3xl font-bold text-gray-900 mb-4 sm:mb-0">
         Создать подборку
       </h1>
 
@@ -175,16 +175,18 @@ export default function CreateSelectionPage() {
             }}
           />
 
+          {/* 🧾 Показываем найденные объекты */}
           {Object.keys(filters).length > 0 && (
             <div className="mt-8">
               <h3 className="text-xl font-semibold text-gray-800 mb-4">
                 📊 Результаты по фильтрам
               </h3>
-              <PropertiesTable
+              <SelectionPropertiesTable
+                selectable={false}
                 selectedIds={[]}
                 onSelect={() => {}}
                 filters={filters}
-                selectable={false}
+                visiblePagination={true}
               />
             </div>
           )}
@@ -194,10 +196,11 @@ export default function CreateSelectionPage() {
           <h2 className="text-2xl font-semibold text-indigo-700 mb-6">
             📝 Выбор объектов вручную
           </h2>
-          <PropertiesTable
+          <SelectionPropertiesTable
             selectable={true}
             selectedIds={selectedPropertyIds}
             onSelect={setSelectedPropertyIds}
+            visiblePagination={true}
           />
         </div>
       )}
@@ -216,6 +219,6 @@ export default function CreateSelectionPage() {
           {"Сохранить подборку"}
         </button>
       </div>
-    </div>
+    </>
   );
 }

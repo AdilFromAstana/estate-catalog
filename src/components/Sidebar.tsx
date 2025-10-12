@@ -6,6 +6,7 @@ import {
   navigationItems,
   type NavigationItem,
 } from "../contants/navigationItems";
+import SafeImage from "./SafeImage";
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
@@ -128,21 +129,7 @@ const Sidebar: React.FC = () => {
                 isExpanded ? "gap-3" : "justify-center"
               } mb-3`}
             >
-              {user.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt={user.firstName}
-                  className="w-10 h-10 rounded-full object-cover border border-gray-600"
-                  title={`${user.firstName} ${user.lastName}`}
-                />
-              ) : (
-                <div
-                  className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400"
-                  title={`${user.firstName} ${user.lastName}`}
-                >
-                  {user.firstName?.[0] || "?"}
-                </div>
-              )}
+              <SafeImage srcPath={user?.avatar} size={16} />
               {isExpanded && (
                 <div>
                   <div className="text-sm font-medium text-white">

@@ -23,6 +23,7 @@ import {
 import type { Realtor } from "../api/realtorApi";
 import { useAuth } from "../AppContext";
 import { PROPERTY_STATUS_OPTIONS } from "../contants/property-status";
+import SafeImage from "../components/SafeImage";
 
 const customStyles = {
   // Desktop table layout (min-width: 1024px)
@@ -65,10 +66,10 @@ const RealtorsPage: React.FC = () => {
   }
 
   return (
-    <div className="py-6 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div className="w-full mx-auto">
       <div className="flex justify-between items-center mb-6 border-b pb-3">
         <div>
-          <h1 className="text-3xl font-extrabold text-gray-900">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4 sm:mb-0">
             Риэлторы агентства
           </h1>
           <p className="mt-1 text-sm text-gray-500">
@@ -211,11 +212,7 @@ const RealtorsPage: React.FC = () => {
                   >
                     {/* Column 1: Employee / Contacts */}
                     <div className="flex items-center space-x-3 min-w-[150px] lg:min-w-auto">
-                      <img
-                        className="h-10 w-10 rounded-full object-cover"
-                        src={getAvatar(realtor.avatar!)}
-                        alt={`${realtor.firstName} ${realtor.lastName}`}
-                      />
+                      <SafeImage srcPath={realtor?.avatar} />
                       <div>
                         <p className="font-bold text-gray-900 leading-tight">
                           {realtor.firstName} {realtor.lastName}

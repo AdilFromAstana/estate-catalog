@@ -11,10 +11,11 @@ import {
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-gray-900 text-white pt-8 pb-4 shadow-inner">
+    <footer className="bg-gray-900 text-white pt-10 pb-6 shadow-inner">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 border-b border-gray-700 pb-8">
-          {/* Колонка 1: О компании JUZ */}
+        {/* Сетка — на мобильных по 1 колонке, на планшетах 2, на десктопе 4 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 border-b border-gray-800 pb-8">
+          {/* Колонка 1 */}
           <div>
             <a href="/" className="flex-shrink-0 flex items-center mb-4">
               <span className="text-3xl font-extrabold text-indigo-400">
@@ -24,13 +25,13 @@ const Footer: React.FC = () => {
                 - Real Estate
               </span>
             </a>
-            <p className="text-sm text-gray-400">
-              Ведущая платформа для риелторов и агентств, оптимизирующая
-              создание подборок и управление объектами недвижимости.
+            <p className="text-sm text-gray-400 leading-relaxed">
+              Ведущая платформа для риелторов и агентств, оптимизирующая подбор
+              и управление недвижимостью.
             </p>
           </div>
 
-          {/* Колонка 2: Контакты */}
+          {/* Колонка 2 */}
           <div>
             <h4 className="text-lg font-semibold mb-4 text-indigo-400">
               Контакты
@@ -51,7 +52,7 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Колонка 3: Для гостей / Клиентов */}
+          {/* Колонка 3 */}
           <div>
             <h4 className="text-lg font-semibold mb-4 text-indigo-400">
               Стать клиентом
@@ -87,7 +88,7 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Колонка 4: Юридическая информация и Разработчик */}
+          {/* Колонка 4 */}
           <div>
             <h4 className="text-lg font-semibold mb-4 text-indigo-400">
               Документы
@@ -116,8 +117,8 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Нижняя полоса */}
-        <div className="mt-6 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
-          <p className="mb-2 md:mb-0">
+        <div className="mt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 text-center md:text-left">
+          <p className="mb-3 md:mb-0">
             &copy; {new Date().getFullYear()} JUZ Real Estate. Все права
             защищены.
           </p>

@@ -1,17 +1,17 @@
 import React, { useMemo, useState } from "react";
-import EstateCard from "../components/EstateCard";
-import SearchBar from "../components/SearchBar";
+import EstateCard from "../../components/EstateCard";
+import SearchBar from "../../components/SearchBar";
 import { useNavigate } from "react-router-dom";
 import { List, Map } from "lucide-react";
 import {
   type GetPropertiesParams,
   type PropertyResponse,
-} from "../api/propertyApi";
-import { useProperties } from "../hooks/useProperties";
-import { useCities, useDistricts } from "../hooks/useCities";
-import MapViewYandex from "../components/YandexMap";
-import { PropertyStatus } from "../contants/property-status";
-import DrawMap from "../components/YandexMap/DrawMap";
+} from "../../api/propertyApi";
+import { useProperties } from "../../hooks/useProperties";
+import { useCities, useDistricts } from "../../hooks/useCities";
+import { PropertyStatus } from "../../contants/property-status";
+// import DrawMap from "../../components/YandexMap/DrawMap";
+import DrawMap from "./components/DrawMap/DrawMap";
 
 const getCategoryLabel = (category: string) => {
   const labels: { [key: string]: string } = {
@@ -129,8 +129,27 @@ const HomePage: React.FC = () => {
     ? Math.max(...estates.map((e) => e.price))
     : 100000000;
 
+  // Временный фейковый массив домов
+  const generateEstates = (count = 500) => {
+    const estates: any[] = [];
+    const center = { lat: 51.1694, lng: 71.4491 };
+
+    for (let i = 0; i < count; i++) {
+      const offsetLat = (Math.random() - 0.5) * 0.1; // ~11 км
+      const offsetLng = (Math.random() - 0.5) * 0.15;
+      estates.push({
+        id: i + 1,
+        title: `🏠 Дом №${i + 1}`,
+        latitude: center.lat + offsetLat,
+        longitude: center.lng + offsetLng,
+      });
+    }
+
+    return estates;
+  };
+
   return (
-    <main className="flex-1 p-4 relative">
+    <div className="flex-1 relative">
       <SearchBar
         onSearch={setSearchQuery}
         filters={filters}
@@ -173,14 +192,11 @@ const HomePage: React.FC = () => {
             className={`transition-opacity duration-300 ${
               viewMode === "map"
                 ? "opacity-100 pointer-events-auto"
-                : "opacity-0 pointer-events-none h-0"
+                : "opacity-0 pointer-events-none h-0 hidden"
             }`}
           >
-            {/* <MapViewYandex
-              estates={estates}
-              onEstateClick={handleEstateClick}
-            /> */}
-            <DrawMap estates={estates} />
+            {/* <DrawMap estates={generateEstates(1000) || []} /> */}
+            <DrawMap estates={generateEstates(1000) || []} />
           </div>
 
           {/* Список */}
@@ -188,7 +204,7 @@ const HomePage: React.FC = () => {
             className={`transition-opacity duration-300 ${
               viewMode === "list"
                 ? "opacity-100 pointer-events-auto"
-                : "opacity-0 pointer-events-none h-0"
+                : "opacity-0 pointer-events-none h-0 hidden"
             }`}
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
@@ -201,7 +217,7 @@ const HomePage: React.FC = () => {
       )}
 
       {/* Кнопка переключения режима */}
-      <div className="fixed bottom-20 right-6 z-[1000]">
+      <div className="fixed bottom-20 right-6 z-20">
         <button
           onClick={() => setViewMode(viewMode === "list" ? "map" : "list")}
           className="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
@@ -312,7 +328,7 @@ const HomePage: React.FC = () => {
         .animate-slide-up { animation: slide-up 0.3s ease-out forwards; }
         .animate-slide-down { animation: slide-down 0.3s ease-out forwards; }
       `}</style>
-    </main>
+    </div>
   );
 };
 

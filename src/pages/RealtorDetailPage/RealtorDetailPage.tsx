@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
-  Award,
   BarChart,
   ChevronLeft,
   Clock,
@@ -13,12 +12,15 @@ import {
   Tag,
 } from "lucide-react";
 import {
-  getAvatar,
   getStatusClass,
   getStatusText,
   useRealtor,
-} from "../hooks/useRealtor";
+  useToggleVisibility,
+} from "../../hooks/useRealtor";
 import { useNavigate, useParams } from "react-router-dom";
+import SafeImage from "../../components/SafeImage";
+import { ActivateToggleButton } from "./components/ActivateToggleButton";
+import toast from "react-hot-toast";
 
 // Заглушка контента для вкладки "Объекты"
 const ListingsTab: React.FC<{ count: number }> = ({ count }) => (
@@ -40,7 +42,7 @@ const ListingsTab: React.FC<{ count: number }> = ({ count }) => (
 );
 
 // Заглушка контента для вкладки "Коллекции"
-const CollectionsTab: React.FC = () => (
+const SelectionsTab: React.FC = () => (
   <div className="p-6 bg-white rounded-xl shadow-lg border border-gray-100">
     <h4 className="text-xl font-semibold text-gray-800 flex items-center mb-4">
       <Tag className="w-5 h-5 mr-2 text-green-500" /> Коллекции/Категории
@@ -82,7 +84,27 @@ const RealtorDetailPage: React.FC = () => {
   const { data: realtor } = useRealtor(id!);
   const [activeTab, setActiveTab] = useState("listings");
 
+  const { mutate: toggleVisibilityMutation } = useToggleVisibility();
+
   if (!realtor) return null;
+
+  const toggleVisibility = useCallback(
+    (isActive: boolean) => {
+      toggleVisibilityMutation(
+        { id: Number(id), isActive },
+        {
+          onSuccess: () =>
+            toast.success(
+              `"${realtor?.firstName} ${realtor?.lastName}" теперь ${
+                isActive ? "автивирован" : "деактивирован"
+              }`
+            ),
+          onError: () => toast.error("Ошибка при изменении публикации"),
+        }
+      );
+    },
+    [toggleVisibilityMutation]
+  );
 
   const tabs = [
     {
@@ -92,10 +114,10 @@ const RealtorDetailPage: React.FC = () => {
       content: <ListingsTab count={0} />,
     },
     {
-      id: "collections",
-      label: "Коллекции",
+      id: "selections",
+      label: "Подборки",
       icon: LayoutGrid,
-      content: <CollectionsTab />,
+      content: <SelectionsTab />,
     },
     {
       id: "stats",
@@ -109,7 +131,7 @@ const RealtorDetailPage: React.FC = () => {
   const statusText = getStatusText(realtor.isActive, realtor.isVerified);
 
   return (
-    <div className="py-6 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto min-h-screen">
+    <div className="w-full mx-auto">
       {/* Header and Back Button */}
       <div className="flex justify-between items-center mb-6 border-b pb-4">
         <button
@@ -119,19 +141,16 @@ const RealtorDetailPage: React.FC = () => {
           <ChevronLeft className="h-6 w-6 mr-1" />
           Назад к списку риэлторов
         </button>
-        <button className="bg-blue-600 text-white font-medium py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition flex items-center">
-          <Award className="h-5 w-5 mr-2" /> Наградить
-        </button>
+        <ActivateToggleButton
+          isActive={realtor.isActive}
+          onConfirm={toggleVisibility}
+        />
       </div>
 
       {/* Profile Overview Card */}
       <div className="bg-white rounded-xl shadow-2xl p-6 mb-8 border border-gray-200">
         <div className="flex items-center space-x-6">
-          <img
-            className="h-20 w-20 rounded-full object-cover shadow-md ring-4 ring-blue-100"
-            src={getAvatar(realtor.avatar!)}
-            alt={`${realtor.firstName} ${realtor.lastName}`}
-          />
+          <SafeImage srcPath={realtor?.avatar} />
           <div>
             <h1 className="text-3xl font-extrabold text-gray-900">
               {realtor.firstName} {realtor.lastName}

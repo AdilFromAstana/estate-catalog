@@ -1,4 +1,3 @@
-// src/api/realtorApi.ts
 import axiosInstance from "./axiosInstance";
 export interface Agency {
   id: number | null;
@@ -71,7 +70,6 @@ export const realtorApi = {
     return response.data;
   },
 
-  // ✅ Загрузка аватара конкретного риелтора
   uploadAvatar: async (id: string | number, file: File): Promise<string> => {
     const formData = new FormData();
     formData.append("file", file);
@@ -84,5 +82,12 @@ export const realtorApi = {
       }
     );
     return response.data.url;
+  },
+
+  toggleStatus: async (id: number | string, isActive: boolean) => {
+    const response = await axiosInstance.patch(`/users/${id}/status`, {
+      isActive,
+    });
+    return response.data;
   },
 };

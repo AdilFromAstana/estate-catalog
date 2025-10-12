@@ -1,6 +1,5 @@
 // src/api/propertyApi.ts
 import type { PropertyStatus } from "../contants/property-status";
-import type { SelectionResponse } from "../types/property";
 import axiosInstance from "./axiosInstance";
 
 export type PropertyType =
@@ -153,7 +152,6 @@ export interface ParsedPropertyData {
   address: string | null;
   latitude?: number | null;
   longitude?: number | null;
-  coordinates?: string; // "lat,lng" — для совместимости с UI
 
   // Комплекс / здание
   complex?: string;
@@ -204,21 +202,6 @@ export interface ParsedPropertyData {
 export const propertyApi = {
   create: async (dto: PropertyCreateDto): Promise<PropertyResponse> => {
     const res = await axiosInstance.post<PropertyResponse>("/properties", dto);
-    return res.data;
-  },
-
-  createSelection: async (dto: any): Promise<any> => {
-    const res = await axiosInstance.post<any>("/selections", dto);
-    return res.data;
-  },
-
-  updateSelection: async (id: number, dto: any): Promise<any> => {
-    const res = await axiosInstance.put<any>(`/selections/${id}`, dto);
-    return res.data;
-  },
-
-  getSelectionById: async (id: number): Promise<SelectionResponse> => {
-    const res = await axiosInstance.get(`/selections/${id}`);
     return res.data;
   },
 

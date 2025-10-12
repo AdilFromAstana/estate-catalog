@@ -1,9 +1,10 @@
 // src/components/Header.tsx
 import React, { useState, useMemo } from "react";
-import { Menu, X, UserCircle, ChevronDown, LogOut, LogIn } from "lucide-react";
+import { Menu, X, LogOut, LogIn } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../AppContext";
 import { navigationItems } from "../contants/navigationItems";
+import SafeImage from "./SafeImage";
 
 const Header: React.FC = () => {
   const { user, logout } = useAuth();
@@ -34,7 +35,7 @@ const Header: React.FC = () => {
   const groups = Object.keys(grouped);
 
   return (
-    <header className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
+    <header className="fixed top-0 left-0 right-0 bg-white shadow-md z-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
         {/* Logo */}
         <div
@@ -47,21 +48,13 @@ const Header: React.FC = () => {
         <div className="hidden md:flex items-center space-x-6">
           {user ? (
             <div className="relative group">
-              <button className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-xl hover:bg-indigo-700 transition">
-                <UserCircle className="w-5 h-5" />
-                <span className="text-sm font-semibold">
-                  {user.firstName || "Профиль"}
-                </span>
-                <ChevronDown className="w-4 h-4" />
-              </button>
+              <SafeImage srcPath={user.avatar} size={40} />
 
               {/* Dropdown */}
               <div className="absolute right-0 mt-3 w-[450px] lg:w-[600px] bg-white rounded-2xl shadow-2xl z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform scale-95 group-hover:scale-100 origin-top-right border border-gray-100">
                 <div className="flex justify-between items-center p-4 border-b border-indigo-100 bg-indigo-50 rounded-t-2xl">
                   <div className="flex items-center">
-                    <div className="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-                      АД
-                    </div>
+                    <SafeImage srcPath={user.avatar} size={40} />
                     <div className="ml-3">
                       <p className="text-sm font-bold text-gray-800">
                         {user.firstName || "Профиль"}

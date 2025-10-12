@@ -7,6 +7,7 @@ import {
   Phone,
   MessageCircle,
 } from "lucide-react";
+import SafeImage from "../../../components/SafeImage";
 
 interface SelectionInfoCardProps {
   selection: any;
@@ -92,17 +93,7 @@ const SelectionInfoCard: React.FC<SelectionInfoCardProps> = ({
       {createdBy && (
         <div className="flex flex-col items-center md:items-end text-center md:text-right border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-6">
           {/* Фото или инициалы */}
-          {createdBy.avatar ? (
-            <img
-              src={createdBy.avatar}
-              alt={`${createdBy.firstName} ${createdBy.lastName}`}
-              className="w-16 h-16 rounded-full object-cover border-2 border-blue-500 shadow-sm mb-2"
-            />
-          ) : (
-            <div className="w-16 h-16 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-xl border border-blue-200 mb-2">
-              {getInitials(createdBy.firstName, createdBy.lastName)}
-            </div>
-          )}
+          <SafeImage srcPath={createdBy?.avatar} />
 
           {/* Имя и фамилия */}
           <h3 className="text-base font-semibold text-gray-900">

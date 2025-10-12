@@ -1,300 +1,414 @@
+import React, { useState, useCallback, useEffect } from "react";
 import {
-  Building,
-  CheckCircle,
-  Eye,
-  Filter,
-  ListFilter,
+  Save,
   Share2,
+  Filter,
+  Building,
+  ListFilter,
+  AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
+  X,
   ToggleLeft,
   ToggleRight,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { toast } from "react-hot-toast";
-import { useCities, useDistricts } from "../hooks/useCities";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { propertyApi } from "../api/propertyApi";
-import { useNavigate, useParams } from "react-router-dom";
-import PropertiesTable from "../components/SelectionPropertiesTable";
-import { FilterContent } from "../components/SearchBar";
 
-export default function EditSelectionPage() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const { id } = useParams<{ id: string }>();
+// ==== MOCK DATA ====
+const PAGINATION_SIZE = 10;
+const TOTAL_PROPERTIES_COUNT = 1000000;
 
-  // --- Состояния ---
-  const [mode, setMode] = useState<"filter" | "manual">("filter");
-  const [filters, setFilters] = useState<any>({});
-  const [selectedPropertyIds, setSelectedPropertyIds] = useState<number[]>([]);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [isShared, setIsShared] = useState(false);
+const baseMockProperties = [
+  {
+    id: 1,
+    title: '2-комн. кв. 65 м² в ЖК "Престиж"',
+    price: "48 500 000 ₸",
+    date: "12.09.2025",
+    address: "Астана, р-н Есиль",
+  },
+  {
+    id: 2,
+    title: '3-комн. кв. 88 м² в ЖК "Emerald"',
+    price: "62 000 000 ₸",
+    date: "10.09.2025",
+    address: "Астана, р-н Алматы",
+  },
+  {
+    id: 3,
+    title: '1-комн. кв. 42 м² в ЖК "Nova"',
+    price: "31 500 000 ₸",
+    date: "08.09.2025",
+    address: "Астана, р-н Сарыарка",
+  },
+];
 
-  // --- Подгружаем данные подборки ---
-  const { data, isLoading } = useQuery({
-    queryKey: ["selection", id],
-    queryFn: () => propertyApi.getSelectionById(Number(id)),
-    enabled: !!id,
+const fetchPropertiesFromApi = (page: number, pageSize: number) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const start = (page - 1) * pageSize;
+      const data = Array.from({ length: pageSize }, (_, i) => {
+        const base = baseMockProperties[i % baseMockProperties.length];
+        return {
+          ...base,
+          id: start + i + 1,
+          title: `Объект ${start + i + 1}: ${base.title}`,
+        };
+      });
+      resolve(data);
+    }, 400);
   });
+};
 
-  // --- Город / районы ---
-  const { data: cities } = useCities();
-  const { data: districts } = useDistricts(filters.cityId || undefined);
+// ==== UI Components ====
 
-  // --- Заполняем поля при загрузке ---
-  useEffect(() => {
-    if (data && data.selection) {
-      setName(data.selection.name || "");
-      setDescription(data.selection.description || "");
-      setIsShared(data.selection.isShared || false);
-
-      if (
-        data.selection.filters &&
-        Object.keys(data.selection.filters).length
-      ) {
-        setMode("filter");
-        setFilters(data.selection.filters);
-      } else if (data.selection.propertyIds?.length) {
-        setMode("manual");
-        setSelectedPropertyIds(data.selection.propertyIds);
-      }
-    }
-  }, [data]);
-
-  // --- Мутация обновления ---
-  const updateMutation = useMutation({
-    mutationFn: (payload: any) =>
-      propertyApi.updateSelection(Number(id), payload),
-    onSuccess: () => {
-      toast.success("Подборка успешно обновлена!");
-      queryClient.invalidateQueries({ queryKey: ["selections"] });
-      navigate("/selections");
-    },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message || "Ошибка при обновлении");
-    },
-  });
-
-  // --- Проверка формы ---
-  const isFormValid = useMemo(() => {
-    if (!name.trim()) return false;
-    if (mode === "filter") {
-      const hasFilter = Object.entries(filters).some(
-        ([_, v]) =>
-          v !== null && v !== "" && !(Array.isArray(v) && v.length === 0)
-      );
-      return hasFilter;
-    }
-    if (mode === "manual") return selectedPropertyIds.length > 0;
-    return false;
-  }, [name, filters, selectedPropertyIds, mode]);
-
-  const handleUpdate = () => {
-    if (!isFormValid) {
-      toast.error("Заполните обязательные поля перед сохранением");
-      return;
-    }
-
-    const payload =
-      mode === "filter"
-        ? { name, description, isShared, filters }
-        : { name, description, isShared, propertyIds: selectedPropertyIds };
-
-    updateMutation.mutate(payload);
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh] text-gray-500">
-        Загрузка данных подборки...
-      </div>
-    );
-  }
+const Pagination = ({ total, pageSize, current, onChange, loading }: any) => {
+  const totalPages = Math.ceil(total / pageSize);
+  if (total <= pageSize) return null;
 
   return (
-    <div className="flex-1 overflow-y-auto p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-gray-900 flex items-center">
-          <Filter className="w-7 h-7 mr-3 text-indigo-600" />
-          Редактировать подборку
-        </h1>
-        <p className="text-gray-500 mt-1">
-          Настройте параметры и фильтры для обновления подборки.
-        </p>
+    <div className="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-xl border mt-4">
+      <p className="text-sm text-gray-600">
+        Показано {Math.min(current * pageSize, total)} из{" "}
+        {total.toLocaleString()} объектов
+      </p>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => onChange(current - 1)}
+          disabled={current === 1 || loading}
+          className="p-2 border rounded-lg text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+        <span className="px-2 text-sm">
+          Стр. {current} / {totalPages}
+        </span>
+        <button
+          onClick={() => onChange(current + 1)}
+          disabled={current === totalPages || loading}
+          className="p-2 border rounded-lg text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const PropertyCheckbox = ({ id, checked, onChange }: any) => (
+  <input
+    type="checkbox"
+    id={id}
+    checked={checked}
+    onChange={onChange}
+    className="cursor-pointer accent-indigo-600 w-4 h-4 md:w-5 md:h-5"
+  />
+);
+
+const SelectionPropertiesTable = ({
+  data,
+  selectable,
+  selected,
+  toggle,
+  pagination,
+  loading,
+}: any) => (
+  <div className="relative">
+    {loading && (
+      <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-indigo-600 font-semibold">
+        Загрузка…
+      </div>
+    )}
+    <div className="bg-white rounded-xl border overflow-hidden">
+      <div className="hidden md:block overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-100">
+          <thead className="bg-gray-50">
+            <tr>
+              {selectable && <th className="pl-6 w-10"></th>}
+              <th className="px-6 py-3 text-left text-xs text-gray-500">
+                Объект
+              </th>
+              <th className="px-6 py-3 text-left text-xs text-gray-500">
+                Цена
+              </th>
+              <th className="px-6 py-3 text-left text-xs text-gray-500">
+                Дата
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {data.map((p: any) => (
+              <tr key={p.id} className="hover:bg-gray-50">
+                {selectable && (
+                  <td className="pl-6">
+                    <PropertyCheckbox
+                      id={`p-${p.id}`}
+                      checked={selected.includes(p.id)}
+                      onChange={() => toggle(p.id)}
+                    />
+                  </td>
+                )}
+                <td className="px-6 py-4 text-sm font-medium text-gray-800">
+                  {p.title}
+                </td>
+                <td className="px-6 py-4 text-sm font-semibold text-indigo-600">
+                  {p.price}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-500">{p.date}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      {/* Режим */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {/* По фильтрам */}
-        <div
-          onClick={() => setMode("filter")}
-          className={`p-6 rounded-2xl border-2 transition-all cursor-pointer ${
-            mode === "filter"
-              ? "border-indigo-500 bg-indigo-50"
-              : "border-gray-200 hover:border-indigo-300"
-          }`}
-        >
-          <div className="flex items-center mb-2">
-            {mode === "filter" ? (
-              <ToggleRight className="w-6 h-6 text-indigo-600" />
-            ) : (
-              <ToggleLeft className="w-6 h-6 text-gray-400" />
+      <div className="md:hidden p-4 space-y-3">
+        {data.map((p: any) => (
+          <div
+            key={p.id}
+            className="flex items-start p-3 border rounded-xl bg-white shadow-sm"
+          >
+            {selectable && (
+              <div className="mr-3 pt-1">
+                <PropertyCheckbox
+                  id={`m-${p.id}`}
+                  checked={selected.includes(p.id)}
+                  onChange={() => toggle(p.id)}
+                />
+              </div>
             )}
-            <h3 className="ml-3 font-semibold text-lg text-gray-800">
-              По фильтрам
-            </h3>
+            <div className="flex-1">
+              <div className="flex justify-between text-sm font-semibold text-gray-800">
+                {p.title}
+                <span className="text-indigo-600 font-bold ml-2">
+                  {p.price.split(" ")[0]}
+                </span>
+              </div>
+              <div className="text-xs text-gray-500 mt-1">{p.address}</div>
+              <div className="text-xs text-gray-400 mt-1">
+                Добавлен: {p.date}
+              </div>
+            </div>
           </div>
-          <p className="text-sm text-gray-500">
-            Динамическая подборка, автоматически обновляется при изменении
-            объектов.
-          </p>
-        </div>
-
-        {/* Вручную */}
-        <div
-          onClick={() => setMode("manual")}
-          className={`p-6 rounded-2xl border-2 transition-all cursor-pointer ${
-            mode === "manual"
-              ? "border-indigo-500 bg-indigo-50"
-              : "border-gray-200 hover:border-indigo-300"
-          }`}
-        >
-          <div className="flex items-center mb-2">
-            {mode === "manual" ? (
-              <ToggleRight className="w-6 h-6 text-indigo-600" />
-            ) : (
-              <ToggleLeft className="w-6 h-6 text-gray-400" />
-            )}
-            <h3 className="ml-3 font-semibold text-lg text-gray-800">
-              Выбор вручную
-            </h3>
-          </div>
-          <p className="text-sm text-gray-500">
-            Фиксированные объекты, выбираются вручную (фильтры скрыты).
-          </p>
-        </div>
+        ))}
       </div>
+    </div>
+    <Pagination {...pagination} loading={loading} />
+  </div>
+);
 
-      {/* Поля */}
-      <div className="bg-white p-6 rounded-2xl shadow-lg mb-8 border border-indigo-100">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+const ModeSelector = ({ mode, setMode }: any) => (
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+    {[
+      {
+        key: "filters",
+        icon: Filter,
+        title: "По фильтрам",
+        desc: "Динамическая подборка, автоматически обновляется.",
+      },
+      {
+        key: "manual",
+        icon: Building,
+        title: "Вручную",
+        desc: "Фиксированные объекты, выбираются вручную.",
+      },
+    ].map(({ key, icon: Icon, title, desc }) => (
+      <div
+        key={key}
+        onClick={() => setMode(key)}
+        className={`cursor-pointer border-2 rounded-2xl p-5 transition-all ${
+          mode === key
+            ? "border-indigo-500 bg-indigo-50"
+            : "border-gray-200 hover:border-indigo-300"
+        }`}
+      >
+        <div className="flex items-center mb-2">
+          {mode === key ? (
+            <ToggleRight className="w-5 h-5 text-indigo-600" />
+          ) : (
+            <ToggleLeft className="w-5 h-5 text-gray-400" />
+          )}
+          <h3 className="ml-2 font-semibold text-gray-800">{title}</h3>
+        </div>
+        <p className="text-sm text-gray-500">{desc}</p>
+      </div>
+    ))}
+  </div>
+);
+
+const HeaderSection = ({ onSave, disabled, saving }: any) => (
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+    <div>
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
+        <Filter className="w-6 h-6 text-indigo-600 mr-2" />
+        Редактировать подборку
+      </h1>
+      <p className="text-gray-500 text-sm mt-1">
+        Настройте параметры и фильтры для обновления подборки.
+      </p>
+    </div>
+    <button
+      onClick={onSave}
+      disabled={disabled || saving}
+      className={`hidden sm:flex items-center px-5 py-2 rounded-xl font-semibold transition shadow-md ${
+        disabled || saving
+          ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+          : "bg-indigo-600 text-white hover:bg-indigo-700"
+      }`}
+    >
+      <Save className="w-4 h-4 mr-2" />
+      {saving ? "Сохранение…" : "Сохранить"}
+    </button>
+  </div>
+);
+
+const SaveButtonStickyFooter = ({ onSave, disabled, saving }: any) => (
+  <div className="fixed bottom-0 inset-x-0 bg-white border-t p-4 shadow-lg sm:hidden">
+    <button
+      onClick={onSave}
+      disabled={disabled || saving}
+      className={`w-full py-3 rounded-xl font-semibold text-lg ${
+        disabled || saving
+          ? "bg-gray-300 text-gray-600"
+          : "bg-indigo-600 text-white hover:bg-indigo-700"
+      }`}
+    >
+      <Save className="w-5 h-5 inline mr-2" />
+      {saving ? "Сохранение…" : "Сохранить изменения"}
+    </button>
+  </div>
+);
+
+// ==== MAIN ====
+export default function EditSelectionPage() {
+  const [mode, setMode] = useState("filters");
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<any[]>([]);
+  const [selected, setSelected] = useState<number[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [name, setName] = useState("Двушки до 50 млн");
+  const [desc, setDesc] = useState("Отличные варианты рядом с парком.");
+  const [isPublic, setIsPublic] = useState(true);
+
+  const load = useCallback(async (p: number) => {
+    setLoading(true);
+    const res: any = await fetchPropertiesFromApi(p, PAGINATION_SIZE);
+    setData(res);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    load(page);
+  }, [page, load]);
+
+  const toggleSelect = (id: number) => {
+    setSelected((s) =>
+      s.includes(id) ? s.filter((i) => i !== id) : [...s, id]
+    );
+  };
+
+  const handleSave = () => {
+    if (!name.trim()) return;
+    setSaving(true);
+    console.log("SAVE:", { name, desc, isPublic, mode, selected });
+    setTimeout(() => setSaving(false), 1200);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 pb-24 sm:pb-10 px-4 sm:px-6 lg:px-8 pt-6">
+      <HeaderSection onSave={handleSave} disabled={!name} saving={saving} />
+
+      <ModeSelector mode={mode} setMode={setMode} />
+
+      <div className="bg-white rounded-xl p-5 mb-6 border">
+        <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Название подборки <span className="text-red-500">*</span>
+            <label className="block text-sm text-gray-700 font-medium mb-1">
+              Название подборки *
             </label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
+              className="w-full border rounded-lg p-2.5 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Например: Двушки в центре"
-              className="w-full p-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm text-gray-700 font-medium mb-1">
               Описание
             </label>
             <input
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Например: Все квартиры до 50 млн ₸"
-              className="w-full p-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"
+              value={desc}
+              onChange={(e) => setDesc(e.target.value)}
+              className="w-full border rounded-lg p-2.5 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Например: До 50 млн ₸"
             />
           </div>
         </div>
 
-        <div className="flex items-center mt-4">
+        <label className="flex items-center mt-4">
           <input
-            id="public-toggle"
             type="checkbox"
-            checked={isShared}
-            onChange={(e) => setIsShared(e.target.checked)}
-            className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+            checked={isPublic}
+            onChange={(e) => setIsPublic(e.target.checked)}
+            className="w-4 h-4 accent-indigo-600"
           />
-          <label
-            htmlFor="public-toggle"
-            className="ml-2 block text-sm text-gray-700 flex items-center"
-          >
-            <Share2 className="w-4 h-4 mr-1" />
+          <span className="ml-2 text-sm text-gray-700 flex items-center">
+            <Share2 className="w-4 h-4 mr-1 text-indigo-500" />
             Сделать общедоступной
-          </label>
-        </div>
+          </span>
+        </label>
       </div>
 
-      {/* Контент */}
-      {mode === "filter" ? (
-        <div className="bg-white p-6 rounded-2xl shadow-lg mb-20 border border-indigo-100">
-          <h2 className="text-xl font-bold mb-6 text-gray-800 flex items-center border-b pb-3">
-            <Filter className="w-5 h-5 mr-3 text-indigo-600" />
-            Настройка фильтров
+      {mode === "filters" ? (
+        <div>
+          <h2 className="flex items-center text-lg font-semibold text-gray-800 mb-4">
+            <ListFilter className="w-5 h-5 text-indigo-600 mr-2" />
+            Результаты по фильтрам
           </h2>
-
-          <FilterContent
-            filters={filters}
-            onFilterChange={(key, value) =>
-              setFilters((prev: any) => ({ ...prev, [key]: value }))
-            }
-            onResetFilters={() => setFilters({})}
-            filterOptions={{
-              cities: cities || [],
-              districts: districts || [],
-              maxPrice: 100000000,
-              rooms: [1, 2, 3, 4],
-              minFloor: 1,
-              maxFloor: 30,
+          <SelectionPropertiesTable
+            data={data}
+            selectable={false}
+            selected={selected}
+            toggle={toggleSelect}
+            pagination={{
+              total: TOTAL_PROPERTIES_COUNT,
+              pageSize: PAGINATION_SIZE,
+              current: page,
+              onChange: setPage,
             }}
+            loading={loading}
           />
-
-          {Object.keys(filters).length > 0 ? (
-            <div className="mt-8">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                <Eye className="w-5 h-5 mr-2 text-indigo-600" />
-                Результаты по фильтрам
-              </h3>
-              <PropertiesTable
-                selectedIds={[]}
-                onSelect={() => {}}
-                filters={filters}
-                selectable={false}
-              />
-            </div>
-          ) : (
-            <div className="text-center py-10 text-gray-500">
-              <ListFilter className="w-8 h-8 mx-auto mb-3 text-gray-400" />
-              <p>
-                Выберите параметры фильтрации для предварительного просмотра.
-              </p>
-            </div>
-          )}
         </div>
       ) : (
-        <div className="bg-white p-6 rounded-2xl shadow-lg mb-20 border border-indigo-100">
-          <h2 className="text-2xl font-semibold text-indigo-700 mb-6 flex items-center">
-            <Building className="w-5 h-5 mr-2 text-indigo-600" />
+        <div>
+          <h2 className="flex items-center text-lg font-semibold text-indigo-700 mb-4">
+            <Building className="w-5 h-5 text-indigo-600 mr-2" />
             Выбор объектов вручную
           </h2>
-          <PropertiesTable
-            selectable={true}
-            selectedIds={selectedPropertyIds}
-            onSelect={setSelectedPropertyIds}
+          <AlertTriangle className="w-5 h-5 text-indigo-500 inline mr-2" />
+          <span className="text-sm text-indigo-700">
+            В ручном режиме можно выбирать объекты вручную.
+          </span>
+          <SelectionPropertiesTable
+            data={data}
+            selectable
+            selected={selected}
+            toggle={toggleSelect}
+            pagination={{
+              total: TOTAL_PROPERTIES_COUNT,
+              pageSize: PAGINATION_SIZE,
+              current: page,
+              onChange: setPage,
+            }}
+            loading={loading}
           />
         </div>
       )}
 
-      {/* Footer */}
-      <div className="fixed bottom-0 left-64 right-0 bg-white border-t p-4 shadow-2xl flex justify-end">
-        <button
-          onClick={handleUpdate}
-          disabled={!isFormValid}
-          className={`flex items-center px-8 py-3 font-bold rounded-xl shadow-lg transition duration-300 transform ${
-            !isFormValid
-              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-              : "bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-105"
-          }`}
-        >
-          <CheckCircle className="w-5 h-5 mr-2" />
-          Сохранить изменения
-        </button>
-      </div>
+      <SaveButtonStickyFooter
+        onSave={handleSave}
+        disabled={!name}
+        saving={saving}
+      />
     </div>
   );
 }

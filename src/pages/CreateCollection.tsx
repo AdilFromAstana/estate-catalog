@@ -1,8 +1,8 @@
-// src/pages/CreateCollection.tsx
+// src/pages/CreateSelection.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function CreateCollection() {
+export default function CreateSelection() {
   const [selected] = useState<string[]>([]);
   const [name, setName] = useState("");
   const navigate = useNavigate();
@@ -10,16 +10,16 @@ export default function CreateCollection() {
   const handleSave = () => {
     if (!name.trim()) return alert("Введите название подборки");
 
-    const collections = JSON.parse(localStorage.getItem("collections") || "[]");
-    const newCollection = {
+    const selections = JSON.parse(localStorage.getItem("selections") || "[]");
+    const newSelection = {
       id: Date.now().toString(),
       name,
       apartmentIds: selected,
     };
-    collections.push(newCollection);
-    localStorage.setItem("collections", JSON.stringify(collections));
+    selections.push(newSelection);
+    localStorage.setItem("selections", JSON.stringify(selections));
 
-    navigate("/collections");
+    navigate("/selections");
   };
 
   return (
@@ -28,7 +28,7 @@ export default function CreateCollection() {
         {/* Кнопка назад */}
         <button
           className="mb-4 text-blue-600 underline"
-          onClick={() => navigate("/collections")}
+          onClick={() => navigate("/selections")}
         >
           ← Назад
         </button>

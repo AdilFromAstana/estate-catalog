@@ -1,23 +1,23 @@
 import { useParams, Link } from "react-router-dom";
 import { useState } from "react";
 
-export default function CollectionDetail() {
+export default function SelectionDetail() {
   const { id } = useParams<{ id: string }>();
-  const collections = JSON.parse(
-    localStorage.getItem("collections") || "[]"
+  const selections = JSON.parse(
+    localStorage.getItem("selections") || "[]"
   ) as {
     id: string;
     name: string;
     apartmentIds: string[];
   }[];
 
-  const collection = collections.find((c) => c.id === id);
+  const selection = selections.find((c) => c.id === id);
   const [copied, setCopied] = useState(false);
 
-  if (!collection) return <p className="p-6">Подборка не найдена</p>;
+  if (!selection) return <p className="p-6">Подборка не найдена</p>;
 
   // const selectedApartments = astanaEstates.filter((a) =>
-  //   collection.apartmentIds.includes(a.id)
+  //   selection.apartmentIds.includes(a.id)
   // );
 
   const currentUrl = window.location.href;
@@ -34,10 +34,10 @@ export default function CollectionDetail() {
 
   return (
     <div className="min-h-screen p-6">
-      <Link to="/collections" className="text-blue-600 underline">
+      <Link to="/selections" className="text-blue-600 underline">
         ← Назад
       </Link>
-      <h1 className="text-2xl font-bold mt-4">{collection.name}</h1>
+      <h1 className="text-2xl font-bold mt-4">{selection.name}</h1>
 
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
         {/* {selectedApartments.map((a) => (

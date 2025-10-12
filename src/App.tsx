@@ -13,25 +13,25 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 
 // Pages
-import HomePage from "./pages/HomePage";
+import HomePage from "./pages/HomePage/HomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import SelectionDetailPage from "./pages/SelectionDetailPage/SelectionDetailPage";
 import CreateSelectionPage from "./pages/CreateSelectionPage";
 import EditSelectionPage from "./pages/EditSelectionPage";
-import CollectionsTable from "./pages/CollectionsTable";
+import SelectionsTable from "./pages/AdminSelectionsPage";
 import MyPropertiesPage from "./pages/MyPropertiesPage";
 import AddPropertyPage from "./pages/AddPropertyPage";
 import EditPropertyPage from "./pages/EditPropertyPage";
 import RealtorSettingsPage from "./pages/RealtorSettingsPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
-import CollectionsList from "./pages/CollectionsList";
-import CreateCollection from "./pages/CreateCollection";
-import CollectionDetail from "./pages/CollectionDetail";
+import SelectionsList from "./pages/SelectionsList";
+import CreateSelection from "./pages/CreateSelectionPage";
+import SelectionDetail from "./pages/SelectionDetail";
 import AgencyPropertiesPage from "./pages/AgencyPropertiesPage";
 import EstateDetailsPage from "./pages/EstateDetailsPage";
-import RealtorDetailPage from "./pages/RealtorDetailPage";
+import RealtorDetailPage from "./pages/RealtorDetailPage/RealtorDetailPage";
 import RealtorsPage from "./pages/RealtorsPage";
 
 /* -------------------------------------------------------------------------- */
@@ -124,7 +124,7 @@ const routes = [
   },
   {
     path: "/selections",
-    element: <CollectionsTable />,
+    element: <SelectionsTable />,
     layout: "sidebar",
     protected: true,
   },
@@ -164,20 +164,20 @@ const routes = [
     roles: ["admin", "realtor"],
   },
   {
-    path: "/collections",
-    element: <CollectionsList />,
+    path: "/selections",
+    element: <SelectionsList />,
     layout: "sidebar",
     protected: true,
   },
   {
-    path: "/collections/create",
-    element: <CreateCollection />,
+    path: "/selections/create",
+    element: <CreateSelection />,
     layout: "sidebar",
     protected: true,
   },
   {
-    path: "/collections/:id",
-    element: <CollectionDetail />,
+    path: "/selections/:id",
+    element: <SelectionDetail />,
     layout: "sidebar",
     protected: true,
   },

@@ -60,20 +60,20 @@ export const navigationItems: NavigationItem[] = [
 
   // === Объекты ===
   {
-    id: "my-properties",
-    title: "Мои объекты",
-    path: "/my-properties",
-    icon: Building,
+    id: "add-property",
+    title: "Добавить объект",
+    path: "/add-property",
+    icon: Plus,
     section: "main",
     group: "Объекты",
     requiresAuth: true,
     roles: ["realtor", "agency_admin", "admin"],
   },
   {
-    id: "add-property",
-    title: "Добавить объект",
-    path: "/add-property",
-    icon: Plus,
+    id: "my-properties",
+    title: "Мои объекты",
+    path: "/my-properties",
+    icon: Building,
     section: "main",
     group: "Объекты",
     requiresAuth: true,

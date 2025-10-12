@@ -6,6 +6,7 @@ import { LabeledTextarea } from "./LabeledTextarea";
 import { LabeledSelect } from "./LabeledSelect";
 import { dictionaryLabels } from "../contants/dictionaryLabels";
 import type { Complex } from "../api/complexApi";
+import { AsyncComplexSelect } from "./AsyncSelect";
 
 interface Props {
   formData: any;
@@ -34,15 +35,13 @@ export const PropertyForm: React.FC<Props> = ({
   setSelectedCityId,
   buildingTypes,
   conditions,
-  complexes,
 }) => {
+  const mdFormClasses =
+    "md:bg-white md:rounded-xl md:shadow-md md:p-6 md:border md:border-gray-200 gap-6 flex flex-col";
   return (
-    <form
-      onSubmit={onSubmit}
-      className="bg-white rounded-lg shadow-md p-6 space-y-6"
-    >
+    <form onSubmit={onSubmit} className={mdFormClasses}>
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold mb-4">Данные объекта</h2>
+        <h2 className="text-xl font-semibold">Данные объекта</h2>
       </div>
 
       {/* 🔹 Название и цена */}
@@ -222,17 +221,16 @@ export const PropertyForm: React.FC<Props> = ({
           label="Мебель"
           className="px-3 py-2 border rounded-md"
         />
-        <LabeledSelect
+        <AsyncComplexSelect
           label="Жилой комплекс"
           name="complexId"
           value={formData.complexId || ""}
-          onChange={(e) =>
+          onChange={(id) =>
             onChange({
-              target: { name: "complexId", value: Number(e.target.value) },
+              target: { name: "complexId", value: id },
             } as any)
           }
-          options={complexes.map((c) => ({ value: c.id, label: c.name }))}
-          required
+          // cityId={selectedCityId} // 👈 добавь этот проп
         />
       </div>
 
