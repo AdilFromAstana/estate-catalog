@@ -1,20 +1,19 @@
-// CreateSelectionPage.tsx
-import React, { useState, useCallback, useMemo } from 'react';
-import { FilterContent } from '../components/SearchBar';
-
-// Хуки и API
-import { useCities, useDistricts } from '../hooks/useCities';
-import { useProperties } from '../hooks/useProperties';
-import type { GetPropertiesParams } from '../api/propertyApi';
+// EditSelectionPage.tsx
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import HeaderSection from './components/HeaderSection';
+import EditDetailsForm from './components/EditDetailsForm';
+import MobileFilterToggle from './components/MobileFilterToggle';
+import PropertyTableSection from './components/PropertyTableSection';
+import SaveButtonStickyFooter from './components/SaveButtonStickyFooter';
+import type { GetPropertiesParams } from '../../api/propertyApi';
+import { useCities, useDistricts } from '../../hooks/useCities';
+import { useProperties } from '../../hooks/useProperties';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { selectionApi } from '../api/selectionApi';
-import { useNavigate } from 'react-router-dom';
+import { selectionApi } from '../../api/selectionApi';
 import { toast } from 'react-hot-toast';
-import HeaderSection from './EditSelectionPage/components/HeaderSection';
-import EditDetailsForm from './EditSelectionPage/components/EditDetailsForm';
-import MobileFilterToggle from './EditSelectionPage/components/MobileFilterToggle';
-import PropertyTableSection from './EditSelectionPage/components/PropertyTableSection';
-import SaveButtonStickyFooter from './EditSelectionPage/components/SaveButtonStickyFooter';
+import { FilterContent } from '../../components/SearchBar';
+import { useSelection } from '../../hooks/useSelection';
 
 // Типы
 export interface SelectionDetails {
@@ -26,53 +25,66 @@ export interface SelectionDetails {
 export type SelectionMode = 'filters' | 'manual';
 
 const PAGINATION_SIZE = 10;
-const TOTAL_MOCK_COUNT = 1_000_000;
 
-const CreateSelectionPage: React.FC = () => {
-  const navigate = useNavigate();
+const EditSelectionPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
+  const selectionId = id ? parseInt(id, 10) : null;
 
-  // === Основные состояния ===
+  // === Загрузка подборки ===
+  const { data: selectionData, isLoading: isSelectionLoading } = useSelection(selectionId!);
+  const isInitialLoading = isSelectionLoading && !selectionData;
+
+  // === Состояния ===
   const [mode, setMode] = useState<SelectionMode>('filters');
   const [selectionDetails, setSelectionDetails] = useState<SelectionDetails>({
     title: '',
     description: '',
     isPublic: false,
   });
-
-  // === Фильтры ===
   const [filters, setFilters] = useState<GetPropertiesParams>({});
-
-  // === Мобильные фильтры ===
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-
-  // === Выбранные объекты (только для manual) ===
   const [allSelectedIds, setAllSelectedIds] = useState<Set<number>>(new Set());
-  const totalSelectedCount = allSelectedIds.size;
-
-  // === Сохранение ===
   const [isSaving, setIsSaving] = useState(false);
-  const isDisabled = useMemo(() => {
-    if (!selectionDetails.title.trim()) return true;
 
-    if (mode === 'filters') {
-      const hasFilter = Object.values(filters).some(
-        v => v !== null && v !== undefined && v !== '' && !(Array.isArray(v) && v.length === 0)
-      );
-      return !hasFilter;
-    }
+  const totalSelectedCount = mode === 'filters'
+    ? (selectionData?.properties?.total ?? 0)
+    : allSelectedIds.size;
+  const isDisabled = !selectionDetails.title.trim();
 
-    if (mode === 'manual') {
-      return totalSelectedCount === 0;
+  // === Инициализация из API ===
+  useEffect(() => {
+    if (selectionData) {
+      const { selection, type } = selectionData;
+
+      setSelectionDetails({
+        title: selection.name || '',
+        description: selection.description || '',
+        isPublic: selection.isShared || false,
+      });
+
+      const newMode: SelectionMode = type === 'byFilters' ? 'filters' : 'manual';
+      setMode(newMode);
+
+      if (newMode === 'filters' && selection.filters) {
+        setFilters(selection.filters);
+      } else {
+        setFilters({});
+      }
+
+      if (newMode === 'manual' && Array.isArray(selection.propertyIds)) {
+        setAllSelectedIds(new Set(selection.propertyIds));
+      } else {
+        setAllSelectedIds(new Set());
+      }
     }
-    return true;
-  }, [selectionDetails.title, mode, filters, totalSelectedCount]);
+  }, [selectionData]);
 
   // === Города и районы ===
   const { data: cities = [] } = useCities();
   const { data: districts = [] } = useDistricts(filters.cityId ?? undefined);
 
-  // === Параметры запроса ===
+  // === Запрос объектов ===
   const queryParams = useMemo(() => {
     if (mode === 'filters') {
       return {
@@ -90,21 +102,20 @@ const CreateSelectionPage: React.FC = () => {
     }
   }, [mode, filters]);
 
-  // === Запрос данных ===
-  const { data, isLoading } = useProperties(queryParams);
-  const properties = data?.data ?? [];
-  const totalCount = data?.total ?? TOTAL_MOCK_COUNT;
+  const { data: propertiesData, isLoading: isPropertiesLoading } = useProperties(queryParams);
+  const properties = propertiesData?.data ?? [];
+  const totalCount = propertiesData?.total ?? 0;
 
-  // === Мутация создания ===
-  const createMutation = useMutation({
-    mutationFn: (payload: any) => selectionApi.createSelection(payload),
+  // === Мутация обновления ===
+  const updateMutation = useMutation({
+    mutationFn: (payload: any) => selectionApi.updateSelection(selectionId!, payload),
     onSuccess: () => {
-      toast.success('Подборка успешно создана!');
+      toast.success('Подборка успешно обновлена!');
+      queryClient.invalidateQueries({ queryKey: ['selection', selectionId] });
       queryClient.invalidateQueries({ queryKey: ['selections'] });
-      navigate('/selections');
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.message || 'Ошибка при создании');
+      toast.error(error?.response?.data?.message || 'Ошибка при сохранении');
     },
   });
 
@@ -112,7 +123,8 @@ const CreateSelectionPage: React.FC = () => {
   const handleSetMode = useCallback((newMode: SelectionMode) => {
     setMode(newMode);
     if (newMode === 'manual') {
-      setFilters({}); // очищаем фильтры при переходе в ручной режим
+      setFilters({});
+      setAllSelectedIds(new Set());
     }
   }, []);
 
@@ -124,18 +136,10 @@ const CreateSelectionPage: React.FC = () => {
     setFilters({});
   }, []);
 
-  // const handleCloseFilters = useCallback(() => {
-  //   setIsFiltersOpen(false);
-  // }, []);
-
   const handleToggleSelect = useCallback((id: number) => {
     setAllSelectedIds(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
+      newSet.has(id) ? newSet.delete(id) : newSet.add(id);
       return newSet;
     });
   }, []);
@@ -150,7 +154,7 @@ const CreateSelectionPage: React.FC = () => {
   }, []);
 
   const handleSave = () => {
-    if (isDisabled) return;
+    if (isDisabled || !selectionId) return;
 
     setIsSaving(true);
     const payload =
@@ -168,7 +172,9 @@ const CreateSelectionPage: React.FC = () => {
           propertyIds: Array.from(allSelectedIds),
         };
 
-    createMutation.mutate(payload);
+    updateMutation.mutate(payload, {
+      onSettled: () => setIsSaving(false),
+    });
   };
 
   // === Подготовка данных для таблицы ===
@@ -179,16 +185,14 @@ const CreateSelectionPage: React.FC = () => {
     }));
   }, [properties, allSelectedIds]);
 
-  // === Пагинация ===
   const paginationProps = {
     totalCount,
     pageSize: PAGINATION_SIZE,
     currentPage: 1,
     onPageChange: () => { },
-    isLoading,
+    isLoading: isPropertiesLoading,
   };
 
-  // === Опции для FilterContent ===
   const filterOptions = {
     cities,
     districts,
@@ -198,26 +202,39 @@ const CreateSelectionPage: React.FC = () => {
     maxFloor: 30,
   };
 
+  // === Загрузка и ошибки ===
+  if (isInitialLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">Загрузка подборки...</div>
+      </div>
+    );
+  }
+
+  if (!selectionData || !selectionId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-500">
+        Подборка не найдена
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen w-full mx-auto">
-      {/* 1. Заголовок */}
       <HeaderSection
+        title="Редактировать подборку"
         onSave={handleSave}
         isSaving={isSaving}
         isDisabled={isDisabled}
-        title="Создать подборку"
       />
 
       <div className="space-y-6 md:space-y-8 mt-6">
-        {/* 2. Форма редактирования */}
         <EditDetailsForm
           data={selectionDetails}
           handleChange={handleDetailsChange}
         />
 
-        {/* 3. Основное содержимое */}
         <div className="lg:grid lg:grid-cols-12 lg:gap-8 mt-6 md:mt-8">
-          {/* Таблица (правая колонка) */}
           <div className="lg:col-span-8 space-y-6 order-1 lg:order-2">
             <MobileFilterToggle
               isFiltersOpen={isFiltersOpen}
@@ -230,12 +247,11 @@ const CreateSelectionPage: React.FC = () => {
               properties={propertiesWithSelection}
               onToggleSelect={handleToggleSelect}
               pagination={paginationProps}
-              isLoading={isLoading}
+              isLoading={isPropertiesLoading}
               totalSelectedCount={totalSelectedCount}
             />
           </div>
 
-          {/* Фильтры (левая колонка) */}
           <div className={`lg:col-span-4 space-y-6 order-2 lg:order-1 mt-6 lg:mt-0 
               ${isFiltersOpen ? 'block' : 'hidden'} lg:block`
           }>
@@ -249,7 +265,6 @@ const CreateSelectionPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 4. Фиксированная кнопка сохранения */}
       <SaveButtonStickyFooter
         onSave={handleSave}
         isDisabled={isDisabled}
@@ -259,4 +274,4 @@ const CreateSelectionPage: React.FC = () => {
   );
 };
 
-export default CreateSelectionPage;
+export default EditSelectionPage;

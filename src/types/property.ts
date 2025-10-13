@@ -214,6 +214,7 @@ export interface ParsedPropertyData {
 export interface SelectionFilters {
   rooms?: number;
   cityId?: number;
+  minPrice?: number;
   maxPrice?: number;
   sortBy?: string;
   sortOrder?: "ASC" | "DESC";

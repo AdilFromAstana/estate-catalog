@@ -146,7 +146,7 @@ export const SelectionsTable: React.FC<SelectionsTableProps> = ({
               : "bg-gray-100 text-gray-600"
           )}
         >
-          {c.isShared ? "Да" : "Нет"}
+          {c.isShared ? "Публичная" : "Скрытая"}
         </span>
       </div>
 

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { SelectionsTable } from "../components/PropertyTable/SelectionsTable";
 import { useSelections } from "../hooks/useSelection";
+import { Plus } from "lucide-react";
 
 const AdminSelectionsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -32,13 +33,35 @@ const AdminSelectionsPage: React.FC = () => {
     toast.success(`Подборка ID ${id} удалена (демо-режим)`);
   }, []);
 
-  const handleShare = useCallback((selection: any) => {
-    const newShared = !selection.isShared;
-    toast.success(
-      `Подборка "${selection.name}" теперь ${
-        newShared ? "общая" : "личная"
-      } (демо-режим)`
-    );
+  const copyToClipboard = (text: string): Promise<void> => {
+    if (navigator.clipboard && window.isSecureContext) {
+      // Современный способ (работает только в HTTPS или localhost)
+      return navigator.clipboard.writeText(text);
+    } else {
+      // Fallback для HTTP или старых браузеров
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed'; // чтобы не прыгал скролл
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+      } finally {
+        document.body.removeChild(textArea);
+      }
+      return Promise.resolve();
+    }
+  };
+
+  const handleShare = useCallback(async (selection: any) => {
+    try {
+      const url = `${window.location.origin}/selections/${selection.id}`;
+      await copyToClipboard(url);
+      toast.success(`Ссылка скопирована: ${url}`);
+    } catch (err) {
+      toast.error('Не удалось скопировать ссылку');
+    }
   }, []);
 
   if (isLoading) {
@@ -53,9 +76,15 @@ const AdminSelectionsPage: React.FC = () => {
     <div className="w-full mx-auto px-0 bg-gray-50">
       {/* Заголовок */}
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Подборки ({selectionsData?.data.length ?? 0} из {total})
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-0">
+          Мои подборки ({selectionsData?.data.length ?? 0} из {total})
         </h1>
+        <button
+          onClick={() => navigate("/add-selection")}
+          className="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white font-semibold rounded-xl shadow-md hover:bg-blue-700 transition flex items-center justify-center"
+        >
+          <Plus size={20} className="mr-2" /> Создать подборку
+        </button>
       </div>
 
       {/* Таблица */}
@@ -79,8 +108,8 @@ const AdminSelectionsPage: React.FC = () => {
                   filters.isShared === undefined
                     ? ""
                     : filters.isShared
-                    ? "shared"
-                    : "private"
+                      ? "shared"
+                      : "private"
                 }
                 onChange={(e) => {
                   const value = e.target.value;
@@ -89,8 +118,8 @@ const AdminSelectionsPage: React.FC = () => {
                       value === ""
                         ? undefined
                         : value === "shared"
-                        ? true
-                        : false,
+                          ? true
+                          : false,
                   });
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"

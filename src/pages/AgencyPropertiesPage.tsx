@@ -88,7 +88,7 @@ const AgencyPropertiesPage: React.FC = () => {
     <div className="w-full mx-auto px-0 bg-gray-50">
       {/* Заголовок */}
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-0">
           Объекты агентства ({propertiesData?.data.length ?? 0} из {total})
         </h1>
       </div>

@@ -19,12 +19,17 @@ const formatNumber = (value: string | number) => {
 };
 
 const PriceFilter = ({ filters, onFilterChange, filterOptions }: any) => {
-  const [minDisplay, setMinDisplay] = useState(
-    filters.minPrice?.toString() || ""
-  );
-  const [maxDisplay, setMaxDisplay] = useState(
-    filters.maxPrice?.toString() || ""
-  );
+  const [minDisplay, setMinDisplay] = useState("");
+  const [maxDisplay, setMaxDisplay] = useState("");
+
+  // 🔁 Синхронизируем внутреннее состояние с пропсами
+  useEffect(() => {
+    setMinDisplay(filters.minPrice ? formatNumber(filters.minPrice) : "");
+  }, [filters.minPrice]);
+
+  useEffect(() => {
+    setMaxDisplay(filters.maxPrice ? formatNumber(filters.maxPrice) : "");
+  }, [filters.maxPrice]);
 
   const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/\s/g, ""); // убираем пробелы
@@ -76,6 +81,7 @@ export const FilterContent: React.FC<{
   filterOptions: {
     cities: City[];
     districts: District[];
+    minPrice: number;
     maxPrice: number;
     rooms: number[];
     minFloor: number | null;
@@ -249,13 +255,12 @@ export const FilterContent: React.FC<{
                   ? onFilterChange("rooms", null)
                   : onFilterChange("rooms", room)
               }
-              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                filters.rooms === room
-                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-400/40"
-                  : "bg-gray-100 text-gray-700 hover:bg-indigo-100"
-              }`}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${filters.rooms === room
+                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-400/40"
+                : "bg-gray-100 text-gray-700 hover:bg-indigo-100"
+                }`}
             >
-              {room === 4 ? "4+" : room}
+              {room}
             </button>
           ))}
         </div>

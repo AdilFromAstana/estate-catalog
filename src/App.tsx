@@ -19,7 +19,7 @@ import RegisterPage from "./pages/RegisterPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import SelectionDetailPage from "./pages/SelectionDetailPage/SelectionDetailPage";
 import CreateSelectionPage from "./pages/CreateSelectionPage";
-import EditSelectionPage from "./pages/EditSelectionPage";
+import EditSelectionPage from "./pages/EditSelectionPage/EditSelectionPage";
 import SelectionsTable from "./pages/AdminSelectionsPage";
 import MyPropertiesPage from "./pages/MyPropertiesPage";
 import AddPropertyPage from "./pages/AddPropertyPage";
