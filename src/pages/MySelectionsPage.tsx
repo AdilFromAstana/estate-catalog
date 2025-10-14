@@ -9,6 +9,7 @@ import { useAuth } from "../AppContext";
 const AdminSelectionsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth()
+
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState<{
     isShared?: boolean;
@@ -21,7 +22,7 @@ const AdminSelectionsPage: React.FC = () => {
     page: currentPage,
     limit: itemsPerPage,
     isShared: filters.isShared,
-    agencyId: user?.agencyId
+    userId: user?.id
   });
 
   const total = selectionsData?.total ?? 0;
@@ -79,7 +80,7 @@ const AdminSelectionsPage: React.FC = () => {
       {/* Заголовок */}
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-0">
-          Подборки агентсва ({selectionsData?.data.length ?? 0} из {total})
+          Мои подборки ({selectionsData?.data.length ?? 0} из {total})
         </h1>
         <button
           onClick={() => navigate("/add-selection")}

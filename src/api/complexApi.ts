@@ -1,28 +1,6 @@
 // src/api/complexApi.ts
+import type { Complex, ComplexListResponse } from "../types";
 import axiosInstance from "./axiosInstance";
-
-/** Модель жилого комплекса — должна совпадать с backend */
-export interface Complex {
-  id: number;
-  name: string;
-  address?: string;
-  cityId?: number;
-  districtId?: number;
-  developer?: string;
-  details?: Record<string, any>;
-  isActive: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-/** Ответ от findAll (с пагинацией) */
-export interface ComplexListResponse {
-  data: Complex[];
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
 
 export const complexApi = {
   /**

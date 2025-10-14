@@ -1,4 +1,4 @@
-import type { PaginationState, Property } from "../EditSelectionPage";
+import type { SelectedPropertyResponse } from "../../../types";
 import Pagination from "./Pagination";
 import PropertyCheckbox from "./PropertyCheckbox";
 
@@ -25,10 +25,10 @@ const formatPriceShort = (priceStr: string): string => {
 };
 
 interface SelectionPropertiesTableProps {
-    data: Property[];
+    data: SelectedPropertyResponse[];
     selectable: boolean;
     onToggleSelect: (id: number) => void;
-    pagination: PaginationState | null;
+    pagination: any;
     isLoading: boolean;
 }
 
@@ -106,7 +106,7 @@ const SelectionPropertiesTable: React.FC<SelectionPropertiesTableProps> = ({
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-600">
-                                        {formatPriceShort(item.price)}
+                                        {formatPriceShort(item.price.toString())}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(item.createdAt)}</td>
                                 </tr>
@@ -140,7 +140,7 @@ const SelectionPropertiesTable: React.FC<SelectionPropertiesTableProps> = ({
                                         {item.title}
                                     </div>
                                     <div className="ml-2 text-sm font-bold text-indigo-600 flex-shrink-0">
-                                        {formatPriceShort(item.price)}
+                                        {formatPriceShort(item.price.toString())}
                                     </div>
                                 </div>
                                 <div className="text-xs text-gray-500 mt-0.5 truncate max-w-[200px]">

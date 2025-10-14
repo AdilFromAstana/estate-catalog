@@ -1,17 +1,14 @@
 import React, { useMemo, useState } from "react";
 import EstateCard from "../../components/EstateCard";
-import SearchBar from "../../components/SearchBar";
 import { useNavigate } from "react-router-dom";
 import { List, Map } from "lucide-react";
 import {
-  type GetPropertiesParams,
-  type PropertyResponse,
 } from "../../api/propertyApi";
 import { useProperties } from "../../hooks/useProperties";
-import { useCities, useDistricts } from "../../hooks/useCities";
-import { PropertyStatus } from "../../contants/property-status";
-// import DrawMap from "../../components/YandexMap/DrawMap";
 import DrawMap from "./components/DrawMap/DrawMap";
+import { PropertyStatus, type GetPropertiesParams, type PropertyResponse } from "../../types";
+import SearchBar from "../../components/SearchBar";
+import { useCities, useDistricts } from "../../hooks/useCities";
 
 const getCategoryLabel = (category: string) => {
   const labels: { [key: string]: string } = {
@@ -79,15 +76,15 @@ const HomePage: React.FC = () => {
   console.log("total: ", total);
 
   // Обработчики
-  const handleEstateClick = (estate: PropertyResponse) => {
-    if (viewMode === "map") {
-      setSelectedEstate(estate);
-      setIsModalOpen(true);
-      setIsModalClosing(false);
-    } else {
-      navigate(`/estate/${estate.id}`);
-    }
-  };
+  // const handleEstateClick = (estate: PropertyResponse) => {
+  //   if (viewMode === "map") {
+  //     setSelectedEstate(estate);
+  //     setIsModalOpen(true);
+  //     setIsModalClosing(false);
+  //   } else {
+  //     navigate(`/estate/${estate.id}`);
+  //   }
+  // };
 
   const handleModalClose = () => {
     setIsModalClosing(true);
@@ -150,21 +147,24 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="flex-1 relative">
-      <SearchBar
-        onSearch={setSearchQuery}
-        filters={filters}
-        onFilterChange={updateFilter}
-        onResetFilters={resetFilters}
-        filterOptions={{
-          cities: cities || [], // передаём города
-          districts: districts || [], // передаём районы
-          maxPrice,
-          rooms: roomOptions,
-          minFloor: null,
-          maxFloor: null,
-        }}
-        filteredEstatesLength={estates.length}
-      />
+      {
+        <SearchBar
+          onSearch={setSearchQuery}
+          filters={filters}
+          onFilterChange={updateFilter}
+          onResetFilters={resetFilters}
+          filterOptions={{
+            cities: cities || [],
+            districts: districts || [],
+            maxPrice,
+            rooms: roomOptions,
+            minFloor: null,
+            maxFloor: null,
+          }}
+          filteredEstatesLength={estates.length}
+        />
+      }
+
 
       <div className="mb-4">
         <p className="text-gray-600">
@@ -189,11 +189,10 @@ const HomePage: React.FC = () => {
       ) : (
         <>
           <div
-            className={`transition-opacity duration-300 ${
-              viewMode === "map"
-                ? "opacity-100 pointer-events-auto"
-                : "opacity-0 pointer-events-none h-0 hidden"
-            }`}
+            className={`transition-opacity duration-300 ${viewMode === "map"
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none h-0 hidden"
+              }`}
           >
             {/* <DrawMap estates={generateEstates(1000) || []} /> */}
             <DrawMap estates={generateEstates(1000) || []} />
@@ -201,11 +200,10 @@ const HomePage: React.FC = () => {
 
           {/* Список */}
           <div
-            className={`transition-opacity duration-300 ${
-              viewMode === "list"
-                ? "opacity-100 pointer-events-auto"
-                : "opacity-0 pointer-events-none h-0 hidden"
-            }`}
+            className={`transition-opacity duration-300 ${viewMode === "list"
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none h-0 hidden"
+              }`}
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
               {estates.map((estate) => (
@@ -216,29 +214,26 @@ const HomePage: React.FC = () => {
         </>
       )}
 
-      {/* Кнопка переключения режима */}
-      <div className="fixed bottom-20 right-6 z-20">
-        <button
-          onClick={() => setViewMode(viewMode === "list" ? "map" : "list")}
-          className="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
-        >
-          {viewMode === "list" ? <Map size={24} /> : <List size={24} />}
-        </button>
-      </div>
-
-      {/* Модальное окно */}
+      {//</div><div className="fixed bottom-20 right-6 z-20">
+        //</div>  <button
+        //</div>    onClick={() => setViewMode(viewMode === "list" ? "map" : "list")}
+        //</div>    className="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
+        //</div>  >
+        //</div>    {viewMode === "list" ? <Map size={24} /> : <List size={24} />}
+        //</div>  </button>
+        //</div></div>
+      }
+      
       {isModalOpen && selectedEstate && (
         <div className="fixed inset-0 z-[2000] flex items-end justify-center">
           <div
-            className={`absolute inset-0 bg-black transition-opacity duration-300 ${
-              isModalClosing ? "opacity-0" : "opacity-50"
-            }`}
+            className={`absolute inset-0 bg-black transition-opacity duration-300 ${isModalClosing ? "opacity-0" : "opacity-50"
+              }`}
             onClick={handleModalClose}
           />
           <div
-            className={`relative bg-white rounded-t-2xl w-full max-w-md ${
-              isModalClosing ? "animate-slide-down" : "animate-slide-up"
-            }`}
+            className={`relative bg-white rounded-t-2xl w-full max-w-md ${isModalClosing ? "animate-slide-down" : "animate-slide-up"
+              }`}
             style={{ maxHeight: "80svh" }}
           >
             <div className="flex justify-between items-center p-4 border-b">

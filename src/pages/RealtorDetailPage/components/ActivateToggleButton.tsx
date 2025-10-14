@@ -1,10 +1,6 @@
 import React, { useState } from "react";
 import { AlertTriangle } from "lucide-react";
-
-interface ActivateToggleButtonProps {
-  isActive: boolean;
-  onConfirm: (newStatus: boolean) => void; // true = активировать, false = деактивировать
-}
+import type { ActivateToggleButtonProps } from "../../../types";
 
 export const ActivateToggleButton: React.FC<ActivateToggleButtonProps> = ({
   isActive,

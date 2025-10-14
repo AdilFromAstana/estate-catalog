@@ -1,4 +1,3 @@
-// EditSelectionPage.tsx
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import HeaderSection from './components/HeaderSection';
@@ -6,7 +5,6 @@ import EditDetailsForm from './components/EditDetailsForm';
 import MobileFilterToggle from './components/MobileFilterToggle';
 import PropertyTableSection from './components/PropertyTableSection';
 import SaveButtonStickyFooter from './components/SaveButtonStickyFooter';
-import type { GetPropertiesParams } from '../../api/propertyApi';
 import { useCities, useDistricts } from '../../hooks/useCities';
 import { useProperties } from '../../hooks/useProperties';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -14,8 +12,9 @@ import { selectionApi } from '../../api/selectionApi';
 import { toast } from 'react-hot-toast';
 import { FilterContent } from '../../components/SearchBar';
 import { useSelection } from '../../hooks/useSelection';
+import type { GetPropertiesParams } from '../../types';
 
-// Типы
+// Типы (перенесены выше для чистоты)
 export interface SelectionDetails {
   title: string;
   description: string;
@@ -35,7 +34,7 @@ const EditSelectionPage: React.FC = () => {
   const { data: selectionData, isLoading: isSelectionLoading } = useSelection(selectionId!);
   const isInitialLoading = isSelectionLoading && !selectionData;
 
-  // === Состояния ===
+  // === 1. Состояния ===
   const [mode, setMode] = useState<SelectionMode>('filters');
   const [selectionDetails, setSelectionDetails] = useState<SelectionDetails>({
     title: '',
@@ -47,9 +46,15 @@ const EditSelectionPage: React.FC = () => {
   const [allSelectedIds, setAllSelectedIds] = useState<Set<number>>(new Set());
   const [isSaving, setIsSaving] = useState(false);
 
-  const totalSelectedCount = mode === 'filters'
-    ? (selectionData?.properties?.total ?? 0)
-    : allSelectedIds.size;
+  // 2. СОСТОЯНИЕ ДЛЯ ПАГИНАЦИИ
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalSelectedCount = allSelectedIds.size;
+
+  // NOTE: totalCount для режима 'filters' должен браться из propertiesData, 
+  // а не из selectionData, так как фильтры могут быть изменены.
+  // Если в 'manual' mode, totalCount используется для отображения, но не влияет на пагинацию
+  // списка объектов, которые мы запрашиваем через useProperties.
   const isDisabled = !selectionDetails.title.trim();
 
   // === Инициализация из API ===
@@ -65,6 +70,7 @@ const EditSelectionPage: React.FC = () => {
 
       const newMode: SelectionMode = type === 'byFilters' ? 'filters' : 'manual';
       setMode(newMode);
+      setCurrentPage(1); // Сброс страницы при инициализации
 
       if (newMode === 'filters' && selection.filters) {
         setFilters(selection.filters);
@@ -73,6 +79,8 @@ const EditSelectionPage: React.FC = () => {
       }
 
       if (newMode === 'manual' && Array.isArray(selection.propertyIds)) {
+        // В ручном режиме allSelectedIds управляет выбором, но для отображения
+        // мы все равно запрашиваем первую страницу объектов.
         setAllSelectedIds(new Set(selection.propertyIds));
       } else {
         setAllSelectedIds(new Set());
@@ -84,29 +92,24 @@ const EditSelectionPage: React.FC = () => {
   const { data: cities = [] } = useCities();
   const { data: districts = [] } = useDistricts(filters.cityId ?? undefined);
 
-  // === Запрос объектов ===
+  // === 3. Параметры запроса (ИСПРАВЛЕНО: использует currentPage) ===
   const queryParams = useMemo(() => {
-    if (mode === 'filters') {
-      return {
-        ...filters,
-        page: 1,
-        limit: PAGINATION_SIZE,
-        isPublished: true,
-      };
-    } else {
-      return {
-        page: 1,
-        limit: PAGINATION_SIZE,
-        isPublished: true,
-      };
-    }
-  }, [mode, filters]);
+    // Запрос объектов всегда должен использовать текущую страницу
+    return {
+      ...filters,
+      page: currentPage, // 👈 ИСПОЛЬЗУЕМ ДИНАМИЧЕСКУЮ СТРАНИЦУ
+      limit: PAGINATION_SIZE,
+      isPublished: true,
+      // Добавляем propertyIds для ручного режима, если они есть
+      ...(mode === 'manual' && allSelectedIds.size > 0 && { propertyIds: Array.from(allSelectedIds) }),
+    };
+  }, [filters, currentPage, mode, allSelectedIds]);
 
   const { data: propertiesData, isLoading: isPropertiesLoading } = useProperties(queryParams);
   const properties = propertiesData?.data ?? [];
-  const totalCount = propertiesData?.total ?? 0;
+  const totalCount = propertiesData?.total ?? 0; // Используем 0 как динамическое значение
 
-  // === Мутация обновления ===
+  // === Мутация обновления (без изменений) ===
   const updateMutation = useMutation({
     mutationFn: (payload: any) => selectionApi.updateSelection(selectionId!, payload),
     onSuccess: () => {
@@ -119,21 +122,35 @@ const EditSelectionPage: React.FC = () => {
     },
   });
 
-  // === Обработчики ===
+  // === 4. Обработчик смены страницы ===
+  const handlePageChange = useCallback((newPage: number) => {
+    const totalPages = Math.ceil(totalCount / PAGINATION_SIZE);
+
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [totalCount]);
+
+  // === 5. Обработчики сброса страницы ===
   const handleSetMode = useCallback((newMode: SelectionMode) => {
     setMode(newMode);
+    setCurrentPage(1); // 👈 СБРОС СТРАНИЦЫ
     if (newMode === 'manual') {
       setFilters({});
-      setAllSelectedIds(new Set());
+      // allSelectedIds не сбрасываем здесь, чтобы сохранить выбранное при переключении
+      // setAllSelectedIds(new Set()); // Комментируем, чтобы сохранить выбранные ID
     }
   }, []);
 
   const handleFilterChange = useCallback((key: keyof GetPropertiesParams, value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }));
+    setCurrentPage(1); // 👈 СБРОС СТРАНИЦЫ
   }, []);
 
   const handleResetFilters = useCallback(() => {
     setFilters({});
+    setCurrentPage(1); // 👈 СБРОС СТРАНИЦЫ
   }, []);
 
   const handleToggleSelect = useCallback((id: number) => {
@@ -185,11 +202,12 @@ const EditSelectionPage: React.FC = () => {
     }));
   }, [properties, allSelectedIds]);
 
+  // === 6. Пропсы пагинации (ИСПРАВЛЕНО) ===
   const paginationProps = {
     totalCount,
     pageSize: PAGINATION_SIZE,
-    currentPage: 1,
-    onPageChange: () => { },
+    currentPage: currentPage, // 👈 ДИНАМИЧЕСКОЕ ЗНАЧЕНИЕ
+    onPageChange: handlePageChange, // 👈 ДИНАМИЧЕСКАЯ ФУНКЦИЯ
     isLoading: isPropertiesLoading,
   };
 
@@ -253,7 +271,7 @@ const EditSelectionPage: React.FC = () => {
           </div>
 
           <div className={`lg:col-span-4 space-y-6 order-2 lg:order-1 mt-6 lg:mt-0 
-              ${isFiltersOpen ? 'block' : 'hidden'} lg:block`
+                        ${isFiltersOpen ? 'block' : 'hidden'} lg:block`
           }>
             <FilterContent
               filters={filters}

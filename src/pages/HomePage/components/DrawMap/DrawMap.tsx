@@ -1,12 +1,8 @@
 import React, { useState } from "react";
 import MapContainer from "./MapContainer";
 import PropertyList from "./PropertyList";
-import type { PolygonInstance } from "./types";
-import type { PropertyResponse } from "../../../../types/property";
+import type { DrawMapProps, PolygonInstance, PropertyResponse } from "../../../../types";
 
-interface DrawMapProps {
-  estates: PropertyResponse[];
-}
 
 const DrawMap: React.FC<DrawMapProps> = ({ estates }) => {
   const [filtered, setFiltered] = useState<PropertyResponse[]>([]);

@@ -5,11 +5,10 @@ import { useAuth } from "../AppContext";
 import { useMyProperties, useToggleVisibility } from "../hooks/useProperties";
 import {
   PROPERTY_STATUS_OPTIONS,
-  PropertyStatus,
 } from "../contants/property-status";
 import { PropertyTable } from "../components/PropertyTable/PropertyTable";
 import toast from "react-hot-toast";
-import type { PropertyResponse } from "../api/propertyApi";
+import type { PropertyResponse, PropertyStatus } from "../types";
 
 const MyPropertiesPage: React.FC = () => {
   const { user } = useAuth();
@@ -51,8 +50,7 @@ const MyPropertiesPage: React.FC = () => {
         {
           onSuccess: () =>
             toast.success(
-              `Объект "${property.title}" теперь ${
-                newStatus ? "опубликован" : "скрыт"
+              `Объект "${property.title}" теперь ${newStatus ? "опубликован" : "скрыт"
               }`
             ),
           onError: () => toast.error("Ошибка при изменении публикации"),

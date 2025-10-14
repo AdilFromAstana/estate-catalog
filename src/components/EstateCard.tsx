@@ -4,11 +4,10 @@ import { MapPin, Bed, Square, Ruler, Heart, Eye } from "lucide-react";
 import {
   formatFullName,
   formatPrice,
-  type PropertyResponse,
 } from "../api/propertyApi";
 import { dictionaryLabels } from "../contants/dictionaryLabels";
-import { getAvatar } from "../hooks/useRealtor";
 import SafeImage from "./SafeImage";
+import type { PropertyResponse } from "../types";
 
 const EstateCard: React.FC<PropertyResponse> = ({
   id,

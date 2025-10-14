@@ -2,14 +2,14 @@ import { Building, ListFilter } from "lucide-react";
 import type { SelectionMode } from "../EditSelectionPage";
 import InlineModeSelector from "./InlineModeSelector";
 import SelectionPropertiesTable from "./SelectionPropertiesTable";
-import type { BaseProperty } from "../../../api/propertyApi";
+import type { SelectedPropertyResponse } from "../../../types";
 
 interface PropertyTableSectionProps {
     mode: SelectionMode;
     setMode: (mode: SelectionMode) => void;
-    properties: BaseProperty[];
+    properties: SelectedPropertyResponse[];
     onToggleSelect: (id: number) => void;
-    pagination: PaginationState;
+    pagination: any;
     isLoading: boolean;
     totalSelectedCount: number;
 }

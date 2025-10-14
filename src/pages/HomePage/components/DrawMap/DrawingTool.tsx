@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import type { DrawingToolProps } from "./types";
+import type { DrawingToolProps } from "../../../../types";
 
 const DrawingTool: React.FC<DrawingToolProps> = ({
   map,
@@ -17,7 +17,7 @@ const DrawingTool: React.FC<DrawingToolProps> = ({
     let isDown = false;
     let line: ymaps.Polyline | null = null;
 
-    const onMouseDown = (e: any) => {
+    const onMouseDown = () => {
       if (!isDrawing) return;
       isDown = true;
       coords = [];
@@ -62,7 +62,7 @@ const DrawingTool: React.FC<DrawingToolProps> = ({
 
       const inside = estates.filter((e) => {
         try {
-          return poly.geometry.contains([e.latitude, e.longitude]);
+          return poly.geometry.contains([e.latitude!, e.longitude!]);
         } catch {
           return false;
         }

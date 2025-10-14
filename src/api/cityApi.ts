@@ -1,16 +1,6 @@
 // src/api/cityApi.ts
+import type { City, District } from "../types";
 import axiosInstance from "./axiosInstance";
-
-export interface City {
-  id: number;
-  name: string;
-}
-
-export interface District {
-  id: number;
-  name: string;
-  cityId: number;
-}
 
 export const cityApi = {
   /**

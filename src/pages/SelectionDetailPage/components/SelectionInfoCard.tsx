@@ -8,17 +8,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import SafeImage from "../../../components/SafeImage";
-
-interface SelectionInfoCardProps {
-  selection: any;
-  total: number;
-  createdBy?: {
-    firstName: string;
-    lastName?: string;
-    phone?: string;
-    avatar?: string;
-  };
-}
+import type { SelectionInfoCardProps } from "../../../types";
 
 const SelectionInfoCard: React.FC<SelectionInfoCardProps> = ({
   selection,
@@ -54,10 +44,6 @@ const SelectionInfoCard: React.FC<SelectionInfoCardProps> = ({
       label: `Объектов: ${total}`,
     });
 
-  // 👤 Функция для отображения инициалов, если нет фото
-  const getInitials = (first: string, last?: string) =>
-    `${first?.[0] ?? ""}${last?.[0] ?? ""}`.toUpperCase();
-
   return (
     <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 mb-10 flex flex-col md:flex-row md:items-start md:justify-between gap-6">
       {/* === Левая часть: информация о подборке === */}
@@ -90,37 +76,35 @@ const SelectionInfoCard: React.FC<SelectionInfoCardProps> = ({
       </div>
 
       {/* === Правая часть: карточка автора подборки === */}
-      {createdBy && (
-        <div className="flex flex-col items-center md:items-end text-center md:text-right border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-6">
-          {/* Фото или инициалы */}
-          <SafeImage srcPath={createdBy?.avatar} />
+      <div className="flex flex-col items-center md:items-end text-center md:text-right border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-6">
+        {/* Фото или инициалы */}
+        <SafeImage srcPath={createdBy.avatar} />
 
-          {/* Имя и фамилия */}
-          <h3 className="text-base font-semibold text-gray-900">
-            {createdBy.firstName} {createdBy.lastName}
-          </h3>
-          <p className="text-sm text-gray-500 mb-3">Создатель подборки</p>
+        {/* Имя и фамилия */}
+        <h3 className="text-base font-semibold text-gray-900">
+          {createdBy.firstName} {createdBy.lastName}
+        </h3>
+        <p className="text-sm text-gray-500 mb-3">Создатель подборки</p>
 
-          {/* Контакты */}
-          {createdBy.phone && (
-            <div className="flex gap-2">
-              <a
-                href={`tel:${createdBy.phone}`}
-                className="flex items-center gap-1 bg-blue-600 text-white text-sm px-3 py-1.5 rounded-md hover:bg-blue-700 transition"
-              >
-                <Phone size={14} /> Позвонить
-              </a>
-              <a
-                href={`https://wa.me/${createdBy.phone.replace(/\D/g, "")}`}
-                target="_blank"
-                className="flex items-center gap-1 bg-green-500 text-white text-sm px-3 py-1.5 rounded-md hover:bg-green-600 transition"
-              >
-                <MessageCircle size={14} /> WhatsApp
-              </a>
-            </div>
-          )}
-        </div>
-      )}
+        {/* Контакты */}
+        {createdBy.phone && (
+          <div className="flex gap-2">
+            <a
+              href={`tel:${createdBy.phone}`}
+              className="flex items-center gap-1 bg-blue-600 text-white text-sm px-3 py-1.5 rounded-md hover:bg-blue-700 transition"
+            >
+              <Phone size={14} /> Позвонить
+            </a>
+            <a
+              href={`https://wa.me/${createdBy.phone.replace(/\D/g, "")}`}
+              target="_blank"
+              className="flex items-center gap-1 bg-green-500 text-white text-sm px-3 py-1.5 rounded-md hover:bg-green-600 transition"
+            >
+              <MessageCircle size={14} /> WhatsApp
+            </a>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

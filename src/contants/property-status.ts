@@ -1,15 +1,4 @@
-export enum PropertyStatus {
-  DRAFT = "draft",
-  ACTIVE = "active",
-  RESERVED = "reserved",
-  SOLD = "sold",
-}
-
-export interface PropertyStatusOption {
-  value: PropertyStatus;
-  label: string;
-  color: string;
-}
+import { PropertyStatus, type PropertyStatusOption } from "../types";
 
 export const PROPERTY_STATUS_OPTIONS: PropertyStatusOption[] = [
   {

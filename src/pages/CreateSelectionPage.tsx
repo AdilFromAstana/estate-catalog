@@ -1,11 +1,9 @@
-// CreateSelectionPage.tsx
 import React, { useState, useCallback, useMemo } from 'react';
 import { FilterContent } from '../components/SearchBar';
 
 // Хуки и API
 import { useCities, useDistricts } from '../hooks/useCities';
 import { useProperties } from '../hooks/useProperties';
-import type { GetPropertiesParams } from '../api/propertyApi';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { selectionApi } from '../api/selectionApi';
 import { useNavigate } from 'react-router-dom';
@@ -15,43 +13,33 @@ import EditDetailsForm from './EditSelectionPage/components/EditDetailsForm';
 import MobileFilterToggle from './EditSelectionPage/components/MobileFilterToggle';
 import PropertyTableSection from './EditSelectionPage/components/PropertyTableSection';
 import SaveButtonStickyFooter from './EditSelectionPage/components/SaveButtonStickyFooter';
-
-// Типы
-export interface SelectionDetails {
-  title: string;
-  description: string;
-  isPublic: boolean;
-}
-
-export type SelectionMode = 'filters' | 'manual';
+import type { GetPropertiesParams, SelectionDetails, SelectionMode } from '../types';
 
 const PAGINATION_SIZE = 10;
-const TOTAL_MOCK_COUNT = 1_000_000;
+// const TOTAL_MOCK_COUNT = 1_000_000; // ❌ УДАЛЕНА СТАТИЧНАЯ ЗАГЛУШКА
 
 const CreateSelectionPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // === Основные состояния ===
+  // === 1. Основные состояния ===
   const [mode, setMode] = useState<SelectionMode>('filters');
   const [selectionDetails, setSelectionDetails] = useState<SelectionDetails>({
     title: '',
     description: '',
     isPublic: false,
   });
-
-  // === Фильтры ===
   const [filters, setFilters] = useState<GetPropertiesParams>({});
-
-  // === Мобильные фильтры ===
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
-  // === Выбранные объекты (только для manual) ===
+  // === 2. Состояние пагинации и выбора ===
+  const [currentPage, setCurrentPage] = useState(1);
   const [allSelectedIds, setAllSelectedIds] = useState<Set<number>>(new Set());
   const totalSelectedCount = allSelectedIds.size;
 
-  // === Сохранение ===
+  // === 3. Сохранение ===
   const [isSaving, setIsSaving] = useState(false);
+
   const isDisabled = useMemo(() => {
     if (!selectionDetails.title.trim()) return true;
 
@@ -72,28 +60,22 @@ const CreateSelectionPage: React.FC = () => {
   const { data: cities = [] } = useCities();
   const { data: districts = [] } = useDistricts(filters.cityId ?? undefined);
 
-  // === Параметры запроса ===
+  // === 4. Параметры запроса (Динамические) ===
   const queryParams = useMemo(() => {
-    if (mode === 'filters') {
-      return {
-        ...filters,
-        page: 1,
-        limit: PAGINATION_SIZE,
-        isPublished: true,
-      };
-    } else {
-      return {
-        page: 1,
-        limit: PAGINATION_SIZE,
-        isPublished: true,
-      };
-    }
-  }, [mode, filters]);
+    return {
+      ...filters,
+      page: currentPage,
+      limit: PAGINATION_SIZE,
+      isPublished: true,
+    };
+  }, [filters, currentPage]);
 
   // === Запрос данных ===
   const { data, isLoading } = useProperties(queryParams);
   const properties = data?.data ?? [];
-  const totalCount = data?.total ?? TOTAL_MOCK_COUNT;
+
+  // 👈 ИСПРАВЛЕНО: totalCount берется из данных или равен 0
+  const totalCount = data?.total ?? 0;
 
   // === Мутация создания ===
   const createMutation = useMutation({
@@ -108,25 +90,35 @@ const CreateSelectionPage: React.FC = () => {
     },
   });
 
-  // === Обработчики ===
+  // === 5. Обработчик смены страницы (для Pagination) ===
+  const handlePageChange = useCallback((newPage: number) => {
+    // totalCount теперь динамический (из хука)
+    const totalPages = Math.ceil(totalCount / PAGINATION_SIZE);
+
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [totalCount]);
+
+  // === 6. Другие Обработчики ===
   const handleSetMode = useCallback((newMode: SelectionMode) => {
     setMode(newMode);
+    setCurrentPage(1); // СБРОС СТРАНИЦЫ
     if (newMode === 'manual') {
-      setFilters({}); // очищаем фильтры при переходе в ручной режим
+      setFilters({});
     }
   }, []);
 
   const handleFilterChange = useCallback((key: keyof GetPropertiesParams, value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }));
+    setCurrentPage(1); // СБРОС СТРАНИЦЫ
   }, []);
 
   const handleResetFilters = useCallback(() => {
     setFilters({});
+    setCurrentPage(1); // СБРОС СТРАНИЦЫ
   }, []);
-
-  // const handleCloseFilters = useCallback(() => {
-  //   setIsFiltersOpen(false);
-  // }, []);
 
   const handleToggleSelect = useCallback((id: number) => {
     setAllSelectedIds(prev => {
@@ -171,7 +163,7 @@ const CreateSelectionPage: React.FC = () => {
     createMutation.mutate(payload);
   };
 
-  // === Подготовка данных для таблицы ===
+  // === 7. Подготовка данных для таблицы ===
   const propertiesWithSelection = useMemo(() => {
     return properties.map(prop => ({
       ...prop,
@@ -179,12 +171,12 @@ const CreateSelectionPage: React.FC = () => {
     }));
   }, [properties, allSelectedIds]);
 
-  // === Пагинация ===
+  // === 8. Пропсы пагинации ===
   const paginationProps = {
     totalCount,
     pageSize: PAGINATION_SIZE,
-    currentPage: 1,
-    onPageChange: () => { },
+    currentPage: currentPage,
+    onPageChange: handlePageChange,
     isLoading,
   };
 
@@ -192,6 +184,7 @@ const CreateSelectionPage: React.FC = () => {
   const filterOptions = {
     cities,
     districts,
+    // Эти значения, вероятно, должны быть динамическими, но оставлены как в исходном коде
     maxPrice: 200_000_000,
     rooms: [1, 2, 3, 4, 5],
     minFloor: 1,
@@ -237,7 +230,7 @@ const CreateSelectionPage: React.FC = () => {
 
           {/* Фильтры (левая колонка) */}
           <div className={`lg:col-span-4 space-y-6 order-2 lg:order-1 mt-6 lg:mt-0 
-              ${isFiltersOpen ? 'block' : 'hidden'} lg:block`
+            ${isFiltersOpen ? 'block' : 'hidden'} lg:block`
           }>
             <FilterContent
               filters={filters}

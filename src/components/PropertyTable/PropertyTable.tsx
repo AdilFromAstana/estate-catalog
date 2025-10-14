@@ -11,15 +11,14 @@ import {
   Clock,
   User,
 } from "lucide-react";
-import type { PropertyResponse } from "../../api/propertyApi";
 import {
   PROPERTY_STATUS_COLORS,
   PROPERTY_STATUS_LABELS,
-  PropertyStatus,
 } from "../../contants/property-status";
 import { PropertyFilters } from "./PropertyFilters";
 import { Pagination } from "./Pagination";
 import { formatPrice, formatRooms } from "../../api/propertyApi";
+import type { PropertyResponse, PropertyStatus } from "../../types";
 
 export interface PropertyTableAction {
   label: string;

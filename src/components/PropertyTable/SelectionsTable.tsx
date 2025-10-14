@@ -3,52 +3,7 @@ import clsx from "clsx";
 import { Edit, Trash2, Share2, User } from "lucide-react";
 import SafeImage from "../SafeImage";
 import { Pagination } from "../PropertyTable/Pagination";
-
-export interface Selection {
-  id: number;
-  name: string;
-  description: string | null;
-  isShared: boolean;
-  createdAt: string;
-  user: {
-    id: number;
-    firstName: string | null;
-    lastName: string | null;
-    avatar: string | null;
-    agency: { id: number; name: string };
-  };
-}
-
-export interface SelectionTableAction {
-  label: string;
-  icon: React.ReactNode;
-  onClick: (selection: Selection) => void;
-  visible?: (selection: Selection) => boolean;
-  color?: "blue" | "red" | "gray";
-}
-
-interface SelectionsTableProps {
-  selections: Selection[];
-
-  onEdit: (id: number) => void;
-  onDelete: (id: number) => void;
-  onShare: (selection: Selection) => void;
-
-  visibleFilters: boolean;
-  visibleActions: boolean;
-  visiblePagination: boolean;
-
-  currentPage?: number;
-  total?: number;
-  pageSize?: number;
-  onPageChange?: (page: number) => void;
-
-  actions?: SelectionTableAction[];
-  filters?: React.ReactNode;
-  pagination?: React.ReactNode;
-
-  emptyText?: string;
-}
+import type { Selection, SelectionsTableProps, SelectionTableAction } from "../../types";
 
 export const SelectionsTable: React.FC<SelectionsTableProps> = ({
   selections,
@@ -105,10 +60,10 @@ export const SelectionsTable: React.FC<SelectionsTableProps> = ({
               className={clsx(
                 "p-2 rounded-lg hover:opacity-90 transition",
                 a.color === "blue" &&
-                  "bg-blue-100 text-blue-600 hover:bg-blue-200",
+                "bg-blue-100 text-blue-600 hover:bg-blue-200",
                 a.color === "red" && "bg-red-100 text-red-600 hover:bg-red-200",
                 a.color === "gray" &&
-                  "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                "bg-gray-100 text-gray-600 hover:bg-gray-200"
               )}
             >
               {a.icon}
@@ -221,7 +176,7 @@ export const SelectionsTable: React.FC<SelectionsTableProps> = ({
               currentPage={currentPage ?? 1}
               total={total ?? 0}
               pageSize={pageSize ?? 10}
-              onPageChange={onPageChange ?? (() => {})}
+              onPageChange={onPageChange ?? (() => { })}
             />
           )}
         </div>

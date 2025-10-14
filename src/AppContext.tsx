@@ -7,17 +7,7 @@ import React, {
   type ReactNode,
 } from "react";
 import { authService } from "./services/authService";
-import type { User } from "./types/user";
-
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  login: (
-    email: string,
-    password: string
-  ) => Promise<{ success: boolean; message?: string }>;
-  logout: () => Promise<void>;
-}
+import type { AuthContextType, User } from "./types";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 

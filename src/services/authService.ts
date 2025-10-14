@@ -1,6 +1,6 @@
 // src/services/authService.ts
 import { authApi } from "../api/authApi";
-import type { User } from "../types/user";
+import type { User } from "../types";
 
 const ACCESS_TOKEN_KEY = "accessToken";
 const REFRESH_TOKEN_KEY = "refreshToken";

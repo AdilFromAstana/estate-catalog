@@ -15,7 +15,6 @@ import {
   Plus,
 } from "lucide-react";
 import {
-  getAvatar,
   getStatusClass,
   getStatusText,
   useRealtors,

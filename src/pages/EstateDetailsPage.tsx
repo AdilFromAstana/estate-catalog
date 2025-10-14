@@ -1,15 +1,12 @@
-// src/pages/EstateDetailsPage.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MapPin, Heart, Share2 } from "lucide-react";
-// import EstateCarousel from "../components/EstateCarousel";
 import ImageModal from "../components/ImageModal";
 import EstateContactButtons from "../components/EstateContactButtons";
 import EstateLoanCalculator from "../components/EstateLoanCalculator";
 import EstateImageGallery from "../components/EstateImageGallery";
 import EstateQuickStats from "../components/EstateQuickStats";
-// import { useSimilarEstates } from "../hooks/useSimilarEstates";
-import OpenStreetMap from "../components/OpenStreetMap";
+import YandexMapSingle from "../components/YandexMapSingle";
 import {
   formatFullName,
   formatPrice,
@@ -17,10 +14,8 @@ import {
   type PropertyResponse,
 } from "../api/propertyApi";
 import toast from "react-hot-toast";
-import { getAvatar } from "../hooks/useRealtor";
 import SafeImage from "../components/SafeImage";
 
-// Хелпер для отображения типа недвижимости
 const getCategoryLabel = (type: string) => {
   const labels: Record<string, string> = {
     apartment: "Квартира",
@@ -32,7 +27,6 @@ const getCategoryLabel = (type: string) => {
   return labels[type] || type;
 };
 
-// Хелпер для отображения состояния ремонта
 const getConditionLabel = (condition: string) => {
   const labels: Record<string, string> = {
     without: "Без ремонта",
@@ -208,10 +202,10 @@ const EstateDetailsPage: React.FC = () => {
           </div>
         </div>
 
-        {estate.coordinates && (
-          <OpenStreetMap
-            lat={estate.coordinates?.lat || 0}
-            lng={estate.coordinates?.lng || 0}
+        {estate.latitude && estate.longitude && (
+          <YandexMapSingle
+            lat={estate.latitude || 0}
+            lng={estate.longitude || 0}
             address={fullAddress}
           />
         )}

@@ -19,10 +19,10 @@ export default function useMapClusters({
       const [[minLat, minLng], [maxLat, maxLng]] = bounds;
       const visible = estates.filter(
         (e) =>
-          e.latitude >= minLat &&
-          e.latitude <= maxLat &&
-          e.longitude >= minLng &&
-          e.longitude <= maxLng
+          e.latitude! >= minLat &&
+          e.latitude! <= maxLat &&
+          e.longitude! >= minLng &&
+          e.longitude! <= maxLng
       );
       setFiltered(visible);
     };
@@ -31,15 +31,15 @@ export default function useMapClusters({
       const zoom = map.getZoom();
       const bounds = map.getBounds();
       if (!bounds) return;
-      const [[minLat, minLng], [maxLat, maxLng]] = bounds;
+      // const [[minLat, minLng], [maxLat, maxLng]] = bounds;
       const cellSize = 0.01 / Math.pow(2, zoom - 10);
 
       const clusters: Record<string, any[]> = {};
       for (const e of estates) {
         const key =
-          Math.floor(e.latitude / cellSize) +
+          Math.floor(e.latitude! / cellSize) +
           "_" +
-          Math.floor(e.longitude / cellSize);
+          Math.floor(e.longitude! / cellSize);
         if (!clusters[key]) clusters[key] = [];
         clusters[key].push(e);
       }

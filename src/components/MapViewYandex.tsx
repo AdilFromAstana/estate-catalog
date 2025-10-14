@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import type { PropertyResponse } from "../api/propertyApi";
+import type { PropertyResponse } from "../types";
 
 interface MapViewProps {
   estates: PropertyResponse[];
@@ -49,10 +49,10 @@ const MapViewYandex: React.FC<MapViewProps> = ({ estates, onEstateClick }) => {
 
         const centerLat =
           validCoords.reduce((sum, e) => sum + Number(e.latitude), 0) /
-            validCoords.length || 51.1694;
+          validCoords.length || 51.1694;
         const centerLng =
           validCoords.reduce((sum, e) => sum + Number(e.longitude), 0) /
-            validCoords.length || 71.4491;
+          validCoords.length || 71.4491;
 
         const map = new ymaps.Map(mapRef.current, {
           center: [centerLat, centerLng],
@@ -203,11 +203,10 @@ const MapViewYandex: React.FC<MapViewProps> = ({ estates, onEstateClick }) => {
       />
       <button
         onClick={() => setIsDrawing((prev) => !prev)}
-        className={`absolute top-4 left-4 z-10 px-3 py-1 rounded-md text-sm font-medium shadow-md transition ${
-          isDrawing
+        className={`absolute top-4 left-4 z-10 px-3 py-1 rounded-md text-sm font-medium shadow-md transition ${isDrawing
             ? "bg-red-500 text-white"
             : "bg-white text-gray-800 border border-gray-300 hover:bg-gray-100"
-        }`}
+          }`}
       >
         {isDrawing ? "⛔ Завершить выделение" : "✏️ Выделить область"}
       </button>

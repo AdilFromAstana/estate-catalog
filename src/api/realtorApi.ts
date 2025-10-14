@@ -1,33 +1,5 @@
+import type { Realtor, UpdateRealtorDto } from "../types";
 import axiosInstance from "./axiosInstance";
-export interface Agency {
-  id: number | null;
-  name: string;
-  email: string;
-}
-
-export interface Realtor {
-  id: number | null;
-  email: string;
-  firstName?: string;
-  lastName?: string;
-  middleName?: string;
-  phone?: string;
-  avatar?: string;
-  instagram?: string;
-  tiktok?: string;
-  licenseNumber?: string;
-  licenseExpiry?: string;
-  isLicensed: boolean;
-  isActive: boolean;
-  isVerified: boolean;
-  agencyId?: number | null;
-  agency?: Agency; // 👈 лучше возвращать с бэка join-ом
-  rating?: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export type UpdateRealtorDto = Partial<Omit<Realtor, "id">>;
 
 export const realtorApi = {
   getByAgency: async (

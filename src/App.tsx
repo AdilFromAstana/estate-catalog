@@ -25,7 +25,6 @@ import MyPropertiesPage from "./pages/MyPropertiesPage";
 import AddPropertyPage from "./pages/AddPropertyPage";
 import EditPropertyPage from "./pages/EditPropertyPage";
 import RealtorSettingsPage from "./pages/RealtorSettingsPage";
-import AnalyticsPage from "./pages/AnalyticsPage";
 import SelectionsList from "./pages/SelectionsList";
 import CreateSelection from "./pages/CreateSelectionPage";
 import SelectionDetail from "./pages/SelectionDetail";
@@ -152,13 +151,6 @@ const routes = [
   {
     path: "/my-settings",
     element: <RealtorSettingsPage />,
-    layout: "sidebar",
-    protected: true,
-    roles: ["admin", "realtor"],
-  },
-  {
-    path: "/statistics",
-    element: <AnalyticsPage />,
     layout: "sidebar",
     protected: true,
     roles: ["admin", "realtor"],

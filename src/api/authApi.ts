@@ -1,22 +1,5 @@
-import type { User } from "../types/user";
+import type { AuthResponse, LoginDto, RegisterDto } from "../types";
 import axiosInstance from "./axiosInstance";
-
-export interface LoginDto {
-  email: string;
-  password: string;
-}
-
-export interface RegisterDto {
-  email: string;
-  password: string;
-  agencyId: number;
-}
-
-export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
-  user: User;
-}
 
 export const authApi = {
   login: (dto: LoginDto) =>

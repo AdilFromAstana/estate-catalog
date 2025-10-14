@@ -2,20 +2,12 @@ import { useEffect, useState } from "react";
 import { useImportProperty } from "../hooks/useProperties";
 import { useCities, useDistricts } from "../hooks/useCities";
 import {
-  normalizeCurrency,
-  parseCoordinates,
   propertyApi,
-  type ParsedPropertyData,
 } from "../api/propertyApi";
 import toast from "react-hot-toast";
-import {
-  getBuildingTypeLabels,
-  useBuildingTypes,
-  useConditions,
-} from "./usePropertyDictionaries";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useComplexes } from "./useComplexes";
-import { PropertyStatus } from "../contants/property-status";
+import { PropertyStatus, type ParsedPropertyData } from "../types";
 
 export const usePropertyForm = (_: any, navigate: any) => {
   const queryClient = useQueryClient();
@@ -27,10 +19,10 @@ export const usePropertyForm = (_: any, navigate: any) => {
   const { data: complexes = [] } = useComplexes({
     search: complexName || "",
   });
-  const { data: buildingTypes = [] } = useBuildingTypes();
-  const { data: conditions = [] } = useConditions();
-
-  const buildingTypeLabels = getBuildingTypeLabels(buildingTypes);
+  //const { data: buildingTypes = [] } = useBuildingTypes();
+  //const { data: conditions = [] } = useConditions();
+  const buildingTypes: string[] = [];
+  const conditions: string[] = [];
 
   const [formData, setFormData] = useState<any>({
     title: "",
@@ -78,8 +70,7 @@ export const usePropertyForm = (_: any, navigate: any) => {
   });
 
   const handleImport = (
-    e: React.FormEvent,
-    opts?: { onSuccess?: () => void; onError?: (err: Error) => void }
+    e: React.FormEvent
   ) => {
     e.preventDefault();
     if (!formData.importUrl) {
@@ -89,61 +80,7 @@ export const usePropertyForm = (_: any, navigate: any) => {
     setImportError(null);
     setParsedData(null);
 
-    importMutation.mutate(formData.importUrl, {
-      onSuccess: (data) => {
-        setParsedData(data);
-
-        const matchedCity = cities.find(
-          (c) => c.name.toLowerCase() === data.city.toLowerCase()
-        );
-        // 🔍 Найти buildingType по label (русскому названию)
-        const buildingTypeIndex = buildingTypeLabels.findIndex(
-          (label) =>
-            label.toLowerCase() === data.buildingTypeCode?.toLowerCase()
-        );
-
-        setComplexName(data.complex!);
-
-        const matchedBuildingType =
-          buildingTypeIndex !== -1 ? buildingTypes[buildingTypeIndex] : "";
-
-        console.log(matchedBuildingType);
-
-        setFormData((prev: any) => ({
-          ...prev,
-          ...data,
-          cityId: matchedCity?.id || 0,
-          city: matchedCity?.name || data.city,
-          // временно districtId = 0 (заполним позже)
-          districtId: 0,
-          district: data.district,
-          price: data.price || 0,
-          area: data.area || 0,
-          rooms: data.rooms || 0,
-          floor: data.floor || 0,
-          totalFloors: data.totalFloors || 0,
-          yearBuilt: data.yearBuilt! || 0,
-          currency: normalizeCurrency(data.currency),
-          coordinates: parseCoordinates(data.coordinates!),
-          buildingType: matchedBuildingType,
-          photos: [],
-          type: "apartment",
-          title: "",
-          status: PropertyStatus.DRAFT,
-        }));
-
-        if (matchedCity) {
-          setSelectedCityId(matchedCity.id);
-        }
-
-        opts?.onSuccess?.();
-      },
-      onError: (err) => {
-        const message = err.message || "Ошибка импорта";
-        setImportError(message);
-        opts?.onError?.(err);
-      },
-    });
+    importMutation.mutate(formData.importUrl);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

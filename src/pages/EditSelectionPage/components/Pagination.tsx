@@ -1,14 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { type SelectionMode } from "../EditSelectionPage";
-
-
-interface PaginationProps {
-    totalCount: number;
-    pageSize: number;
-    currentPage: number;
-    onPageChange: (page: number, mode: SelectionMode) => void;
-    isLoading: boolean;
-}
+import type { PaginationProps } from "../../../types";
 
 const Pagination: React.FC<PaginationProps> = ({ totalCount, pageSize, currentPage, onPageChange, isLoading }) => {
     const totalPages = Math.ceil(totalCount / pageSize);

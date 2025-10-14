@@ -1,5 +1,4 @@
-import type { Selection } from "../components/PropertyTable/SelectionsTable";
-import type { SelectionResponse } from "../types/property";
+import type { Selection, SelectionResponse } from "../types";
 import axiosInstance from "./axiosInstance";
 
 export const selectionApi = {

@@ -8,11 +8,10 @@ import {
 import { useRealtors } from "../hooks/useRealtor";
 import {
   PROPERTY_STATUS_OPTIONS,
-  PropertyStatus,
 } from "../contants/property-status";
 import toast from "react-hot-toast";
 import { PropertyTable } from "../components/PropertyTable/PropertyTable";
-import type { PropertyResponse } from "../api/propertyApi";
+import type { PropertyResponse, PropertyStatus } from "../types";
 
 const AgencyPropertiesPage: React.FC = () => {
   const { user } = useAuth();

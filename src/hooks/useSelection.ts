@@ -5,24 +5,7 @@ import {
   keepPreviousData,
 } from "@tanstack/react-query";
 import { selectionApi } from "../api/selectionApi";
-import type { SelectionResponse } from "../types/property";
-import type { Selection } from "../components/PropertyTable/SelectionsTable";
-
-interface GetSelectionsParams {
-  page?: number;
-  limit?: number;
-  isShared?: boolean;
-  userId?: number;
-  agencyId?: number;
-}
-
-interface SelectionsListResponse {
-  data: Selection[];
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
+import type { GetSelectionsParams, SelectionResponse, SelectionsListResponse } from "../types";
 
 /* -------------------------------------------------------------------------- */
 /*                              📋 СПИСОК ПОДБОРОК                            */

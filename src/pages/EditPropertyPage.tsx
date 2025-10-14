@@ -4,10 +4,6 @@ import toast from "react-hot-toast";
 import { useProperty, useUpdateProperty } from "../hooks/useProperties";
 import { useCities, useDistricts } from "../hooks/useCities";
 import { useComplexes } from "../hooks/useComplexes";
-import {
-  useBuildingTypes,
-  useConditions,
-} from "../hooks/usePropertyDictionaries";
 import { PropertyEditForm } from "../components/PropertyEditForm";
 
 const EditPropertyPage: React.FC = () => {
@@ -20,8 +16,10 @@ const EditPropertyPage: React.FC = () => {
   const { data: property, isLoading } = useProperty(propertyId);
   const updateMutation = useUpdateProperty(propertyId);
   const { data: cities = [] } = useCities();
-  const { data: buildingTypes = [] } = useBuildingTypes();
-  const { data: conditions = [] } = useConditions();
+  //const { data: buildingTypes = [] } = useBuildingTypes();
+  //const { data: conditions = [] } = useConditions();
+  const buildingTypes: string[] = [];
+  const conditions: string[] = [];
 
   const [selectedCityId, setSelectedCityId] = useState<number>(0);
   const { data: districts = [] } = useDistricts(selectedCityId || undefined);

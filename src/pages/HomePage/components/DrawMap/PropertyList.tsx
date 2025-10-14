@@ -1,5 +1,5 @@
 import React from "react";
-import type { PropertyListProps } from "./types";
+import type { PropertyListProps } from "../../../../types";
 
 const PropertyList: React.FC<PropertyListProps> = ({ filtered, polygon }) => {
   return (

@@ -1,20 +1,18 @@
 import React, { useState } from "react";
 import { ImagePreview } from "./ImagePreview";
-import type { City, District } from "../api/cityApi";
 import { LabeledInput } from "./LabeledInput";
 import { LabeledTextarea } from "./LabeledTextarea";
 import { LabeledSelect } from "./LabeledSelect";
 import { dictionaryLabels } from "../contants/dictionaryLabels";
-import type { Complex } from "../api/complexApi";
 import {
   PROPERTY_STATUS_COLORS,
   PROPERTY_STATUS_LABELS,
   PROPERTY_STATUS_OPTIONS,
-  PropertyStatus,
 } from "../contants/property-status";
 import { Eye, EyeOff, Edit3, Save, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
+import type { City, Complex, District, PropertyStatus } from "../types";
 
 interface Props {
   setFormData: (v: any) => void;
@@ -161,11 +159,9 @@ export const PropertyEditForm: React.FC<Props> = ({
               name="status"
               value={formData.status || ""}
               onChange={handleStatusChange} // ✅ теперь сразу обновляем
-              className={`text-sm px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 bg-${
-                PROPERTY_STATUS_COLORS[formData.status as PropertyStatus]
-              }-50 text-${
-                PROPERTY_STATUS_COLORS[formData.status as PropertyStatus]
-              }-800 font-medium cursor-pointer`}
+              className={`text-sm px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 bg-${PROPERTY_STATUS_COLORS[formData.status as PropertyStatus]
+                }-50 text-${PROPERTY_STATUS_COLORS[formData.status as PropertyStatus]
+                }-800 font-medium cursor-pointer`}
             >
               {PROPERTY_STATUS_OPTIONS.map((o) => (
                 <option
@@ -187,11 +183,10 @@ export const PropertyEditForm: React.FC<Props> = ({
             <button
               type="button"
               onClick={handlePublishToggle} // ✅ обновляем сразу
-              className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm font-medium hover:opacity-90 cursor-pointer ${
-                formData.isPublished
+              className={`flex items-center gap-1 px-3 py-1 rounded-md text-sm font-medium hover:opacity-90 cursor-pointer ${formData.isPublished
                   ? "bg-green-100 text-green-700"
                   : "bg-gray-100 text-gray-600"
-              }`}
+                }`}
             >
               {formData.isPublished ? <Eye size={16} /> : <EyeOff size={16} />}
               {formData.isPublished ? "Опубликован" : "Скрыт"}
@@ -208,9 +203,8 @@ export const PropertyEditForm: React.FC<Props> = ({
               value={formData.price || ""}
               onChange={onChange}
               disabled={!isEditing}
-              className={`w-full text-lg font-semibold text-gray-900 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                !isEditing ? "bg-gray-100 cursor-not-allowed" : ""
-              }`}
+              className={`w-full text-lg font-semibold text-gray-900 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 ${!isEditing ? "bg-gray-100 cursor-not-allowed" : ""
+                }`}
             />
           </div>
         </div>

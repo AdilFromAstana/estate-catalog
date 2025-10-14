@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Filter } from "lucide-react";
-import type { City, District } from "../api/cityApi";
-import type { GetPropertiesParams } from "../api/propertyApi";
 import {
   MapPin,
   Ruler,
@@ -9,7 +6,9 @@ import {
   DollarSign,
   Bed,
   XCircle,
+  Filter
 } from "lucide-react";
+import type { City, District, GetPropertiesParams } from "../types";
 
 const formatNumber = (value: string | number) => {
   if (!value) return "";

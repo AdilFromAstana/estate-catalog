@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import MapControls from "./MapControls";
 import DrawingTool from "./DrawingTool";
 import useMapClusters from "./useMapClusters";
-import type { MapInstance, PolylineInstance, MapContainerProps } from "./types";
+import type { MapContainerProps, MapInstance, PolylineInstance } from "../../../../types";
 
 const MapContainer: React.FC<MapContainerProps> = ({
   estates,

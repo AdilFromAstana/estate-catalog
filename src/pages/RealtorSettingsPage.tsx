@@ -29,7 +29,7 @@ const RealtorSettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto md:p-6 md:rounded-lg md:shadow-md space-y-6">
+    <div className="w-full mx-auto">
       <AvatarUploader
         avatarUrl={realtor.avatar}
         isPending={isPending}

@@ -3,8 +3,8 @@ import React from "react";
 import { Search, XCircle, Filter } from "lucide-react";
 import {
   PROPERTY_STATUS_OPTIONS,
-  type PropertyStatus,
 } from "../../contants/property-status";
+import type { PropertyStatus } from "../../types";
 
 interface PropertyFiltersProps {
   searchTerm: string;
