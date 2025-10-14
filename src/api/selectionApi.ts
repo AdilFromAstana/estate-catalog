@@ -1,4 +1,4 @@
-import type { Selection, SelectionResponse } from "../types";
+import type { GetSelectionsParams, SelectionItem, SelectionResponse } from "../types";
 import axiosInstance from "./axiosInstance";
 
 export const selectionApi = {
@@ -14,23 +14,34 @@ export const selectionApi = {
     return res.data;
   },
 
-  // 🔍 получить одну подборку по ID
-  getSelectionById: async (id: number): Promise<SelectionResponse> => {
-    const res = await axiosInstance.get(`/selections/${id}`);
-    return res.data;
-  },
-
   // 📃 получить все подборки (список)
   getAllSelections: async (
-    query?: string
+    params?: GetSelectionsParams
   ): Promise<{
-    data: Selection[];
+    data: SelectionItem[];
     total: number;
     page: number;
     limit: number;
     totalPages: number;
   }> => {
-    const res = await axiosInstance.get(`/selections?${query ?? ""}`);
+    const res = await axiosInstance.get<{
+      data: SelectionItem[];
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    }>(`/selections`, { params });
+    return res.data;
+  },
+
+  getSelectionById: async (
+    id: number,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<SelectionResponse> => {
+    const res = await axiosInstance.get(`/selections/${id}`, {
+      params: { page, limit },
+    });
     return res.data;
   },
 };

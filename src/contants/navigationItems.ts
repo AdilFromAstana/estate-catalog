@@ -101,7 +101,7 @@ export const navigationItems: NavigationItem[] = [
     section: "main",
     group: "Агентство",
     requiresAuth: true,
-    roles: ["agency_admin", "admin"],
+    roles: ["realtor", "agency_admin", "admin"],
   },
   {
     id: "agency-properties",
@@ -111,7 +111,17 @@ export const navigationItems: NavigationItem[] = [
     section: "main",
     group: "Агентство",
     requiresAuth: true,
-    roles: ["agency_admin", "admin"],
+    roles: ["realtor", "agency_admin", "admin"],
+  },
+  {
+    id: "agency-selections",
+    title: "Подборки агентства",
+    path: "/agency-selections",
+    icon: List,
+    section: "main",
+    group: "Агентство",
+    requiresAuth: true,
+    roles: ["realtor", "agency_admin", "admin"],
   },
   {
     id: "agency-settings",

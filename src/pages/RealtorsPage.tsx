@@ -19,10 +19,10 @@ import {
   getStatusText,
   useRealtors,
 } from "../hooks/useRealtor";
-import type { Realtor } from "../api/realtorApi";
 import { useAuth } from "../AppContext";
 import { PROPERTY_STATUS_OPTIONS } from "../contants/property-status";
 import SafeImage from "../components/SafeImage";
+import type { Realtor } from "../types";
 
 const customStyles = {
   // Desktop table layout (min-width: 1024px)
@@ -192,7 +192,6 @@ const RealtorsPage: React.FC = () => {
             <div className="col-span-1"></div> {/* Actions */}
           </div>
 
-          {/* Table Rows Container */}
           <div className="divide-y divide-gray-100">
             {realtors.length > 0 ? (
               realtors.map((realtor: Realtor) => (

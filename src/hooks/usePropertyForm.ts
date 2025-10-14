@@ -14,7 +14,7 @@ export const usePropertyForm = (_: any, navigate: any) => {
   const importMutation = useImportProperty();
   const { data: cities = [] } = useCities();
   const [selectedCityId, setSelectedCityId] = useState<number>(0);
-  const [complexName, setComplexName] = useState<string>("");
+  const [complexName] = useState<string>("");
   const { data: districts = [] } = useDistricts(selectedCityId || undefined);
   const { data: complexes = [] } = useComplexes({
     search: complexName || "",

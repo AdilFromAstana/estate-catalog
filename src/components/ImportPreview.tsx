@@ -1,5 +1,5 @@
 import React from "react";
-import type { ParsedPropertyData } from "../api/propertyApi";
+import type { ParsedPropertyData } from "../types";
 
 interface Props {
   data: ParsedPropertyData;

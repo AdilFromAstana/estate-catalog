@@ -1,12 +1,11 @@
 import React from "react";
 import { ImagePreview } from "./ImagePreview";
-import type { City, District } from "../api/cityApi";
 import { LabeledInput } from "./LabeledInput";
 import { LabeledTextarea } from "./LabeledTextarea";
 import { LabeledSelect } from "./LabeledSelect";
 import { dictionaryLabels } from "../contants/dictionaryLabels";
-import type { Complex } from "../api/complexApi";
 import { AsyncComplexSelect } from "./AsyncSelect";
+import type { City, Complex, District } from "../types";
 
 interface Props {
   formData: any;
@@ -14,7 +13,7 @@ interface Props {
   onSubmit: (e: React.FormEvent) => void;
   isSubmitting: boolean;
   navigate: (to: any) => void;
-  cities: City[];
+  cities: City[]
   districts: District[];
   selectedCityId: number;
   setSelectedCityId: (id: number) => void;
@@ -230,7 +229,7 @@ export const PropertyForm: React.FC<Props> = ({
               target: { name: "complexId", value: id },
             } as any)
           }
-          // cityId={selectedCityId} // 👈 добавь этот проп
+        // cityId={selectedCityId} // 👈 добавь этот проп
         />
       </div>
 

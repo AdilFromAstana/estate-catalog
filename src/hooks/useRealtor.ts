@@ -1,10 +1,9 @@
 // src/hooks/useRealtor.ts
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
   realtorApi,
-  type Realtor,
-  type UpdateRealtorDto,
 } from "../api/realtorApi";
+import type { Realtor, UpdateRealtorDto } from "../types";
 
 // Ключи для кеша
 const realtorKeys = {
@@ -14,7 +13,6 @@ const realtorKeys = {
   detail: (id: string | number) => [...realtorKeys.all, id] as const,
 };
 
-// Получение данных по id
 export const useRealtors = (
   agencyId: string | number,
   page: number,
@@ -30,6 +28,9 @@ export const useRealtors = (
     queryKey: ["realtors", agencyId, page, limit, filters],
     queryFn: () => realtorApi.getByAgency(agencyId, page, limit, filters),
     enabled: !!agencyId,
+    placeholderData: keepPreviousData,
+    staleTime: Infinity,
+    gcTime: Infinity,
   });
 
 export const useRealtor = (id: string | number) =>

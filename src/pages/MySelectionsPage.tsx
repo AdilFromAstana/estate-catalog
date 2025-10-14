@@ -6,10 +6,9 @@ import { useSelections } from "../hooks/useSelection";
 import { Plus } from "lucide-react";
 import { useAuth } from "../AppContext";
 
-const AdminSelectionsPage: React.FC = () => {
+const MySelectionsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth()
-
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState<{
     isShared?: boolean;
@@ -17,7 +16,6 @@ const AdminSelectionsPage: React.FC = () => {
 
   const itemsPerPage = 10;
 
-  // ✅ получаем подборки агентства (или все, если админ)
   const { data: selectionsData, isLoading } = useSelections({
     page: currentPage,
     limit: itemsPerPage,
@@ -77,8 +75,7 @@ const AdminSelectionsPage: React.FC = () => {
 
   return (
     <div className="w-full mx-auto px-0 bg-gray-50">
-      {/* Заголовок */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-0">
           Мои подборки ({selectionsData?.data.length ?? 0} из {total})
         </h1>
@@ -99,7 +96,6 @@ const AdminSelectionsPage: React.FC = () => {
         visibleFilters={true}
         visibleActions={true}
         visiblePagination={true}
-        // 🔹 фильтр: общие / личные
         filters={
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
@@ -144,4 +140,4 @@ const AdminSelectionsPage: React.FC = () => {
   );
 };
 
-export default AdminSelectionsPage;
+export default MySelectionsPage;

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import type { UseMapClustersProps } from "./types";
+import type { UseMapClustersProps } from "../../../../types";
 
 export default function useMapClusters({
   map,

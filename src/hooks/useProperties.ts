@@ -1,12 +1,9 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
   propertyApi,
-  type BaseProperty,
-  type GetPropertiesParams,
-  type ParsedPropertyData,
-  type PropertyCreateDto,
 } from "../api/propertyApi";
 import { useDebounce } from "./useDebounce";
+import type { BaseProperty, GetPropertiesParams, ParsedPropertyData, PropertyCreateDto } from "../types";
 
 export const useProperties = (params?: GetPropertiesParams) => {
   const debouncedParams = useDebounce(params, 400);
@@ -14,7 +11,7 @@ export const useProperties = (params?: GetPropertiesParams) => {
   return useQuery({
     queryKey: ["properties", debouncedParams ?? {}],
     queryFn: () => propertyApi.getAll(debouncedParams),
-    placeholderData: keepPreviousData, // 👈 теперь правильно для v5
+    placeholderData: keepPreviousData,
     staleTime: Infinity,
     gcTime: Infinity,
   });

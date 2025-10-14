@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { cityApi, type City, type District } from "../api/cityApi";
+import { cityApi, } from "../api/cityApi";
+import type { City, District } from "../types";
 
 // === Получить все города ===
 export const useCities = () => {

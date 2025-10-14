@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react";
 import EstateCard from "../../components/EstateCard";
 import { useNavigate } from "react-router-dom";
-import { List, Map } from "lucide-react";
 import {
 } from "../../api/propertyApi";
 import { useProperties } from "../../hooks/useProperties";
@@ -38,7 +37,7 @@ const HomePage: React.FC = () => {
     agencyId: 1,
   });
 
-  const [viewMode, setViewMode] = useState<"list" | "map">("list");
+  const [viewMode] = useState<"list" | "map">("list");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedEstate, setSelectedEstate] = useState<PropertyResponse | null>(
     null
@@ -156,6 +155,7 @@ const HomePage: React.FC = () => {
           filterOptions={{
             cities: cities || [],
             districts: districts || [],
+            minPrice: 0,
             maxPrice,
             rooms: roomOptions,
             minFloor: null,
@@ -223,7 +223,7 @@ const HomePage: React.FC = () => {
         //</div>  </button>
         //</div></div>
       }
-      
+
       {isModalOpen && selectedEstate && (
         <div className="fixed inset-0 z-[2000] flex items-end justify-center">
           <div

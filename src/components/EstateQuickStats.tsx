@@ -1,7 +1,7 @@
 // components/EstateQuickStats.tsx
 import React from "react";
 import { Bed, Square, Ruler } from "lucide-react";
-import type { PropertyResponse } from "../api/propertyApi";
+import type { PropertyResponse } from "../types";
 
 interface Props {
   estate: PropertyResponse;

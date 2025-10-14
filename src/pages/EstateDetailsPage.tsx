@@ -11,10 +11,10 @@ import {
   formatFullName,
   formatPrice,
   propertyApi,
-  type PropertyResponse,
 } from "../api/propertyApi";
 import toast from "react-hot-toast";
 import SafeImage from "../components/SafeImage";
+import type { PropertyResponse } from "../types";
 
 const getCategoryLabel = (type: string) => {
   const labels: Record<string, string> = {
@@ -202,7 +202,7 @@ const EstateDetailsPage: React.FC = () => {
           </div>
         </div>
 
-        {estate.latitude && estate.longitude && (
+        {Number(estate.latitude) > 1 && Number(estate.longitude) > 1 && (
           <YandexMapSingle
             lat={estate.latitude || 0}
             lng={estate.longitude || 0}

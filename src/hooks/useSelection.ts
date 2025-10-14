@@ -3,28 +3,20 @@ import {
   useMutation,
   useQueryClient,
   keepPreviousData,
+  useInfiniteQuery,
 } from "@tanstack/react-query";
 import { selectionApi } from "../api/selectionApi";
 import type { GetSelectionsParams, SelectionResponse, SelectionsListResponse } from "../types";
+import { useDebounce } from "./useDebounce";
 
 /* -------------------------------------------------------------------------- */
 /*                              📋 СПИСОК ПОДБОРОК                            */
 /* -------------------------------------------------------------------------- */
 export const useSelections = (params?: GetSelectionsParams) => {
+  const debouncedParams = useDebounce(params, 400);
   return useQuery<SelectionsListResponse>({
-    queryKey: ["selections", params],
-    queryFn: async () => {
-      const query = new URLSearchParams({
-        ...(params?.page ? { page: String(params.page) } : {}),
-        ...(params?.limit ? { limit: String(params.limit) } : {}),
-        ...(params?.isShared !== undefined
-          ? { isShared: String(params.isShared) }
-          : {}),
-        ...(params?.userId ? { userId: String(params.userId) } : {}),
-        ...(params?.agencyId ? { agencyId: String(params.agencyId) } : {}),
-      });
-      return await selectionApi.getAllSelections(query.toString());
-    },
+    queryKey: ["selections", debouncedParams],
+    queryFn: () => selectionApi.getAllSelections({ ...debouncedParams }),
     placeholderData: keepPreviousData,
     staleTime: Infinity,
     gcTime: Infinity,
@@ -41,6 +33,23 @@ export const useSelection = (id: number) => {
     enabled: !!id,
     staleTime: Infinity,
     gcTime: Infinity,
+  });
+};
+
+/* -------------------------------------------------------------------------- */
+/*                              🧩 ОБЪЕКТЫ ИЗ ПОДБОРКИ                        */
+/* -------------------------------------------------------------------------- */
+export const useSelectionWithInfiniteScroll = (id: number, enabled = true) => {
+  return useInfiniteQuery<SelectionResponse>({
+    queryKey: ['selection', id],
+    queryFn: ({ pageParam }) => selectionApi.getSelectionById(id, pageParam as number, 10),
+    initialPageParam: 1, // ← ОБЯЗАТЕЛЬНО в v5
+    getNextPageParam: (lastPage) => {
+      const { page, totalPages } = lastPage.properties;
+      return page < totalPages ? page + 1 : undefined;
+    },
+    enabled: enabled && !!id,
+    staleTime: 5 * 60 * 1000,
   });
 };
 

@@ -277,6 +277,7 @@ interface SearchBarProps {
     cities: City[];
     districts: District[];
     maxPrice: number;
+    minPrice: number;
     rooms: number[];
     minFloor: number | null;
     maxFloor: number | null;

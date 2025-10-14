@@ -20,18 +20,19 @@ import NotFoundPage from "./pages/NotFoundPage";
 import SelectionDetailPage from "./pages/SelectionDetailPage/SelectionDetailPage";
 import CreateSelectionPage from "./pages/CreateSelectionPage";
 import EditSelectionPage from "./pages/EditSelectionPage/EditSelectionPage";
-import SelectionsTable from "./pages/AdminSelectionsPage";
+import MySelectionsPage from "./pages/MySelectionsPage";
 import MyPropertiesPage from "./pages/MyPropertiesPage";
 import AddPropertyPage from "./pages/AddPropertyPage";
 import EditPropertyPage from "./pages/EditPropertyPage";
 import RealtorSettingsPage from "./pages/RealtorSettingsPage";
 import SelectionsList from "./pages/SelectionsList";
 import CreateSelection from "./pages/CreateSelectionPage";
-import SelectionDetail from "./pages/SelectionDetail";
 import AgencyPropertiesPage from "./pages/AgencyPropertiesPage";
 import EstateDetailsPage from "./pages/EstateDetailsPage";
 import RealtorDetailPage from "./pages/RealtorDetailPage/RealtorDetailPage";
 import RealtorsPage from "./pages/RealtorsPage";
+import AgencySelectionsPage from "./pages/AgencySelectionsPage";
+import PropertyInSelectionPage from "./pages/PropertyInSelectionPage/PropertyInSelectionPage";
 
 /* -------------------------------------------------------------------------- */
 /*                                ProtectedRoute                              */
@@ -86,6 +87,11 @@ const routes = [
   // === Public routes (with sidebar)
   { path: "/", element: <HomePage />, layout: "sidebar" },
   {
+    path: "/selections/:id/property/:propertyId",
+    element: <PropertyInSelectionPage />,
+    layout: "sidebar",
+  },
+  {
     path: "/selections/:id",
     element: <SelectionDetailPage />,
     layout: "sidebar",
@@ -96,15 +102,6 @@ const routes = [
   {
     path: "/agency-properties",
     element: <AgencyPropertiesPage />,
-    layout: "sidebar",
-  },
-  {
-    path: "/premium",
-    element: (
-      <div className="py-8">
-        <h1 className="text-2xl font-bold text-center">Премиум объекты</h1>
-      </div>
-    ),
     layout: "sidebar",
   },
 
@@ -123,7 +120,13 @@ const routes = [
   },
   {
     path: "/selections",
-    element: <SelectionsTable />,
+    element: <MySelectionsPage />,
+    layout: "sidebar",
+    protected: true,
+  },
+  {
+    path: "/agency-selections",
+    element: <AgencySelectionsPage />,
     layout: "sidebar",
     protected: true,
   },
@@ -164,12 +167,6 @@ const routes = [
   {
     path: "/selections/create",
     element: <CreateSelection />,
-    layout: "sidebar",
-    protected: true,
-  },
-  {
-    path: "/selections/:id",
-    element: <SelectionDetail />,
     layout: "sidebar",
     protected: true,
   },

@@ -60,13 +60,13 @@ export interface BaseProperty {
   buildingType?: string;
   condition?: string;
   yearBuilt?: number;
+  flatSecurityCodes?: string[];
+  ceiling?: string;
 
   balcony?: string;
   parking?: string;
   furniture?: string;
   complex?: string;
-
-  coordinates?: Coordinates;
 
   photos: string[];
   mainPhoto?: string;
@@ -251,8 +251,8 @@ export interface CreatedBy {
 export interface SelectionProperties {
   data: PropertyResponse[];
   total: number;
-  page?: number;
-  totalPages?: number;
+  page: number;
+  totalPages: number;
 }
 
 // Тип подборки
@@ -374,17 +374,17 @@ export interface SelectionItem {
 export interface SelectionTableAction {
   label: string;
   icon: React.ReactNode;
-  onClick: (selection: Selection) => void;
-  visible?: (selection: Selection) => boolean;
+  onClick: (selection: SelectionItem) => void;
+  visible?: (selection: SelectionItem) => boolean;
   color?: "blue" | "red" | "gray";
 }
 
 export interface SelectionsTableProps {
-  selections: Selection[];
+  selections: SelectionItem[];
 
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
-  onShare: (selection: Selection) => void;
+  onShare: (selection: SelectionItem) => void;
 
   visibleFilters: boolean;
   visibleActions: boolean;
@@ -411,7 +411,7 @@ export interface GetSelectionsParams {
 }
 
 export interface SelectionsListResponse {
-  data: Selection[];
+  data: SelectionItem[];
   page: number;
   limit: number;
   total: number;
@@ -463,6 +463,14 @@ export interface BaseProperty {
   buildingType?: string;
   condition?: string;
   yearBuilt?: number;
+
+  buildingTypeCode?: string | null;
+  flatRenovationCode?: string | null;
+  flatParkingCode?: string | null;
+  flatSecurityCodes?: string[];
+  liveFurnitureCode?: string | null;
+  flatToiletCode?: string | null;
+  flatBalconyCode?: string | null;
 
   balcony?: string;
   parking?: string;

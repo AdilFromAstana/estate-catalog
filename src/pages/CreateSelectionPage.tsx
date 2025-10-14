@@ -185,6 +185,7 @@ const CreateSelectionPage: React.FC = () => {
     cities,
     districts,
     // Эти значения, вероятно, должны быть динамическими, но оставлены как в исходном коде
+    minPrice: 0,
     maxPrice: 200_000_000,
     rooms: [1, 2, 3, 4, 5],
     minFloor: 1,

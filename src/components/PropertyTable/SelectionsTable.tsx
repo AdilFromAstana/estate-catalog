@@ -3,7 +3,8 @@ import clsx from "clsx";
 import { Edit, Trash2, Share2, User } from "lucide-react";
 import SafeImage from "../SafeImage";
 import { Pagination } from "../PropertyTable/Pagination";
-import type { Selection, SelectionsTableProps, SelectionTableAction } from "../../types";
+import type { SelectionItem, SelectionsTableProps, SelectionTableAction } from "../../types";
+import { useNavigate } from "react-router-dom";
 
 export const SelectionsTable: React.FC<SelectionsTableProps> = ({
   selections,
@@ -22,6 +23,10 @@ export const SelectionsTable: React.FC<SelectionsTableProps> = ({
   pagination,
   emptyText = "Нет подборок для отображения.",
 }) => {
+  const nav = useNavigate()
+  const onSelection = (id: number) => {
+    nav(`/selections/${id}`)
+  }
   const defaultActions: SelectionTableAction[] = [
     {
       label: "Редактировать",
@@ -45,7 +50,7 @@ export const SelectionsTable: React.FC<SelectionsTableProps> = ({
 
   const allActions = actions ?? defaultActions;
 
-  const renderActions = (c: Selection) => {
+  const renderActions = (c: SelectionItem) => {
     if (!visibleActions) return null;
 
     return (
@@ -73,12 +78,12 @@ export const SelectionsTable: React.FC<SelectionsTableProps> = ({
     );
   };
 
-  const renderDesktopRow = (c: Selection) => (
+  const renderDesktopRow = (c: SelectionItem) => (
     <div
       key={`${c.id}-desktop`}
       className="hidden lg:grid grid-cols-[minmax(200px,2fr)_minmax(150px,1fr)_minmax(160px,1fr)_minmax(140px,1fr)_minmax(150px,1fr)] gap-3 py-4 px-5 items-center hover:bg-blue-50 transition"
     >
-      <div className="font-semibold text-gray-900 truncate">{c.name}</div>
+      <div className="font-semibold text-gray-900 truncate" onClick={() => onSelection(c.id)}>{c.name}</div>
 
       <div className="text-gray-600 truncate">{c.description || "—"}</div>
 
@@ -108,10 +113,10 @@ export const SelectionsTable: React.FC<SelectionsTableProps> = ({
       <div className="flex items-center justify-between text-sm text-gray-500 whitespace-nowrap">
         {visibleActions && renderActions(c)}
       </div>
-    </div>
+    </div >
   );
 
-  const renderMobileCard = (c: Selection) => (
+  const renderMobileCard = (c: SelectionItem) => (
     <div
       key={`${c.id}-mobile`}
       className="lg:hidden p-4 border-b border-gray-100 bg-white hover:bg-blue-50 transition"
@@ -119,7 +124,7 @@ export const SelectionsTable: React.FC<SelectionsTableProps> = ({
       <div className="flex justify-between">
         <div>
           <p
-            onClick={() => onEdit(c.id)}
+            onClick={() => onSelection(c.id)}
             className="font-semibold text-gray-900 hover:text-blue-600 cursor-pointer truncate"
           >
             {c.name}

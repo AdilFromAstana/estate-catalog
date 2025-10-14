@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import HeaderSection from './components/HeaderSection';
 import EditDetailsForm from './components/EditDetailsForm';
 import MobileFilterToggle from './components/MobileFilterToggle';
@@ -73,7 +73,7 @@ const EditSelectionPage: React.FC = () => {
       setCurrentPage(1); // Сброс страницы при инициализации
 
       if (newMode === 'filters' && selection.filters) {
-        setFilters(selection.filters);
+        setFilters({ ...selection.filters, sortBy: "createdAt" });
       } else {
         setFilters({});
       }
@@ -214,6 +214,7 @@ const EditSelectionPage: React.FC = () => {
   const filterOptions = {
     cities,
     districts,
+    minPrice: 0,
     maxPrice: 200_000_000,
     rooms: [1, 2, 3, 4, 5],
     minFloor: 1,

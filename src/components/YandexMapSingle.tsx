@@ -9,6 +9,7 @@ interface YandexMapSingleProps {
 const YandexMapSingle: React.FC<YandexMapSingleProps> = ({ lat, lng, address }) => {
   const [ymaps, setYmaps] = useState<any>(null);
   const [map, setMap] = useState<any>(null);
+  console.log(map)
 
   // Загрузка API Яндекс.Карт
   useEffect(() => {
