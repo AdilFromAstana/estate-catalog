@@ -17,7 +17,6 @@ export interface SelectedPropertyResponse extends PropertyResponse {
   selected: boolean;
 }
 
-
 /* -------------------------------------------------------------------------- */
 /*                              Общие типы                                    */
 /* -------------------------------------------------------------------------- */
@@ -241,10 +240,10 @@ export interface Selection {
 export interface CreatedBy {
   id: number;
   firstName: string;
-  lastName: string
-  phone: string
-  avatar: string
-  email: string
+  lastName: string;
+  phone: string;
+  avatar: string;
+  email: string;
 }
 
 // Список свойств (объектов) в подборке
@@ -418,7 +417,6 @@ export interface SelectionsListResponse {
   totalPages: number;
 }
 
-
 export type PropertyType =
   | "apartment"
   | "house"
@@ -510,7 +508,7 @@ export interface GetPropertiesParams {
   complexId?: number;
 
   latitude?: number;
-  longitude?: number
+  longitude?: number;
 
   minPrice?: number;
   maxPrice?: number;
@@ -613,10 +611,9 @@ export interface District {
   cityId: number;
 }
 
-
-export interface MapInstance extends ymaps.Map { }
-export interface PolygonInstance extends ymaps.Polygon { }
-export interface PolylineInstance extends ymaps.Polyline { }
+export interface MapInstance extends ymaps.Map {}
+export interface PolygonInstance extends ymaps.Polygon {}
+export interface PolylineInstance extends ymaps.Polyline {}
 
 export interface DrawMapProps {
   estates: PropertyResponse[];
@@ -662,7 +659,6 @@ export interface UseMapClustersProps {
   polygon: PolygonInstance | null;
   setFiltered: (list: PropertyResponse[]) => void;
 }
-
 
 export interface AuthContextType {
   user: User | null;
@@ -728,7 +724,7 @@ export type AllFeaturesResultRaw = Record<string, FeatureResult>;
 export type AllFeaturesResultNormalized = Record<string, FeatureList>;
 
 export interface Realtor {
-  id: number | null;
+  id: number;
   email: string;
   firstName?: string;
   lastName?: string;
@@ -747,6 +743,7 @@ export interface Realtor {
   rating?: number;
   createdAt?: string;
   updatedAt?: string;
+  roles: UserRole[];
 }
 
 export type UpdateRealtorDto = Partial<Omit<Realtor, "id">>;
@@ -791,7 +788,7 @@ export interface SelectionDetails {
   isPublic: boolean;
 }
 
-export type SelectionMode = 'filters' | 'manual';
+export type SelectionMode = "filters" | "manual";
 
 export enum PropertyStatus {
   DRAFT = "draft",

@@ -1,15 +1,12 @@
 import { useCallback, useState } from "react";
 import {
-  BarChart,
   ChevronLeft,
   Clock,
-  Home,
   LayoutGrid,
   ListChecks,
   Mail,
   Phone,
   Star,
-  Tag,
 } from "lucide-react";
 import {
   getStatusClass,
@@ -21,62 +18,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import SafeImage from "../../components/SafeImage";
 import { ActivateToggleButton } from "./components/ActivateToggleButton";
 import toast from "react-hot-toast";
-
-// Заглушка контента для вкладки "Объекты"
-const ListingsTab: React.FC<{ count: number }> = ({ count }) => (
-  <div className="p-6 bg-white rounded-xl shadow-lg border border-gray-100">
-    <h4 className="text-xl font-semibold text-gray-800 flex items-center mb-4">
-      <Home className="w-5 h-5 mr-2 text-blue-500" /> Активные объекты ({count})
-    </h4>
-    <p className="text-gray-600">
-      Здесь будет список всех активных продаж, аренд и недвижимости,
-      закрепленной за этим риэлтором.
-    </p>
-    <div className="mt-4 p-4 border border-blue-200 bg-blue-50 rounded-lg">
-      <p className="text-sm font-medium text-blue-700">
-        Пример: 3-комнатная квартира в ЖК "Астана Тауэрс" (Продажа), 1-комнатная
-        в аренду (ул. Достык, 12).
-      </p>
-    </div>
-  </div>
-);
-
-// Заглушка контента для вкладки "Коллекции"
-const SelectionsTab: React.FC = () => (
-  <div className="p-6 bg-white rounded-xl shadow-lg border border-gray-100">
-    <h4 className="text-xl font-semibold text-gray-800 flex items-center mb-4">
-      <Tag className="w-5 h-5 mr-2 text-green-500" /> Коллекции/Категории
-    </h4>
-    <p className="text-gray-600">
-      Раздел для отображения специализированных "коллекций" или целевых списков,
-      которые ведет риэлтор.
-    </p>
-    <div className="mt-4 p-4 border border-green-200 bg-green-50 rounded-lg">
-      <p className="text-sm font-medium text-green-700">
-        Например: "Элитная недвижимость", "Продажа в старом городе", "Объекты с
-        дисконтом".
-      </p>
-    </div>
-  </div>
-);
-
-// Заглушка контента для вкладки "Статистика"
-const StatsTab: React.FC<{ deals: number }> = ({ deals }) => (
-  <div className="p-6 bg-white rounded-xl shadow-lg border border-gray-100">
-    <h4 className="text-xl font-semibold text-gray-800 flex items-center mb-4">
-      <BarChart className="w-5 h-5 mr-2 text-purple-500" /> Статистика и метрики
-    </h4>
-    <p className="text-gray-600">
-      Подробная статистика по эффективности, конверсии лидов и истории
-      завершенных сделок.
-    </p>
-    <div className="mt-4 p-4 border border-purple-200 bg-purple-50 rounded-lg">
-      <p className="text-sm font-medium text-purple-700">
-        Завершено сделок за год: {deals + 15}. Средний цикл сделки: 45 дней.
-      </p>
-    </div>
-  </div>
-);
+import RealtorSelections from "../../components/RealtorSelections";
+import RealtorProperties from "../../components/RealtorProperties";
 
 const RealtorDetailPage: React.FC = () => {
   const nav = useNavigate();
@@ -111,19 +54,13 @@ const RealtorDetailPage: React.FC = () => {
       id: "listings",
       label: "Объекты",
       icon: ListChecks,
-      content: <ListingsTab count={0} />,
+      content: <RealtorProperties user={realtor} />,
     },
     {
       id: "selections",
       label: "Подборки",
       icon: LayoutGrid,
-      content: <SelectionsTab />,
-    },
-    {
-      id: "stats",
-      label: "Статистика",
-      icon: BarChart,
-      content: <StatsTab deals={0} />,
+      content: <RealtorSelections user={realtor} />,
     },
   ];
 
