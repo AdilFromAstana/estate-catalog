@@ -86,8 +86,6 @@ const RealtorDetailPage: React.FC = () => {
 
   const { mutate: toggleVisibilityMutation } = useToggleVisibility();
 
-  if (!realtor) return null;
-
   const toggleVisibility = useCallback(
     (isActive: boolean) => {
       toggleVisibilityMutation(
@@ -105,6 +103,8 @@ const RealtorDetailPage: React.FC = () => {
     },
     [toggleVisibilityMutation]
   );
+
+  if (!realtor) return null;
 
   const tabs = [
     {
