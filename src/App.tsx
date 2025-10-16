@@ -33,6 +33,7 @@ import RealtorDetailPage from "./pages/RealtorDetailPage/RealtorDetailPage";
 import RealtorsPage from "./pages/RealtorsPage";
 import AgencySelectionsPage from "./pages/AgencySelectionsPage";
 import PropertyInSelectionPage from "./pages/PropertyInSelectionPage/PropertyInSelectionPage";
+import AboutPage from "./pages/AboutPage/AboutPage";
 
 /* -------------------------------------------------------------------------- */
 /*                                ProtectedRoute                              */
@@ -86,6 +87,7 @@ const routes = [
 
   // === Public routes (with sidebar)
   { path: "/", element: <HomePage />, layout: "sidebar" },
+  { path: "/about", element: <AboutPage />, layout: "sidebar" },
   {
     path: "/selections/:id/property/:propertyId",
     element: <PropertyInSelectionPage />,
