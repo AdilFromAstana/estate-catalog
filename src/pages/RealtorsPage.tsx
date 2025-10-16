@@ -6,13 +6,11 @@ import {
   Filter,
   SortAsc,
   SortDesc,
-  Building,
-  Star,
   Mail,
   MoreVertical,
   Briefcase,
   ListChecks,
-  Plus,
+  Users,
 } from "lucide-react";
 import {
   getStatusClass,
@@ -20,9 +18,14 @@ import {
   useRealtors,
 } from "../hooks/useRealtor";
 import { useAuth } from "../AppContext";
-import { PROPERTY_STATUS_OPTIONS } from "../contants/property-status";
 import SafeImage from "../components/SafeImage";
 import type { Realtor } from "../types";
+
+const ACTIVITY_STATUS_OPTIONS = [
+  { value: "all", label: "Все статусы" },
+  { value: "active", label: "Активные" },   // Соответствует isActive: true
+  { value: "inactive", label: "Неактивные" }, // Соответствует isActive: false
+];
 
 const customStyles = {
   // Desktop table layout (min-width: 1024px)
@@ -42,19 +45,27 @@ const RealtorsPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<{
+    sortDirection: "ASC" | "DESC",
+    search: string,
+    status: string, // 💡 ИСПОЛЬЗУЕМ 'status'
+    sortBy: string
+  }>({
     search: "",
-    status: "all",
+    status: "all", // 💡 ИСПОЛЬЗУЕМ 'status' в начальном состоянии
     sortBy: "createdAt",
     sortDirection: "ASC",
   });
 
-  const { data, isLoading } = useRealtors(
-    user?.agencyId!,
-    currentPage,
-    itemsPerPage,
-    filters
-  );
+  const { data, isLoading } = useRealtors({
+    agencyId: user?.agencyId!,
+    page: currentPage,
+    limit: itemsPerPage,
+    search: filters.search,
+    status: filters.status, // 💡 ПЕРЕДАЕМ 'status'
+    sortBy: filters.sortBy,
+    sortDirection: filters.sortDirection,
+  });
 
   const realtors = data?.data ?? [];
   const total = data?.total ?? 0;
@@ -66,23 +77,14 @@ const RealtorsPage: React.FC = () => {
 
   return (
     <div className="w-full mx-auto">
-      <div className="flex justify-between items-center mb-6 border-b pb-3">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4 sm:mb-0">
-            Риэлторы агентства
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Управление и отслеживание производительности сотрудников ({total}{" "}
-            чел.)
-          </p>
-        </div>
-        <button className="bg-blue-600 text-white font-medium py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition flex items-center">
-          <Plus className="h-5 w-5 mr-2" /> Добавить
-        </button>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4 sm:mb-0">
+          Риэлторы агентства
+        </h1>
       </div>
 
       {/* Фильтры и поиск (Улучшенная эстетика) */}
-      <div className="bg-white rounded-xl shadow-lg p-5 mb-6 border border-gray-200">
+      <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border border-gray-200">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Поиск */}
           <div className="md:col-span-2">
@@ -110,12 +112,12 @@ const RealtorsPage: React.FC = () => {
               </div>
               <select
                 className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg leading-5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none transition"
-                value={filters.status}
+                value={filters.status} // 💡 ИСПОЛЬЗУЕМ 'status'
                 onChange={(e) =>
-                  setFilters((prev) => ({ ...prev, status: e.target.value }))
+                  setFilters((prev) => ({ ...prev, status: e.target.value })) // 💡 ОБНОВЛЯЕМ 'status'
                 }
               >
-                {PROPERTY_STATUS_OPTIONS.map((option) => (
+                {ACTIVITY_STATUS_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -234,11 +236,9 @@ const RealtorsPage: React.FC = () => {
                       <span
                         className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getStatusClass(
                           realtor.isActive,
-                          realtor.isVerified
                         )}`}
                       >
-                        {getStatusText(realtor.isActive, realtor.isVerified)}
-                        <Star className="h-3 w-3 ml-1 text-yellow-500 fill-current" />
+                        {getStatusText(realtor.isActive)}
                         {/* {realtor.rating && realtor.rating > 4.5 && (
                         )} */}
                       </span>
@@ -284,7 +284,7 @@ const RealtorsPage: React.FC = () => {
               ))
             ) : (
               <div className="px-4 py-8 text-center">
-                <Building className="mx-auto h-12 w-12 text-gray-400" />
+                <Users className="mx-auto h-12 w-12 text-gray-400" />
                 <h3 className="mt-2 text-base font-medium text-gray-900">
                   Риэлторы не найдены
                 </h3>

@@ -21,7 +21,7 @@ const SafeImage: React.FC<SafeImageProps> = ({
 
   return (
     <div
-      className="overflow-hidden rounded-full border-2 border-gray-200 flex items-center justify-center"
+      className="rounded-full border-2 border-gray-200 flex items-center justify-center object-cover"
       style={{ width: size, height: size }}
     >
       <img
@@ -32,7 +32,7 @@ const SafeImage: React.FC<SafeImageProps> = ({
           if (src === fallbackEmpty) return;
           setSrc(fallbackError);
         }}
-        className="object-cover w-full h-full"
+        className="object-cover w-full h-full rounded-full"
       />
     </div>
   );

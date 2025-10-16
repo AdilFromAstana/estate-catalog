@@ -13,26 +13,54 @@ const realtorKeys = {
   detail: (id: string | number) => [...realtorKeys.all, id] as const,
 };
 
-export const useRealtors = (
-  agencyId: string | number,
-  page: number,
-  limit: number,
-  filters: {
-    search?: string;
-    status?: string;
-    sortBy?: string;
-    sortDirection?: string;
-  }
-) =>
-  useQuery({
-    queryKey: ["realtors", agencyId, page, limit, filters],
-    queryFn: () => realtorApi.getByAgency(agencyId, page, limit, filters),
+interface RealtorsParams {
+  agencyId: string | number;
+  page: number;
+  limit: number;
+  search?: string;
+  // Используем 'status' для соответствия API, но фронтенд может передавать 'all'
+  status?: string;
+  sortBy?: string;
+  sortDirection?: 'ASC' | 'DESC';
+}
+
+export const useRealtors = (params: RealtorsParams) => {
+
+  const {
+    agencyId,
+    page,
+    limit,
+    status,
+    search,
+    sortBy,
+    sortDirection
+  } = params;
+
+  // 1. Преобразование статуса: 'all' -> undefined
+  const apiStatus = status === 'all' ? undefined : status;
+
+  // 2. Сборка объекта фильтров для API (без agencyId, page, limit)
+  const apiFilters = {
+    search,
+    status: apiStatus, // Используем преобразованный статус
+    sortBy,
+    sortDirection,
+  };
+
+  // 3. Используем деструктурированные значения и apiFilters для ключа и запроса
+  return useQuery({
+    // 💡 queryKey теперь чистый и содержит все зависмости
+    queryKey: ["realtors", agencyId, page, limit, apiFilters],
+
+    queryFn: () =>
+      realtorApi.getByAgency(agencyId, page, limit, apiFilters),
+
     enabled: !!agencyId,
     placeholderData: keepPreviousData,
     staleTime: Infinity,
     gcTime: Infinity,
   });
-
+};
 export const useRealtor = (id: string | number) =>
   useQuery<Realtor>({
     queryKey: realtorKeys.detail(id),
@@ -82,16 +110,12 @@ export const useUploadRealtorAvatar = (id: string | number) => {
   });
 };
 
-export const getStatusClass = (isActive: boolean, isVerified: boolean) => {
-  if (!isActive) return "bg-red-100 text-red-800";
-  if (!isVerified) return "bg-yellow-100 text-yellow-800";
-  return "bg-green-100 text-green-800";
+export const getStatusClass = (isActive: boolean) => {
+  return (!isActive) ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800";
 };
 
-export const getStatusText = (isActive: boolean, isVerified: boolean) => {
-  if (!isActive) return "Неактивный";
-  if (!isVerified) return "На проверке";
-  return "Активный";
+export const getStatusText = (isActive: boolean) => {
+  return !isActive ? "Неактивный" : "Активный";
 };
 
 const API_URL = import.meta.env.VITE_API_URL;

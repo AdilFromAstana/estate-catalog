@@ -387,34 +387,6 @@ const FilterContent = ({ filterOptions, onFilterChange, onResetFilters, filters,
         </div>
     );
 
-    const renderAdditionalFilters = () => (
-        <div className="space-y-4 pt-4 border-t border-gray-200">
-            <h4 className="text-md font-semibold text-gray-800 flex items-center mb-4">
-                <Zap className="w-4 h-4 mr-2 text-indigo-600" /> Дополнительные характеристики
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {featureMap.map(({ key, title, Icon, dataKey }) => {
-                    // @ts-ignore
-                    const options = allFeaturesData[dataKey];
-                    // @ts-ignore
-                    return (
-                        <FeatureFilterItem
-                            key={key}
-                            featureKey={key}
-                            title={title}
-                            options={options}
-                            filters={filters}
-                            onFilterChange={onFilterChange}
-                            Icon={Icon}
-                            showTitle={true}
-                            selectionType="multiple" // Эти фильтры остаются множественными
-                        />
-                    );
-                })}
-            </div>
-        </div>
-    );
-
     // --- ОСНОВНАЯ ЛОГИКА РЕНДЕРИНГА (MOBILE MODE) ---
 
     if (displayMode === 'mobile') {
@@ -585,36 +557,16 @@ const App = () => {
         maxFloor: 20,
     };
 
-    // Определяем основной класс контейнера для режима отображения
-    const containerClass = displayMode === 'mobile'
-        ? "relative p-4 min-h-screen max-w-sm mx-auto bg-gray-50"
-        : "relative p-8 min-h-screen bg-gray-100 flex justify-center items-start";
-
-    const ModeIcon = displayMode === 'desktop' ? DesktopIcon : Tablet;
-
     return (
-        <div className={containerClass}>
-            {/* Панель управления режимом: теперь абсолютное позиционирование, чтобы не влиять на макет */}
-            <div className="absolute top-4 left-4 z-10 md:top-8 md:left-8">
-                <button
-                    onClick={() => setDisplayMode(prev => prev === 'desktop' ? 'mobile' : 'desktop')}
-                    className="flex items-center px-4 py-2 bg-indigo-500 text-white rounded-full text-sm font-semibold shadow-md hover:bg-indigo-600 transition"
-                >
-                    <ModeIcon className="w-4 h-4 mr-2" />
-                    Переключить на {displayMode === 'desktop' ? 'Мобильный' : 'Десктоп'}
-                </button>
-            </div>
-
-            <div className={`w-full ${displayMode === 'desktop' ? 'max-w-6xl' : ''}`}>
-                <FilterContent
-                    filters={filters}
-                    onFilterChange={handleFilterChange}
-                    onResetFilters={handleResetFilters}
-                    filterOptions={filterOptions}
-                    displayMode={displayMode}
-                    allFeaturesData={MOCK_ALL_FEATURES_DATA}
-                />
-            </div>
+        <div className={`w-full ${displayMode === 'desktop' ? 'max-w-6xl' : ''} h-full`}>
+            <FilterContent
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                onResetFilters={handleResetFilters}
+                filterOptions={filterOptions}
+                displayMode={displayMode}
+                allFeaturesData={MOCK_ALL_FEATURES_DATA}
+            />
         </div>
     );
 };

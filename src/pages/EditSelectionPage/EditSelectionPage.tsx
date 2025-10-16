@@ -10,7 +10,7 @@ import { useProperties } from '../../hooks/useProperties';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { selectionApi } from '../../api/selectionApi';
 import { toast } from 'react-hot-toast';
-import { FilterContent } from '../../components/SearchBar';
+import FilterContent from '../../components/FilterContent';
 import { useSelection } from '../../hooks/useSelection';
 import type { GetPropertiesParams } from '../../types';
 

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { FilterContent } from '../components/SearchBar';
+import FilterContent from '../components/FilterContent';
 
 // Хуки и API
 import { useCities, useDistricts } from '../hooks/useCities';

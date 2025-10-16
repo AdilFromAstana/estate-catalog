@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   MapPin,
   Ruler,
@@ -6,7 +6,9 @@ import {
   DollarSign,
   Bed,
   XCircle,
-  Filter
+  ChevronDown,
+  Check,
+  Zap,
 } from "lucide-react";
 import type { City, District, GetPropertiesParams } from "../types";
 
@@ -73,7 +75,154 @@ const PriceFilter = ({ filters, onFilterChange, filterOptions }: any) => {
   );
 };
 
-export const FilterContent: React.FC<{
+const FeatureFilterItem = ({ featureKey, title, options, filters, onFilterChange, Icon, showTitle = true, selectionType = 'multiple', nullOptionText = 'Все' }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Текущие выбранные значения. Массив для multiple, число/null для single
+  const currentSelections = useMemo(() => {
+    const val = filters[featureKey];
+    if (selectionType === 'multiple') {
+      return Array.isArray(val) ? val : [];
+    }
+    return typeof val === 'number' ? val : null;
+  }, [filters, featureKey, selectionType]);
+
+  // Обработка выбора опции
+  const handleToggleOption = useCallback((id) => {
+    let newValue;
+
+    if (selectionType === 'multiple') {
+      // МНОЖЕСТВЕННЫЙ ВЫБОР
+      const idNumber = Number(id);
+      const isSelected = currentSelections.includes(idNumber);
+      let newSelections;
+
+      if (isSelected) {
+        newSelections = currentSelections.filter(itemId => itemId !== idNumber);
+      } else {
+        newSelections = [...currentSelections, idNumber];
+      }
+      // Если массив пуст, передаем null
+      newValue = newSelections.length > 0 ? newSelections : null;
+
+    } else {
+      // ОДИНОЧНЫЙ ВЫБОР
+      const idNumber = Number(id);
+
+      // Если ID совпадает с текущим (клик по выбранному элементу или клик по опции сброса), сбрасываем
+      if (idNumber === currentSelections || id === 'null') {
+        newValue = null;
+      } else {
+        newValue = idNumber;
+      }
+
+      // Закрываем дропдаун после одиночного выбора
+      setIsOpen(false);
+    }
+
+    onFilterChange(featureKey, newValue);
+  }, [currentSelections, onFilterChange, featureKey, selectionType]);
+
+
+  // Формирование текста для кнопки
+  const buttonText = useMemo(() => {
+    if (selectionType === 'multiple') {
+      return currentSelections.length > 0
+        ? `${title} (${currentSelections.length})`
+        : title;
+    }
+    // ОДИНОЧНЫЙ ВЫБОР
+    const selectedOption = options.find(opt => opt.id === currentSelections);
+    return selectedOption ? selectedOption.name : title;
+  }, [title, currentSelections, options, selectionType]);
+
+
+  if (!options || options.length === 0) return null;
+
+  return (
+    <div className="relative">
+      {/* Заголовок (опционально) */}
+      {showTitle && (
+        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+          <Icon className="w-4 h-4 mr-2 text-indigo-500" />
+          {title}
+        </label>
+      )}
+
+      {/* Кнопка-заголовок */}
+      <button
+        type="button"
+        className={`w-full flex justify-between items-center px-3 py-2 text-sm font-medium border rounded-xl transition-all appearance-none bg-white ${isOpen ? 'border-indigo-500 ring-2 ring-indigo-500/50' : 'border-gray-300 hover:border-gray-400'
+          }`}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className="flex items-center text-gray-700">
+          {/* Иконка видна только если заголовок скрыт, чтобы не дублировать */}
+          {!showTitle && <Icon className="w-4 h-4 mr-2 text-indigo-500" />}
+          {buttonText}
+        </span>
+        <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-300 ${isOpen ? 'rotate-180' : 'rotate-0'}`} />
+      </button>
+
+      {/* Выпадающий список опций */}
+      {isOpen && (
+        <div
+          className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-xl shadow-lg max-h-60 overflow-y-auto animate-fadeIn"
+          style={{ animationDuration: '0.2s' }}
+          onBlur={() => setIsOpen(false)} // Закрываем при уходе фокуса
+          tabIndex={-1} // Делаем div фокусируемым
+        >
+          <div className="flex flex-col p-1">
+            {/* Опция сброса (только для одиночного выбора) */}
+            {selectionType === 'single' && (
+              <button
+                key="null-option"
+                type="button"
+                onClick={() => handleToggleOption('null')}
+                className={`w-full flex items-center justify-between p-2 text-sm rounded-lg transition-colors text-left ${currentSelections === null
+                  ? 'bg-indigo-100 text-indigo-700 font-semibold'
+                  : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+              >
+                <span className="truncate text-left flex-1">{nullOptionText}</span>
+                {currentSelections === null && <Check className="w-4 h-4 ml-2" />}
+              </button>
+            )}
+
+            {options.map(option => {
+              const id = Number(option.id); // ID должны быть числами
+              const isSelected = selectionType === 'multiple'
+                ? currentSelections!.includes(id)
+                : currentSelections === id;
+
+              // Для одиночного выбора показываем полное название в списке
+              const optionName = selectionType === 'single' ? option.name : option.name.replace(option.name.split(' ')[0], '').trim();
+
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => handleToggleOption(id)}
+                  className={`w-full flex items-center justify-between p-2 text-sm rounded-lg transition-colors text-left ${isSelected
+                    ? 'bg-indigo-600 text-white font-semibold'
+                    : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                >
+                  <span className="truncate text-left flex-1">
+                    {optionName}
+                  </span>
+                  {isSelected && <Check className="w-4 h-4 ml-2" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const FilterContent: React.FC<{
   filters: GetPropertiesParams;
   onFilterChange: (key: keyof GetPropertiesParams, value: any) => void;
   onResetFilters: () => void;
@@ -87,6 +236,33 @@ export const FilterContent: React.FC<{
     maxFloor: number | null;
   };
 }> = ({ filterOptions, onFilterChange, onResetFilters, filters }) => {
+  const renderAdditionalFilters = () => (
+    <div className="space-y-4 pt-4 border-t border-gray-200">
+      <h4 className="text-md font-semibold text-gray-800 flex items-center mb-4">
+        <Zap className="w-4 h-4 mr-2 text-indigo-600" /> Дополнительные характеристики
+      </h4>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        {featureMap.map(({ key, title, Icon, dataKey }) => {
+          // @ts-ignore
+          const options = allFeaturesData[dataKey];
+          // @ts-ignore
+          return (
+            <FeatureFilterItem
+              key={key}
+              featureKey={key}
+              title={title}
+              options={options}
+              filters={filters}
+              onFilterChange={onFilterChange}
+              Icon={Icon}
+              showTitle={true}
+              selectionType="multiple" // Эти фильтры остаются множественными
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
   return (
     <div className="space-y-6 flex-1 overflow-y-auto hide-scrollbar">
       {/* Заголовок */}
@@ -264,149 +440,9 @@ export const FilterContent: React.FC<{
           ))}
         </div>
       </div>
+
+      {renderAdditionalFilters()}
     </div>
   );
 };
-
-interface SearchBarProps {
-  onSearch: (query: string) => void;
-  filters: GetPropertiesParams;
-  onFilterChange: (key: keyof GetPropertiesParams, value: any) => void;
-  onResetFilters: () => void;
-  filterOptions: {
-    cities: City[];
-    districts: District[];
-    maxPrice: number;
-    minPrice: number;
-    rooms: number[];
-    minFloor: number | null;
-    maxFloor: number | null;
-  };
-  filteredEstatesLength: number;
-}
-
-const SearchBar: React.FC<SearchBarProps> = ({
-  onSearch,
-  filters,
-  onFilterChange,
-  onResetFilters,
-  filterOptions,
-  filteredEstatesLength,
-}) => {
-  const [value, setValue] = useState("");
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [activeSheet] = useState<keyof GetPropertiesParams | null>(null);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value);
-    onSearch(e.target.value);
-  };
-
-  useEffect(() => {
-    if (isFilterOpen || activeSheet) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isFilterOpen, activeSheet]);
-
-  return (
-    <>
-      {/* Поиск + кнопка фильтров */}
-      <div className="w-full max-w-2xl mx-auto mb-4 flex gap-3">
-        <input
-          type="text"
-          value={value}
-          onChange={handleChange}
-          placeholder="Поиск по району, улице или микрорайону..."
-          className="flex-1 border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-        />
-        <button
-          onClick={() => setIsFilterOpen(true)}
-          className="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-xl bg-white hover:bg-gray-50 transition-colors"
-        >
-          <Filter className="w-5 h-5" />
-          <span className="hidden sm:block">Фильтры</span>
-        </button>
-      </div>
-
-      {/* Оверлей фильтров */}
-      {isFilterOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-black opacity-75 z-40"
-            onClick={() => setIsFilterOpen(false)}
-          />
-          <div className="fixed inset-0 z-50 flex justify-center items-center">
-            <div className="w-full h-full bg-white p-6 flex flex-col overflow-y-auto md:hidden">
-              <div className="flex justify-between items-center mb-6">
-                <button
-                  onClick={() => setIsFilterOpen(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ✕
-                </button>
-                <h2 className="text-xl font-semibold">Фильтры</h2>
-                <button
-                  onClick={onResetFilters}
-                  className="text-blue-600 hover:text-blue-800 font-medium"
-                >
-                  Сбросить всё
-                </button>
-              </div>
-              <FilterContent
-                onResetFilters={onResetFilters}
-                filters={filters}
-                onFilterChange={onFilterChange}
-                filterOptions={filterOptions}
-              />
-
-              <button
-                onClick={() => setIsFilterOpen(false)}
-                className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors my-4"
-              >
-                Показать результаты ({filteredEstatesLength})
-              </button>
-            </div>
-
-            {/* Десктоп: по центру */}
-            <div className="hidden md:flex w-full max-w-lg h-[80vh] bg-white p-6 flex-col rounded-xl shadow-lg overflow-y-auto">
-              <div className="flex justify-between items-center mb-6">
-                <button
-                  onClick={() => setIsFilterOpen(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ✕
-                </button>
-                <h2 className="text-xl font-semibold">Фильтры</h2>
-                <button
-                  onClick={onResetFilters}
-                  className="text-blue-600 hover:text-blue-800 font-medium"
-                >
-                  Сбросить всё
-                </button>
-              </div>
-              <FilterContent
-                onResetFilters={onResetFilters}
-                filters={filters}
-                onFilterChange={onFilterChange}
-                filterOptions={filterOptions}
-              />
-              <button
-                onClick={() => setIsFilterOpen(false)}
-                className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors my-4"
-              >
-                Показать результаты ({filteredEstatesLength})
-              </button>
-            </div>
-          </div>
-        </>
-      )}
-    </>
-  );
-};
-
-export default SearchBar;
+export default FilterContent

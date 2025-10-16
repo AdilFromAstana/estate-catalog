@@ -6,8 +6,9 @@ import {
 import { useProperties } from "../../hooks/useProperties";
 import DrawMap from "./components/DrawMap/DrawMap";
 import { PropertyStatus, type GetPropertiesParams, type PropertyResponse } from "../../types";
-import SearchBar from "../../components/SearchBar";
 import { useCities, useDistricts } from "../../hooks/useCities";
+import SearchBar from "../../components/SearchBar/SearchBar";
+import { useAllFeatures } from "../../hooks/usePropertyFeatures";
 
 const getCategoryLabel = (category: string) => {
   const labels: { [key: string]: string } = {
@@ -23,7 +24,6 @@ const getCategoryLabel = (category: string) => {
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
-  // Состояние фильтров
   const [filters, setFilters] = useState<GetPropertiesParams>({
     cityId: undefined,
     districtId: undefined,
@@ -45,7 +45,6 @@ const HomePage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalClosing, setIsModalClosing] = useState(false);
 
-  // ✅ формируем query-параметры для API
   const params = useMemo(
     () => ({
       page: 1,
@@ -65,6 +64,8 @@ const HomePage: React.FC = () => {
   );
 
   const { data, isLoading, error } = useProperties(params);
+  const { data: featuresData } = useAllFeatures()
+  console.log("featuresData: ", featuresData)
   const { data: cities } = useCities();
   const { data: districts } = useDistricts(filters.cityId!);
 
@@ -125,7 +126,6 @@ const HomePage: React.FC = () => {
     ? Math.max(...estates.map((e) => e.price))
     : 100000000;
 
-  // Временный фейковый массив домов
   const generateEstates = (count = 500) => {
     const estates: any[] = [];
     const center = { lat: 51.1694, lng: 71.4491 };
