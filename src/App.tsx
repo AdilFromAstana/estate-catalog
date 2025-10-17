@@ -34,6 +34,7 @@ import RealtorsPage from "./pages/RealtorsPage";
 import AgencySelectionsPage from "./pages/AgencySelectionsPage";
 import PropertyInSelectionPage from "./pages/PropertyInSelectionPage/PropertyInSelectionPage";
 import AboutPage from "./pages/AboutPage/AboutPage";
+import AboutVariant2 from "./pages/AboutVariant2";
 
 /* -------------------------------------------------------------------------- */
 /*                                ProtectedRoute                              */
@@ -84,6 +85,7 @@ const routes = [
   // === Public routes (no sidebar)
   { path: "/login", element: <LoginPage />, layout: "none" },
   { path: "/register", element: <RegisterPage />, layout: "none" },
+  { path: "/about2", element: <AboutVariant2 />, layout: "none" },
 
   // === Public routes (with sidebar)
   { path: "/", element: <HomePage />, layout: "sidebar" },
@@ -184,7 +186,15 @@ const AppContent: React.FC = () => (
   <>
     <Header />
     <Routes>
-      {routes.map(({ path, element, protected: isProtected, roles }) => {
+      {routes.map(({ path, element, protected: isProtected, roles, layout }) => {
+        if (layout === "none") {
+          return <Route
+            key={path}
+            path={path}
+            element={<main>{element}</main>}
+          >
+          </Route>
+        }
         const content = <BaseLayout>{element}</BaseLayout>;
         return (
           <Route
@@ -201,7 +211,7 @@ const AppContent: React.FC = () => (
         );
       })}
     </Routes>
-    <Footer />
+    {/* <Footer /> */}
   </>
 );
 
