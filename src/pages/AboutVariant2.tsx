@@ -171,17 +171,16 @@ const App: React.FC = () => {
     };
 
     // СТАЛО — извлекаем из title
-    const extractPriceFromTitle = (title: string): string | null => {
-        // Ищем "за" + пробел + цифры
-        const match = title?.match(/за\s+(\d+)/);
-        if (match) {
-            return match[1]; // Возвращает "41500000"
-        }
-        return null;
-    };
+    // const extractPriceFromTitle = (title: string): string | null => {
+    //     // Ищем "за" + пробел + цифры
+    //     const match = title?.match(/за\s+(\d+)/);
+    //     if (match) {
+    //         return match[1]; // Возвращает "41500000"
+    //     }
+    //     return null;
+    // };
 
-    // В компоненте, когда получаете данные:
-    const priceFromTitle = extractPriceFromTitle(previewData?.title);
+    // const priceFromTitle = extractPriceFromTitle(previewData?.title);
 
     // Состояние для текущего индекса фото
     const [currentImageIndex, setCurrentImageIndex] = useState(0);

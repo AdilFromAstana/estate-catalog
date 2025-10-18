@@ -10,7 +10,6 @@ import { Toaster } from "react-hot-toast";
 
 import { useAuth, AuthProvider } from "./AppContext";
 import Header from "./components/Header";
-import Footer from "./components/Footer";
 
 // Pages
 import HomePage from "./pages/HomePage/HomePage";
@@ -89,7 +88,7 @@ const routes = [
 
   // === Public routes (with sidebar)
   { path: "/", element: <HomePage />, layout: "sidebar" },
-  { path: "/about", element: <AboutPage />, layout: "sidebar" },
+  { path: "/about", element: <AboutPage />, layout: "none" },
   {
     path: "/selections/:id/property/:propertyId",
     element: <PropertyInSelectionPage />,
@@ -184,7 +183,7 @@ const routes = [
 /* -------------------------------------------------------------------------- */
 const AppContent: React.FC = () => (
   <>
-    <Header />
+    {/* <Header /> */}
     <Routes>
       {routes.map(({ path, element, protected: isProtected, roles, layout }) => {
         if (layout === "none") {
